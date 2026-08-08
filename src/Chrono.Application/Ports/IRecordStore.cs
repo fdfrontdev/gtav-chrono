@@ -9,4 +9,6 @@ public interface IRecordStore
     void SaveAtomic(CriminalRecord record);
     CharacterProfile LoadProfile();
     void SaveProfileAtomic(CharacterProfile profile);
+    JusticeStatus LoadStatus();
+    void SaveStatusAtomic(JusticeStatus status);
 }

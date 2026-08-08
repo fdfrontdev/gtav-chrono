@@ -15,6 +15,7 @@ public sealed class JsonRecordStore : IRecordStore
 {
     private readonly string _recordPath;
     private readonly string _profilePath;
+    private readonly string _statusPath;
     private readonly ILogSink _log;
     private readonly JsonSerializerOptions _options = new() { WriteIndented = true };
 
@@ -23,6 +24,7 @@ public sealed class JsonRecordStore : IRecordStore
         _log = log;
         _recordPath = Path.Combine(directory, "record.json");
         _profilePath = Path.Combine(directory, "profile.json");
+        _statusPath = Path.Combine(directory, "status.json");
     }
 
     public CriminalRecord Load()
@@ -78,6 +80,34 @@ public sealed class JsonRecordStore : IRecordStore
         catch (Exception ex)
         {
             _log.Error($"profile.json save failed: {ex.Message}");
+        }
+    }
+
+    public JusticeStatus LoadStatus()
+    {
+        try
+        {
+            if (!File.Exists(_statusPath)) return new JusticeStatus();
+            var json = File.ReadAllText(_statusPath);
+            return JsonSerializer.Deserialize<JusticeStatus>(json, _options) ?? new JusticeStatus();
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"status.json load failed: {ex.Message}");
+            TryBackup(_statusPath);
+            return new JusticeStatus();
+        }
+    }
+
+    public void SaveStatusAtomic(JusticeStatus status)
+    {
+        try
+        {
+            WriteAtomic(_statusPath, JsonSerializer.Serialize(status, _options));
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"status.json save failed: {ex.Message}");
         }
     }
 

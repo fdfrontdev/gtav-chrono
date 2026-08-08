@@ -145,4 +145,29 @@ public sealed class PlayerContext : IPlayerContext
         Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Game.Player.Handle, !enabled);
         Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, !enabled);
     }
+
+    public bool IsVisible
+    {
+        get
+        {
+            var ped = Game.Player.Character;
+            return ped != null && ped.Exists() && ped.IsVisible;
+        }
+    }
+
+    public string GetDistrictName()
+    {
+        try
+        {
+            var ped = Game.Player.Character;
+            if (ped == null || !ped.Exists()) return "San Andreas";
+            var pos = ped.Position;
+            var zone = Function.Call<string>(Hash.GET_NAME_OF_ZONE, pos.X, pos.Y, pos.Z);
+            return string.IsNullOrWhiteSpace(zone) ? "San Andreas" : zone;
+        }
+        catch
+        {
+            return "San Andreas";
+        }
+    }
 }
