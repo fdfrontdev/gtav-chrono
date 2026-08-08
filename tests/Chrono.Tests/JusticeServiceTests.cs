@@ -479,6 +479,63 @@ public class JusticeServiceTests
         Assert.Equal(JusticeState.Prison, service.State);   // still inside
         Assert.DoesNotContain(notifier.Messages, m => m.Contains("ESCAPED"));
     }
+
+    // --- S7: death while wanted → police custody ---
+
+    [Fact]
+    public void DeathWhileWanted_OnRespawn_CustodyAndHospitalRefund()
+    {
+        var (service, wanted, player, store, notifier, clock, _) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 3;
+        service.Tick();                    // Moderate crime
+        player.Money = 12000;              // GTA deducts $5k hospital fee on death
+
+        player.IsDead = true;
+        service.Tick();                    // died while wanted (stars still 3)
+        wanted.CurrentStars = 0;           // GTA clears stars on respawn
+        player.IsDead = false;
+        player.Money = 7000;               // hospital fee already deducted
+        service.Tick();                    // respawn → custody + refund
+
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.Equal(12000, player.Money);                       // fee refunded (S7)
+        Assert.Contains(notifier.Messages, m => m.Contains("POLICE CUSTODY"));
+    }
+
+    [Fact]
+    public void DeathWhileWanted_TrialSchedulesVerdict()
+    {
+        var (service, wanted, player, store, _, clock, _) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 2;
+        service.Tick();                    // Minor crime
+        player.IsDead = true;
+        service.Tick();
+        wanted.CurrentStars = 0;
+        player.IsDead = false;
+        service.Tick();                    // custody (trial due day 101)
+
+        clock.CurrentGameDay = 101;
+        service.Tick();                    // court day → Minor sentence → fine-only release
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.Contains(player.MoneyCalls, m => m == -2000);
+    }
+
+    [Fact]
+    public void DeathNotWanted_NoCustody()
+    {
+        var (service, wanted, player, _, notifier, _, _) = Build();
+        player.IsVisible = true;
+        player.IsDead = true;
+        service.Tick();                    // died with no wanted episode
+        player.IsDead = false;
+        service.Tick();
+
+        Assert.Equal(JusticeState.Free, service.State);          // no custody
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("POLICE CUSTODY"));
+    }
 }
 
 public class IdentityServiceTests

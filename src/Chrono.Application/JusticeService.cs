@@ -53,6 +53,9 @@ public sealed class JusticeService
     private Vector3 _lastCellPos;
     private bool _cellAnimPlaying;
     private int _manhuntUntilDay;
+    private bool _wasDead;
+    private bool _diedWanted;         // died during a wanted episode → custody on respawn
+    private int _deathMoneySnapshot;  // hospital fee refund (justice, not GTA's $5k)
 
     public JusticeService(
         IWantedMonitor wanted,
@@ -97,6 +100,23 @@ public sealed class JusticeService
     {
         int stars = _wanted.CurrentStars;
 
+        // Death edge FIRST — GTA may reset stars/state on death, so the wanted flag
+        // must be captured before any cleanup runs (S7)
+        bool dead = _player.IsDead;
+        if (dead && !_wasDead)
+        {
+            _diedWanted = stars > 0 || _episodeSeverity != null || State == JusticeState.Wanted;
+            _deathMoneySnapshot = _player.GetMoney();
+            _log.Info(_diedWanted ? "Player died while wanted — custody on respawn"
+                                  : "Player died (no wanted episode — no custody)");
+        }
+        else if (!dead && _wasDead && _diedWanted)
+        {
+            _diedWanted = false;
+            OnDeathCapture();
+        }
+        _wasDead = dead;
+
         if (stars > _lastStars && _config.RecordFromWanted)
             OnStarsIncreased(stars);   // ONE event per episode, at the new max star level
 
@@ -118,6 +138,21 @@ public sealed class JusticeService
             PrisonTick();
 
         UpdateManhunt();
+    }
+
+    /// <summary>Death while wanted → you wake up in POLICE CUSTODY (S7). GTA's $5k
+    /// hospital fee is refunded — the court fine replaces it (one justice bill, not two).</summary>
+    private void OnDeathCapture()
+    {
+        // Refund GTA's hospital fee so the sentence fine is the ONLY charge
+        int delta = _deathMoneySnapshot - _player.GetMoney();
+        if (delta != 0) _player.AddMoney(delta);
+
+        State = JusticeState.Captured;
+        _arrested = true;
+        _trialDueDay = _clock.CurrentGameDay + 1;
+        _notifier.Show("You wake up in POLICE CUSTODY — court date set (1 day)");
+        _log.Info("Death-capture: custody started, hospital fee refunded");
     }
 
     private void OnStarsIncreased(int stars)

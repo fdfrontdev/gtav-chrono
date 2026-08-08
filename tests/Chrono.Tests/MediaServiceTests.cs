@@ -120,4 +120,36 @@ public class MediaServiceTests
         Assert.Single(media.Headlines);
         Assert.Single(media.ViralMessages);
     }
+
+    // --- S7: WEBNET feed ---
+
+    [Fact]
+    public void SevereCrime_PushesViralFeedPost()
+    {
+        var (service, _) = Build();
+        service.ReportCrime(Event(CrimeSeverity.Severe, "Sandy"));
+
+        Assert.Contains(service.Feed, f => f.Viral && f.Text.Contains("Sandy"));
+        Assert.Contains(service.Feed, f => f.Text.Contains("BREAKING"));
+    }
+
+    [Fact]
+    public void Escape_PushesManhuntFeedPosts()
+    {
+        var (service, _) = Build();
+        service.ReportEscape("Bolingbroke");
+
+        Assert.Contains(service.Feed, f => f.Text.Contains("MANHUNT"));
+        Assert.Contains(service.Feed, f => f.Text.Contains("escape footage"));
+    }
+
+    [Fact]
+    public void Feed_CapsAtTwenty()
+    {
+        var (service, _) = Build();
+        for (int i = 0; i < 12; i++)
+            service.ReportCrime(Event(CrimeSeverity.Severe, $"D{i}"));
+
+        Assert.True(service.Feed.Count <= 20, $"feed capped (got {service.Feed.Count})");
+    }
 }

@@ -13,6 +13,7 @@ public static class UiStrings
     public const string ItemFly = "Fly";
     public const string ItemJustice = "Justice";
     public const string ItemHackPoliceDb = "Hack Police DB";
+    public const string ItemCriminalRecord = "Criminal Record";
     public const string ItemSettings = "Settings";
     public const string ItemHotkeys = "Hotkeys";
     public const string ItemDashRange = "Dash Range";

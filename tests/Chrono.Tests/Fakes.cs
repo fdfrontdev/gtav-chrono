@@ -113,6 +113,7 @@ public sealed class FakePlayer : IPlayerContext
     public List<int> MoneyCalls { get; } = new();
     public void AddMoney(int delta) { Money += delta; MoneyCalls.Add(delta); }
     public int GetMoney() => Money;
+    public bool IsDead { get; set; }
 }
 
 public sealed class FakeProbe : IWorldProbe
@@ -196,6 +197,9 @@ public sealed class FakeInput : IGameInput
     public bool IsTimeStopHotkeyJustPressed { get; private set; }
     public bool IsInvisibleHotkeyJustPressed { get; private set; }
     public bool IsInteractKeyJustPressed { get; private set; }
+
+    public bool IsPhoneKeyJustPressed => PhoneKey;
+    public bool PhoneKey { get; set; }
 
     // --- flight controls ---
     public bool FlyForward { get; set; }
