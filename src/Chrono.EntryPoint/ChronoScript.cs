@@ -62,13 +62,14 @@ public class ChronoScript : Script
                 input, player, notifier, _log, config, store);
             _menu.BuildMenu();
 
-            // Justice layer (v0.9.0) — S1: crime recording from wanted edges
+            // Justice layer (v0.9.0) — S1 core + S2 media
             var recordStore = new JsonRecordStore(BaseDirectory, _log);
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
+            var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice);
             _justice = new JusticeService(
                 new WantedMonitor(), player, recordStore,
-                identity, warrant, notifier, _log, config.Justice);
+                identity, warrant, notifier, _log, config.Justice, media);
 
             Tick += OnTick;
             _log.Info($"Chrono initialized — menu key {config.MenuKey}");

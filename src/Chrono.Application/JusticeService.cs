@@ -21,6 +21,7 @@ public sealed class JusticeService
     private readonly ILogSink _log;
     private readonly JusticeConfig _config;
     private readonly CriminalRecord _record;
+    private readonly MediaService? _media;
     private int _lastStars;
 
     public JusticeService(
@@ -31,7 +32,8 @@ public sealed class JusticeService
         WarrantService warrant,
         INotifier notifier,
         ILogSink log,
-        JusticeConfig config)
+        JusticeConfig config,
+        MediaService? media = null)
     {
         _wanted = wanted;
         _player = player;
@@ -42,6 +44,7 @@ public sealed class JusticeService
         _log = log;
         _config = config;
         _record = store.Load();
+        _media = media;
         _lastStars = wanted.CurrentStars;
     }
 
@@ -90,6 +93,7 @@ public sealed class JusticeService
         _notifier.Show(burned
             ? $"CRIME RECORDED ({severity}) — they saw your face"
             : $"CRIME RECORDED ({severity}) — no face seen");
+        _media?.ReportCrime(evt);   // S2: news/viral coverage
     }
 
     public static CrimeSeverity SeverityFromStars(int stars) => stars switch
