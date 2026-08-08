@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Chrono.Application.Ports;
 using Chrono.Domain;
@@ -177,13 +178,17 @@ public sealed class PowerMenuService
         // Long-list handling (S10): cap the screen at 14 crimes — the menu draws
         // every item (no scrolling), so a 100-event record would overflow the HUD
         int shown = 0;
+        int uncharged = stats.Crimes.Count(c => !c.Charged);
+        if (uncharged > 0)
+            items.Add(new MenuItem { Title = $"⚠ {uncharged} uncharged crime{(uncharged > 1 ? "s" : "")} — will be sentenced at your next court date" });
         foreach (var crime in stats.Crimes)
         {
             if (shown >= 14) break;
             string time = crime.GameTime.Length >= 16 ? crime.GameTime.Substring(11, 5) : crime.GameTime;
+            string charged = crime.Charged ? " ✓" : "";
             items.Add(new MenuItem
             {
-                Title = $"{crime.Severity} — {crime.Kind} ({crime.District}, {time})"
+                Title = $"{crime.Severity} — {crime.Kind} ({crime.District}, {time}){charged}"
             });
             shown++;
         }
