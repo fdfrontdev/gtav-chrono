@@ -24,6 +24,7 @@ public sealed class TimeStopService
 
     private readonly List<FreezeSnapshot> _frozen = new();
     private readonly Queue<GameEntity> _pending = new();
+    private readonly Queue<FreezeSnapshot> _restoreQueue = new();
     private readonly HashSet<int> _knownHandles = new();
     private long _lastSweepMs;
     private bool _capNotified;
@@ -48,6 +49,7 @@ public sealed class TimeStopService
 
     public bool IsActive { get; private set; }
     public bool IsFreezingInProgress => _pending.Count > 0;
+    public bool IsRestoringInProgress => _restoreQueue.Count > 0;
     public int FrozenCount => _frozen.Count;
 
     /// <summary>Activate Time Stop: collect eligible entities, queue for batched freeze, pause clock.</summary>
@@ -57,6 +59,7 @@ public sealed class TimeStopService
 
         _frozen.Clear();
         _pending.Clear();
+        _restoreQueue.Clear();
         _knownHandles.Clear();
 
         foreach (var entity in CollectEligibleEntities())
@@ -73,31 +76,43 @@ public sealed class TimeStopService
         _log.Info($"TimeStop activated — {_pending.Count} entities queued");
     }
 
-    /// <summary>Deactivate: restore all frozen entities in batches, resume clock.</summary>
+    /// <summary>Deactivate: queue everything for batched restore; clock resumes NOW.</summary>
     public void Deactivate()
     {
         if (!IsActive) return;
         IsActive = false;
         _pending.Clear();
 
-        foreach (var snapshot in _frozen)
-        {
-            RestoreEntity(snapshot);
-        }
+        foreach (var snapshot in _frozen) _restoreQueue.Enqueue(snapshot);
         _frozen.Clear();
         _knownHandles.Clear();
 
         if (_config.PauseClock) _clock.Resume();
-        _log.Info("TimeStop deactivated");
+        _log.Info($"TimeStop deactivated — {_restoreQueue.Count} entities queued for restore");
     }
 
-    /// <summary>Per-tick maintenance: drain freeze queue; sweep for late-spawning entities.</summary>
+    /// <summary>Per-tick maintenance: drain freeze queue; sweep for late-spawning entities;
+    /// drain restore queue (batched — never more than BatchSize natives per frame).</summary>
     public void Tick(long nowMs)
     {
-        if (!IsActive) return;
+        if (IsActive)
+        {
+            DrainFreezeQueue();
+            RunMaintenanceSweep(nowMs);
+        }
 
-        DrainFreezeQueue();
-        RunMaintenanceSweep(nowMs);
+        DrainRestoreQueue();
+    }
+
+    private void DrainRestoreQueue()
+    {
+        int processed = 0;
+        while (_restoreQueue.Count > 0 && processed < BatchSize)
+        {
+            var snapshot = _restoreQueue.Dequeue();
+            processed++;
+            RestoreEntity(snapshot);
+        }
     }
 
     private void DrainFreezeQueue()

@@ -30,9 +30,12 @@ public sealed class EntityFreezer : IEntityFreezer
         if (e == null || !e.Exists()) return;
         e.IsPositionFrozen = true;
         e.Velocity = ToGta(Vector3.Zero);
-        // Pin as mission entity — prevents the game streaming out frozen NPCs/vehicles
-        // (root cause of "entities missing after resume", v0.3.0)
-        Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, true, true);
+
+        // Pin ONLY peds as mission entities to prevent streaming despawn during the
+        // freeze. Props and vehicles are NOT pinned — mission-flagging hundreds of
+        // ambient props caused a hard game crash on release (v0.5.0 incident).
+        if (entity.Kind == EntityKind.Ped)
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, true, true);
     }
 
     public void Restore(GameEntity entity, FreezeSnapshot snapshot)
@@ -44,25 +47,18 @@ public sealed class EntityFreezer : IEntityFreezer
         e.Velocity = ToGta(snapshot.Velocity);
         e.IsPositionFrozen = snapshot.WasFrozen;
 
-        // Release the mission pin with p2=true — (false,false) left entities in a
-        // pinned state where ambient AI never re-tasks them (user report: NPCs stand
-        // frozen after resume). Then return them to ambient management so they resume
-        // their usual activities (walking, driving).
-        Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, true);
-
+        // Release the pin (peds only) with p2=true — the correct un-mission call.
+        // NOTE: SET_PED_AS_NO_LONGER_NEEDED is deliberately NOT used here — bulk
+        // no-longer-needed right after unpinning crashed the game (v0.5.0 incident).
         if (entity.Kind == EntityKind.Ped)
         {
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, true);
             Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, entity.Handle);
-            Function.Call(Hash.SET_PED_AS_NO_LONGER_NEEDED, entity.Handle);
         }
         else if (entity.Kind == EntityKind.Vehicle)
         {
             int driver = Function.Call<int>(Hash.GET_PED_IN_VEHICLE_SEAT, entity.Handle, -1);
-            if (driver != 0)
-            {
-                Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, driver);
-                Function.Call(Hash.SET_PED_AS_NO_LONGER_NEEDED, driver);
-            }
+            if (driver != 0) Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, driver);
         }
     }
 
