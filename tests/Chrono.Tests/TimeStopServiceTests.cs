@@ -116,12 +116,39 @@ public class TimeStopServiceTests
         service.Activate();
         service.Tick(0);
         service.Deactivate();
+        service.Tick(100);   // restore is batched — drains on the next ticks
 
         Assert.False(service.IsActive);
         Assert.False(freezer.FreezeFlags[10]); // unfrozen
         Assert.True(freezer.Restored.ContainsKey(10));
         Assert.False(clock.IsPaused);
         Assert.Equal(0, service.FrozenCount);
+    }
+
+    [Fact]
+    public void Deactivate_RestoresInBatchesOf100()
+    {
+        var repo = new FakeRepository();
+        for (int i = 0; i < 250; i++) repo.Peds.Add(new GameEntity(1000 + i, EntityKind.Ped));
+        var freezer = new FakeFreezer(Enumerable.Range(1000, 250).ToArray());
+        var service = Create(repo, freezer, new FakeClock(), new FakePlayer(), new FakeNotifier(), new FakeLog());
+
+        service.Activate();
+        service.Tick(0);   // freeze batch 1
+        service.Tick(100); // freeze batch 2
+        service.Tick(200); // freeze batch 3 (all 250 frozen)
+
+        service.Deactivate();
+        Assert.True(service.IsRestoringInProgress);
+
+        service.Tick(300); // restore batch 1
+        Assert.Equal(100, freezer.Restored.Count);
+        service.Tick(400); // restore batch 2
+        Assert.Equal(200, freezer.Restored.Count);
+        service.Tick(500); // restore batch 3
+        Assert.Equal(250, freezer.Restored.Count);
+        Assert.False(service.IsRestoringInProgress);
+        Assert.False(service.IsActive);
     }
 
     [Fact]
@@ -137,7 +164,8 @@ public class TimeStopServiceTests
         service.Tick(0);
         freezer.ExistsSet.Remove(11); // entity dies mid-freeze
 
-        service.Deactivate(); // must not throw
+        service.Deactivate();
+        service.Tick(100);   // must not throw
 
         Assert.True(freezer.Restored.ContainsKey(10));
         Assert.False(freezer.Restored.ContainsKey(11));

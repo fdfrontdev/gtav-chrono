@@ -12,6 +12,7 @@ public static class UiStrings
     public const string ItemInvisible = "Invisible";
     public const string ItemFly = "Fly";
     public const string ItemSettings = "Settings";
+    public const string ItemHotkeys = "Hotkeys";
     public const string ItemDashRange = "Dash Range";
     public const string ItemFlySpeed = "Fly Speed";
     public const string ItemFreezeProps = "Freeze Props";

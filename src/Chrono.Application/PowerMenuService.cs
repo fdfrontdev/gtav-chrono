@@ -67,7 +67,7 @@ public sealed class PowerMenuService
         var settings = BuildSettingsScreen();
         _timeStopItem = new MenuItem
         {
-            Title = UiStrings.ItemTimeStop,
+            Title = $"{UiStrings.ItemTimeStop} [{_config.TimeStop.Hotkey}]",
             OnActivate = ToggleTimeStop
         };
         _godModeItem = new MenuItem
@@ -77,7 +77,7 @@ public sealed class PowerMenuService
         };
         _invisibleItem = new MenuItem
         {
-            Title = UiStrings.ItemInvisible,
+            Title = $"{UiStrings.ItemInvisible} [{_config.Invisible.Hotkey}]",
             OnActivate = () => { _invisible.Toggle(); RefreshPowerLabels(); }
         };
         _flyItem = new MenuItem
@@ -92,7 +92,7 @@ public sealed class PowerMenuService
             Items = new[]
             {
                 _timeStopItem,
-                new MenuItem { Title = UiStrings.ItemDash, OnActivate = ExecuteDash },
+                new MenuItem { Title = $"{UiStrings.ItemDash} [{_config.Dash.Hotkey}]", OnActivate = ExecuteDash },
                 new MenuItem { Title = UiStrings.ItemMapTeleport, OnActivate = ExecuteMapTeleport },
                 _godModeItem,
                 _invisibleItem,
@@ -257,6 +257,11 @@ public sealed class PowerMenuService
             Title = UiStrings.ItemSettings,
             Items = new[]
             {
+                new MenuItem
+                {
+                    Title = UiStrings.ItemHotkeys,
+                    Value = $"F9 menu | {_config.Dash.Hotkey} dash | {_config.TimeStop.Hotkey} stop | {_config.Invisible.Hotkey} invis"
+                },
                 new MenuItem
                 {
                     Title = UiStrings.ItemDashRange,
