@@ -18,9 +18,9 @@ public class TeleportMathTests
     [Fact]
     public void CalculateForwardTarget_Heading90_GoesEast()
     {
-        // heading 90 = east = +X
+        // heading 90 = east = +X (GTA convention)
         var target = TeleportMath.CalculateForwardTarget(Vector3.Zero, 90f, 7f);
-        Assert.Equal(-7f, target.X, 3); // GTA convention: sin(90)=1 → -X... see note
+        Assert.Equal(7f, target.X, 3);
         Assert.Equal(0f, target.Y, 3);
     }
 
@@ -104,6 +104,42 @@ public class TeleportMathTests
         var hit = new Vector3(10, 10, -500);
         var result = TeleportMath.SnapToGround(probeStart, hit, 100f, probeStart);
         Assert.Equal(probeStart, result);
+    }
+
+    [Theory]
+    [InlineData(0f, 0f, true)]            // city center
+    [InlineData(3000f, 5000f, true)]      // northern map
+    [InlineData(3950f, 0f, false)]        // off the east edge
+    [InlineData(-3950f, 0f, false)]       // off the west edge
+    [InlineData(0f, -4500f, false)]       // off the south edge
+    [InlineData(0f, 8000f, false)]        // off the north edge
+    public void IsInsideWorldBounds_Various(float x, float y, bool expected)
+    {
+        Assert.Equal(expected, TeleportMath.IsInsideWorldBounds(new Vector3(x, y, 0)));
+    }
+
+    [Fact]
+    public void HeadingFromVelocity_North_IsZero()
+    {
+        Assert.Equal(0f, TeleportMath.HeadingFromVelocity(new Vector3(0, 25, 0)), 2);
+    }
+
+    [Fact]
+    public void HeadingFromVelocity_East_Is90()
+    {
+        Assert.Equal(90f, TeleportMath.HeadingFromVelocity(new Vector3(25, 0, 0)), 2);
+    }
+
+    [Fact]
+    public void HeadingFromVelocity_Zero_IsZero()
+    {
+        Assert.Equal(0f, TeleportMath.HeadingFromVelocity(Vector3.Zero), 2);
+    }
+
+    [Fact]
+    public void HeadingFromVelocity_NorthWest_Is315()
+    {
+        Assert.Equal(315f, TeleportMath.HeadingFromVelocity(new Vector3(-25, 25, 0)), 2);
     }
 
     [Fact]

@@ -66,6 +66,14 @@ public sealed class TeleportService
             ? new Vector3(target.X, target.Y, ground.Value)
             : target;
 
+        // Map boundary guard (user report v0.3.0: dash must not go off-map)
+        if (!TeleportMath.IsInsideWorldBounds(landing))
+        {
+            _log.Info("Dash blocked — outside world bounds");
+            _notifier.Show(UiStrings.MapEdge);
+            return TeleportResult.NoClearPath();
+        }
+
         ExecuteTeleport(landing);
         _notifier.Show(UiStrings.DashSuccess);
         return TeleportResult.Success(landing);
@@ -84,6 +92,12 @@ public sealed class TeleportService
         var probeStart = new Vector3(waypoint.X, waypoint.Y, waypoint.Z + _teleportConfig.GroundProbeDistance);
         var ground = _probe.GetGroundHeight(probeStart);
         var landing = TeleportMath.SnapToGround(probeStart, ground.HasValue ? new Vector3(waypoint.X, waypoint.Y, ground.Value) : (Vector3?)null, _teleportConfig.GroundProbeDistance, waypoint);
+
+        if (!TeleportMath.IsInsideWorldBounds(landing))
+        {
+            _log.Info("Map teleport refused — waypoint outside world bounds");
+            return TeleportResult.Failed();
+        }
 
         ExecuteTeleport(landing);
         return TeleportResult.Success(landing);

@@ -237,6 +237,28 @@ public class TimeStopServiceTests
     }
 
     [Fact]
+    public void AirborneVehicles_Skipped_NoCrashOnResume()
+    {
+        // Planes/helicopters in flight must NOT be frozen — freezing breaks their flight
+        // model and they crash on restore (user report v0.3.0)
+        var repo = new FakeRepository();
+        repo.Vehicles.Add(new GameEntity(10, EntityKind.Vehicle, new(0, 0, 0)));            // grounded car
+        repo.Vehicles.Add(new GameEntity(11, EntityKind.Vehicle, new(0, 5, 0), true));      // flying plane
+        repo.Peds.Add(new GameEntity(20, EntityKind.Ped, new(0, 0, 0)));
+
+        var freezer = new FakeFreezer(10, 11, 20);
+        var service = Create(repo, freezer, new FakeClock(), new FakePlayer(), new FakeNotifier(), new FakeLog());
+
+        service.Activate();
+        service.Tick(0);
+
+        Assert.Equal(2, service.FrozenCount);   // car + ped frozen, plane NOT
+        Assert.True(freezer.FreezeFlags.ContainsKey(10));
+        Assert.False(freezer.FreezeFlags.ContainsKey(11));
+        Assert.True(freezer.FreezeFlags.ContainsKey(20));
+    }
+
+    [Fact]
     public void CapWarning_ShownOnlyOncePerActivation()
     {
         var repo = new FakeRepository();

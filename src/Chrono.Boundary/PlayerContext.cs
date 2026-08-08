@@ -90,4 +90,34 @@ public sealed class PlayerContext : IPlayerContext
         if (visible) Function.Call(Hash.RESET_ENTITY_ALPHA, ped.Handle);
         else Function.Call(Hash.SET_ENTITY_ALPHA, ped.Handle, 0, false);
     }
+
+    // --- animation (v0.4.0) ---
+
+    public void SetHeading(float headingDegrees)
+    {
+        var ped = Game.Player.Character;
+        if (ped == null || !ped.Exists()) return;
+        ped.Heading = headingDegrees;
+    }
+
+    public void PlayLoopedAnimation(string dict, string anim)
+    {
+        var ped = Game.Player.Character;
+        if (ped == null || !ped.Exists()) return;
+        ped.Task.PlayAnimation(dict, anim, 8f, -1, AnimationFlags.Loop);
+    }
+
+    public void PlayAnimationOnce(string dict, string anim, int durationMs)
+    {
+        var ped = Game.Player.Character;
+        if (ped == null || !ped.Exists()) return;
+        ped.Task.PlayAnimation(dict, anim, 8f, durationMs, AnimationFlags.None);
+    }
+
+    public void ClearCurrentAnimation()
+    {
+        var ped = Game.Player.Character;
+        if (ped == null || !ped.Exists()) return;
+        ped.Task.ClearAllImmediately();
+    }
 }

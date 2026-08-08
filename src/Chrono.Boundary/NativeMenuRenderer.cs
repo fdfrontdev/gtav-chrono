@@ -44,6 +44,19 @@ public sealed class NativeMenuRenderer : IMenuRenderer
         }
     }
 
+    /// <summary>Persistent top-center hint (e.g. fly controls) with drop shadow.</summary>
+    public void DrawHint(string text)
+    {
+        Function.Call(Hash.SET_TEXT_FONT, FontId);
+        Function.Call(Hash.SET_TEXT_SCALE, 0.42f, 0.42f);
+        Function.Call(Hash.SET_TEXT_COLOUR, 255, 255, 255, 255);
+        Function.Call(Hash.SET_TEXT_DROP_SHADOW, 2, 0, 0, 0, 200);
+        Function.Call(Hash.SET_TEXT_CENTRE, true);
+        Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_TEXT, "STRING");
+        Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, text);
+        Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_TEXT, 0.5f, 0.06f);
+    }
+
     private static void DrawPanel(float x, float y, float w, float h, int r = 0, int g = 0, int b = 0, int a = 200)
         => Function.Call(Hash.DRAW_RECT, x, y, w, h, r, g, b, a);
 

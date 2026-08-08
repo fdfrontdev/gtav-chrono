@@ -12,8 +12,10 @@ public static class TeleportMath
     /// <summary>Forward target: origin + facing direction * range (no aiming case).</summary>
     public static Vector3 CalculateForwardTarget(Vector3 origin, float headingDegrees, float range)
     {
+        // GTA convention: heading 0 = north (+Y), 90 = east (+X), clockwise.
+        // Forward = (sin(h), cos(h)) — verified against GET_ENTITY_HEADING semantics.
         float rad = DegToRad(headingDegrees);
-        var dir = new Vector3(-(float)Math.Sin(rad), (float)Math.Cos(rad), 0f); // heading → world dir (GTA convention)
+        var dir = new Vector3((float)Math.Sin(rad), (float)Math.Cos(rad), 0f);
         return origin + dir * range;
     }
 
@@ -52,6 +54,25 @@ public static class TeleportMath
             if (delta <= probeDistance) return hit;         // hit within probe distance below start
         }
         return fallback;
+    }
+
+    // GTA V world bounds (safe playable area, generous margin inside the ocean walls)
+    private const float MinX = -3900f, MaxX = 3900f;
+    private const float MinY = -4400f, MaxY = 7900f;
+
+    /// <summary>True when the position is inside the drivable map (dash/teleport guard).</summary>
+    public static bool IsInsideWorldBounds(Vector3 position)
+        => position.X >= MinX && position.X <= MaxX
+           && position.Y >= MinY && position.Y <= MaxY;
+
+    /// <summary>GTA heading (degrees, 0 = north, clockwise) from a velocity vector.</summary>
+    public static float HeadingFromVelocity(Vector3 velocity)
+    {
+        if (velocity.LengthSquared() < 0.0001f) return 0f;
+        // heading = atan2(vx, vy): east velocity (+X) → 90, north (+Y) → 0
+        float degrees = (float)(Math.Atan2(velocity.X, velocity.Y) * 180.0 / Math.PI);
+        if (degrees < 0f) degrees += 360f;
+        return degrees;
     }
 
     /// <summary>Linear interpolation for VFX trail points.</summary>

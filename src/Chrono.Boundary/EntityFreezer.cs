@@ -45,6 +45,18 @@ public sealed class EntityFreezer : IEntityFreezer
         e.IsPositionFrozen = snapshot.WasFrozen;
         // Release the mission pin so entities can be streamed normally again
         Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, false);
+
+        // User report v0.3.0: NPCs stood frozen after resume — their navigation tasks
+        // had completed while pinned. Reset to ambient AI so they resume usual activities.
+        if (entity.Kind == EntityKind.Ped)
+        {
+            Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, entity.Handle);
+        }
+        else if (entity.Kind == EntityKind.Vehicle)
+        {
+            int driver = Function.Call<int>(Hash.GET_PED_IN_VEHICLE_SEAT, entity.Handle, -1);
+            if (driver != 0) Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, driver);
+        }
     }
 
     internal static Vector3 ToNumerics(GTA.Math.Vector3 v) => new(v.X, v.Y, v.Z);

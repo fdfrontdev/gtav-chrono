@@ -168,7 +168,9 @@ public sealed class TimeStopService
                 && e.IsWithinRadius(center, radius)) result.Add(e);
         foreach (var e in _repo.GetAllVehicles())
             if (FreezePolicy.CanFreeze(e.Kind, config) && e.Handle != _player.PlayerVehicleHandle
-                && e.IsWithinRadius(center, radius)) result.Add(e);
+                && e.IsWithinRadius(center, radius)
+                && !e.IsAirborne)   // airborne vehicles (planes/heli) crash on freeze-restore (v0.4.0)
+                result.Add(e);
         foreach (var e in _repo.GetAllProps())
             if (FreezePolicy.CanFreeze(e.Kind, config) && e.IsWithinRadius(center, radius)) result.Add(e);
 
