@@ -12,6 +12,7 @@ public sealed class ChronoConfig
     public TeleportConfig Teleport { get; set; } = new();
     public FlyConfig Fly { get; set; } = new();
     public NpcConfig Npc { get; set; } = new();
+    public JusticeConfig Justice { get; set; } = new();
     public VisualConfig Visual { get; set; } = new();
     public LoggingConfig Logging { get; set; } = new();
 }

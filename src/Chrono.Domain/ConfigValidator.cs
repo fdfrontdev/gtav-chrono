@@ -31,6 +31,7 @@ public static class ConfigValidator
         ValidateTeleport(cfg.Teleport, warnings);
         ValidateFly(cfg.Fly, warnings);
         ValidateNpc(cfg.Npc, warnings);
+        ValidateJustice(cfg.Justice, warnings);
         ValidateVisual(cfg.Visual, warnings);
         ValidateLogging(cfg.Logging, warnings);
 
@@ -92,8 +93,29 @@ public static class ConfigValidator
     {
         if (npc.ReactionDelayMs < 0 || npc.ReactionDelayMs > 10000)
         {
-            npc.ReactionDelayMs = 2500;
-            warnings.Add("npc.reactionDelayMs outside [0,10000] — using 2500");
+            npc.ReactionDelayMs = 3000;
+            warnings.Add("npc.reactionDelayMs outside [0,10000] — using 3000");
+        }
+    }
+
+    private static void ValidateJustice(JusticeConfig justice, List<string> warnings)
+    {
+        if (justice.ClinicBaseCost < 0) { justice.ClinicBaseCost = 5000; warnings.Add("justice.clinicBaseCost < 0 — using 5000"); }
+        if (justice.PerEventCost < 0) { justice.PerEventCost = 1000; warnings.Add("justice.perEventCost < 0 — using 1000"); }
+        if (justice.SurgeryCooldownDays < 0 || justice.SurgeryCooldownDays > 30)
+        {
+            justice.SurgeryCooldownDays = 1;
+            warnings.Add("justice.surgeryCooldownDays outside [0,30] — using 1");
+        }
+        if (justice.HackCooldownDays < 0 || justice.HackCooldownDays > 30)
+        {
+            justice.HackCooldownDays = 1;
+            warnings.Add("justice.hackCooldownDays outside [0,30] — using 1");
+        }
+        if (justice.PrisonDayRealSeconds < 5 || justice.PrisonDayRealSeconds > 3600)
+        {
+            justice.PrisonDayRealSeconds = 30;
+            warnings.Add("justice.prisonDayRealSeconds outside [5,3600] — using 30");
         }
     }
 

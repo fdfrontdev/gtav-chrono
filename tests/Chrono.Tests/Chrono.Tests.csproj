@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Chrono.Domain\Chrono.Domain.csproj" />
     <ProjectReference Include="..\..\src\Chrono.Application\Chrono.Application.csproj" />
+    <ProjectReference Include="..\..\src\Chrono.Boundary\Chrono.Boundary.csproj" />
   </ItemGroup>
 
 </Project>
