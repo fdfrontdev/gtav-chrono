@@ -39,6 +39,11 @@
     "warrantReportSeconds": 10,
     "warrantReportChance": 0.35,
     "fineToPrisonRate": 1000,
+    "escapeStealthChance": 0.5,
+    "escapeFightChance": 0.7,
+    "escapeChoiceSeconds": 10,
+    "solitaryStealthDays": 3,
+    "solitaryFightDays": 5,
     "interactKey": "G",
     "newsEnabled": true,
     "viralEnabled": true

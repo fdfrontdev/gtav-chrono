@@ -12,6 +12,7 @@ public interface IGameInput
     bool IsMenuAcceptJustPressed { get; }
     bool IsMenuCancelJustPressed { get; }
     bool IsDashHotkeyPressed { get; }    // optional dash hotkey ("" = disabled)
+    bool IsDashKeyJustPressed { get; }    // S13: dash key EDGE (escape-plan picker)
     bool IsTimeStopHotkeyJustPressed { get; }   // Z — edge
     bool IsInvisibleHotkeyJustPressed { get; }  // B — edge
     bool IsInteractKeyJustPressed { get; }      // G — world interaction (clinic, S5) — edge

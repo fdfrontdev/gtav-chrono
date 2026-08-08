@@ -50,6 +50,8 @@ public sealed class JusticeService
                                          // star level (a later, higher crime still records)
     private bool _wasPrisonTerm;          // release teleports only for real prison terms
     private int _reportStreak;            // S12: each recognition escalates the response
+    private readonly Stopwatch _escapeClock = Stopwatch.StartNew();   // S13: choice window
+    private readonly IPrisonOutfit? _outfit;                          // S13: prison look
     private readonly CriminalRecord _record;
     private readonly Stopwatch _prisonRealClock = Stopwatch.StartNew();
     private readonly PrisonCalendar _prisonCalendar;
@@ -85,7 +87,8 @@ public sealed class JusticeService
         ReputationService? reputation = null,
         IWorldProbe? probe = null,
         Func<double>? random = null,
-        JusticeCutsceneService? cutscene = null)
+        JusticeCutsceneService? cutscene = null,
+        IPrisonOutfit? outfit = null)
     {
         _wanted = wanted;
         _player = player;
@@ -104,6 +107,7 @@ public sealed class JusticeService
         _probe = probe;
         _random = random ?? (() => new Random().NextDouble());
         _cutscene = cutscene;
+        _outfit = outfit;
         _prisonCalendar = new PrisonCalendar(config.PrisonDayRealSeconds);
         _lastStars = wanted.CurrentStars;
     }
@@ -118,6 +122,9 @@ public sealed class JusticeService
     /// <summary>Per-tick: star edges → crimes; capture/trial/prison flow.</summary>
     public void Tick()
     {
+        if (_input != null && _input.IsInteractKeyJustPressed && State == JusticeState.Prison)
+            TryOpenEscapeChoice();   // S13: G during confinement = escape-plan window
+
         int stars = _wanted.CurrentStars;
 
         // Death edge FIRST — GTA may reset stars/state on death, so the wanted flag
@@ -390,6 +397,7 @@ public sealed class JusticeService
         _cellAnimPlaying = false;
         _lastCellPos = _player.Position;
         _player.Teleport(PrisonCenter);
+        _outfit?.ApplyPrison();   // S13: prisoner uniform
         _player.PlayAnimationOnce(CuffedDict, CuffedAnim, 2000);   // booking pose (FR-9.3)
         _notifier.Show($"PRISON TERM — {_sentenceDays} in-game days");
         _log.Info($"Confinement started at Bolingbroke ({_sentenceDays} days)");
@@ -410,6 +418,14 @@ public sealed class JusticeService
 
     /// <summary>Serve real-seconds of prison time; fires day notifications and release.
     /// Testable seam — the real loop drives it from the Stopwatch.</summary>
+    /// <summary>Testable seam — advances the escape-plan decision window (S13).</summary>
+    public void AdvanceEscapeTime(double realSeconds)
+    {
+        if (!_escapeChoiceOpen) return;
+        if (_escapeChoiceDeadlineMs == 0) _escapeChoiceDeadlineMs = _escapeClock.Elapsed.TotalMilliseconds + _config.EscapeChoiceSeconds * 1000;
+        _escapeChoiceDeadlineMs -= realSeconds * 1000;
+    }
+
     public void AdvancePrisonTime(double realSeconds)
     {
         if (!_prisonCalendar.Advance(realSeconds)) return;
@@ -430,7 +446,7 @@ public sealed class JusticeService
         {
             _isYardPhase = true;
             _yardNotified = true;
-            _notifier.Show("Yard time — the fence is ahead. A power can get you out...");
+            _notifier.Show("Yard time — the fence is unlocked. Press G to choose your escape");
         }
     }
 
@@ -462,21 +478,90 @@ public sealed class JusticeService
         var pos = _player.Position;
         float distFromCenter = (pos - PrisonCenter).Length();
 
-        // 1) Crossed the fence/radius (fly over the wall, any crossing) → escaped
+        // S13: NO auto-escape. Wandering past the yard radius is CONTAINMENT — a
+        // guard escorts you back to your cell. Escaping is always the player's call.
         if (distFromCenter > PrisonConfineRadiusM)
         {
-            Escape(EscapeKind.Fly);   // you got over the wall somehow
+            _player.Teleport(PrisonCenter);
+            _player.PlayAnimationOnce(CuffedDict, CuffedAnim, 1500);
+            _notifier.Show("A guard escorts you back to your cell");
+            _isYardPhase = false;
             return;
         }
 
-        // 2) At the fence during yard time + a power hotkey pressed → escape (FR-10.1)
-        if (!_isYardPhase || distFromCenter < EscapeFenceM || _input == null) return;
+        UpdateEscapeChoice();
+    }
 
-        if (_input.IsTimeStopHotkeyJustPressed) { Escape(EscapeKind.TimeStop); return; }
-        if (_input.IsInvisibleHotkeyJustPressed) { Escape(EscapeKind.Invisible); return; }
-        if (_input.IsFlyAscend || _input.IsFlyForward || _input.IsFlyRight || _input.IsFlyLeft)
-        { Escape(EscapeKind.Fly); return; }
-        if (_input.IsDashHotkeyPressed) { Escape(EscapeKind.Dash); return; }
+    // ── S13: escape is a CHOICE, not an accident ──────────────────────────────
+    // Yard time → press G → 10s window → pick a method:
+    //   X = POWERS (always works) · Z = STEALTH (chance) · B = FIGHT (chance)
+    // Failure = caught → solitary confinement (+days), back in the cell.
+    private bool _escapeChoiceOpen;
+    private double _escapeChoiceDeadlineMs;
+
+    /// <summary>Testable seam — true when the escape-plan window is open.</summary>
+    public bool IsEscapeChoiceOpen => _escapeChoiceOpen;
+
+    public void TryOpenEscapeChoice()
+    {
+        if (!_isYardPhase || _escapeChoiceOpen || _input == null) return;
+        _escapeChoiceOpen = true;
+        _escapeChoiceDeadlineMs = 0;
+        _notifier.Show("ESCAPE PLAN — X: POWERS · Z: STEALTH · B: FIGHT (choose now)");
+        _log.Info("Escape plan window opened (yard time)");
+    }
+
+    /// <summary>Player picks an escape method (S13). Failure → solitary confinement.</summary>
+    public void ChooseEscape(EscapeKind kind)
+    {
+        if (!_escapeChoiceOpen) return;
+        _escapeChoiceOpen = false;
+        _escapeChoiceDeadlineMs = 0;
+
+        bool succeeds = kind switch
+        {
+            EscapeKind.Dash or EscapeKind.Fly or EscapeKind.Invisible or EscapeKind.TimeStop => true,   // powers: guaranteed
+            EscapeKind.Stealth => _random() < _config.EscapeStealthChance,
+            _ => _random() < _config.EscapeFightChance
+        };
+
+        if (succeeds)
+        {
+            Escape(kind);
+            return;
+        }
+
+        // Caught — solitary confinement
+        int extraDays = kind == EscapeKind.Stealth ? _config.SolitaryStealthDays : _config.SolitaryFightDays;
+        _sentenceDays += extraDays;
+        _player.Teleport(PrisonCenter);
+        _player.PlayAnimationOnce(CuffedDict, CuffedAnim, 1500);
+        _isYardPhase = false;
+        _notifier.Show($"CAUGHT! SOLITARY CONFINEMENT — {extraDays} extra days ({_sentenceDays} total)");
+        _log.Info($"Escape attempt failed ({kind}) — +{extraDays} days solitary");
+    }
+
+    private void UpdateEscapeChoice()
+    {
+        if (!_escapeChoiceOpen) return;
+
+        if (_escapeChoiceDeadlineMs == 0)
+        {
+            _escapeChoiceDeadlineMs = _escapeClock.Elapsed.TotalMilliseconds + _config.EscapeChoiceSeconds * 1000;
+            return;
+        }
+
+        if (_escapeClock.Elapsed.TotalMilliseconds >= _escapeChoiceDeadlineMs)
+        {
+            _escapeChoiceOpen = false;
+            _escapeChoiceDeadlineMs = 0;
+            _notifier.Show("Escape plan abandoned");
+            return;
+        }
+
+        if (_input.IsDashKeyJustPressed) ChooseEscape(EscapeKind.Dash);           // X = powers
+        else if (_input.IsTimeStopHotkeyJustPressed) ChooseEscape(EscapeKind.Stealth);  // Z = stealth
+        else if (_input.IsInvisibleHotkeyJustPressed) ChooseEscape(EscapeKind.Fight);   // B = fight
     }
 
     /// <summary>Escape with a superpower (FR-10): fade out, teleport beyond the fence,
@@ -517,11 +602,15 @@ public sealed class JusticeService
         _sentenceDays = 0;
         _servedDays = 0;
 
+        _outfit?.Restore();   // S13: out of prison → your own clothes back
+
         string flavor = kind switch
         {
             EscapeKind.Dash => "You blinked over the fence!",
             EscapeKind.Fly => "You flew over the wall!",
             EscapeKind.Invisible => "You slipped past the guards unseen!",
+            EscapeKind.Stealth => "You snuck out through the loading bay!",
+            EscapeKind.Fight => "You fought your way past the guards!",
             _ => "You froze the guards and walked out!"
         };
         _notifier.Show($"{flavor} ESCAPED — the whole state is looking for you");
@@ -566,6 +655,7 @@ public sealed class JusticeService
         _sentenceDays = 0;
         _servedDays = 0;
         _reputation?.OnRelease();   // S9: rehabilitation builds fame
+        _outfit?.Restore();   // S13: your own clothes back
         _warrant.Clear();   // justice served
 
         // S11: only REAL prison terms end at the prison gate — a fine-only release

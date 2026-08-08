@@ -284,10 +284,10 @@ public class JusticeServiceTests
     }
 
     [Fact]
-    public void PrisonWanderer_CrossesRadius_Escapes()
+    public void PrisonWanderer_CrossesRadius_GuardEscortsBack()
     {
-        // The fence is solid geometry — crossing the radius is only possible with a
-        // power, which IS the escape (S4 ruling: no more arbitrary guard escort)
+        // S13: NO auto-escape — wandering past the yard radius is containment; a
+        // guard brings you back to the cell. Escaping is always the player's choice.
         var (service, wanted, player, store, notifier, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
@@ -295,12 +295,12 @@ public class JusticeServiceTests
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined
 
-        player.Position = new System.Numerics.Vector3(1826 + 100, 2635, 46);   // just beyond the fence (in-bounds)
+        player.Position = new System.Numerics.Vector3(1826 + 100, 2635, 46);   // just beyond the fence
         service.Tick();
 
-        Assert.Equal(JusticeState.Free, service.State);
-        Assert.Contains(notifier.Messages, m => m.Contains("ESCAPED"));
-        Assert.Contains(store.Record.Events, e => e.Kind == "prison_escape");
+        Assert.Equal(JusticeState.Prison, service.State);                    // still confined
+        Assert.Contains(notifier.Messages, m => m.Contains("escorts you back"));
+        Assert.DoesNotContain(store.Record.Events, e => e.Kind == "prison_escape");
     }
 
     // --- S4: yard time + escape with powers (FR-10) ---
@@ -321,36 +321,31 @@ public class JusticeServiceTests
         Assert.Contains(notifier.Messages, m => m.Contains("Yard time"));
     }
 
-    [Fact]
-    public void Escape_AtFence_TimeStopHotkey_FreezesGuards()
+        [Fact]
+    public void Escape_Choice_TimeStopFreezesGuards()
     {
-        var (service, wanted, player, store, notifier, clock, input) = Build();
+        var (service, wanted, player, _, notifier, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
         service.AdvanceTrialTime(45.0);
-        service.Tick();                  // confined
+        service.Tick();
 
         service.AdvancePrisonTime(20.0);
-        service.Tick();                  // yard opens
-        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);   // at the fence
-
-        input.TimeStopHotkey = true;
-        input.Update();
-        service.Tick();                  // escape via time stop
+        service.Tick();
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.TimeStop);
 
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Contains(notifier.Messages, m => m.Contains("froze the guards"));
-        Assert.Contains(store.Record.Events, e => e.Kind == "prison_escape");
-        Assert.True(service.Warrant.IsActive);
-        Assert.Equal(IdentityState.Burned, store.Status.Identity);
-        Assert.Contains(notifier.Messages, m => m.Contains("MANHUNT") || m.Contains("looking for you"));
     }
 
+
     [Fact]
-    public void Escape_AtFence_DashHotkey_BlinksOverFence()
+    public void Escape_Choice_PowersBlink()
     {
-        var (service, wanted, player, _, notifier, clock, input) = Build();
+        // S13: escape is a CHOICE — yard time, open the plan, pick powers (X)
+        var (service, wanted, player, _, notifier, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
@@ -359,20 +354,18 @@ public class JusticeServiceTests
 
         service.AdvancePrisonTime(20.0);
         service.Tick();                  // yard opens
-        player.Position = new System.Numerics.Vector3(1826 - 75, 2635, 46);
-
-        input.DashHotkey = true;
-        input.Update();
-        service.Tick();
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.Dash);
 
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Contains(notifier.Messages, m => m.Contains("blinked over the fence"));
     }
 
     [Fact]
-    public void Escape_AtFence_InvisibleHotkey_SlipsPastGuards()
+    public void Escape_Choice_InvisibleSlipsPastGuards()
     {
-        var (service, wanted, player, _, notifier, clock, input) = Build();
+        // S13: stealth-flavored power pick — invisibility (the choice mechanic, not the fence)
+        var (service, wanted, player, _, notifier, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
@@ -381,20 +374,18 @@ public class JusticeServiceTests
 
         service.AdvancePrisonTime(20.0);
         service.Tick();
-        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
-
-        input.InvisibleHotkey = true;
-        input.Update();
-        service.Tick();
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.Invisible);
 
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Contains(notifier.Messages, m => m.Contains("slipped past the guards"));
     }
 
     [Fact]
-    public void Escape_AtFence_FlyControls_FliesOverWall()
+    public void Escape_Choice_FlyOverWall()
     {
-        var (service, wanted, player, _, notifier, clock, input) = Build();
+        // S13: fly is a power pick in the escape plan
+        var (service, wanted, player, _, notifier, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
@@ -403,10 +394,8 @@ public class JusticeServiceTests
 
         service.AdvancePrisonTime(20.0);
         service.Tick();
-        player.Position = new System.Numerics.Vector3(1826 - 75, 2635, 46);
-
-        input.FlyAscend = true;
-        service.Tick();
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.Fly);
 
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Contains(notifier.Messages, m => m.Contains("flew over the wall"));
@@ -424,10 +413,8 @@ public class JusticeServiceTests
 
         service.AdvancePrisonTime(20.0);
         service.Tick();
-        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
-        input.DashHotkey = true;
-        input.Update();
-        service.Tick();                  // escape
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.Dash);   // S13: player-chosen escape
 
         Assert.Contains(wanted.StarSets, s => s == 4);   // manhunt stars (FR-10.2)
         Assert.Equal(JusticeState.Free, service.State);
@@ -446,10 +433,8 @@ public class JusticeServiceTests
 
         service.AdvancePrisonTime(20.0);
         service.Tick();
-        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
-        input.TimeStopHotkey = true;
-        input.Update();
-        service.Tick();                  // escape — manhunt until day + 1
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.TimeStop);   // escape — manhunt until day + 1
 
         clock.CurrentGameDay = clock.CurrentGameDay + 1;
         service.Tick();

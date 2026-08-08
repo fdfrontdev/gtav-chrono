@@ -143,6 +143,21 @@ public static class ConfigValidator
             justice.FineToPrisonRate = 1000;
             warnings.Add("justice.fineToPrisonRate outside [100,100000] → 1000");
         }
+        if (justice.EscapeStealthChance < 0.05 || justice.EscapeStealthChance > 1.0)
+        {
+            justice.EscapeStealthChance = 0.5;
+            warnings.Add("justice.escapeStealthChance outside [0.05,1.0] → 0.5");
+        }
+        if (justice.EscapeFightChance < 0.05 || justice.EscapeFightChance > 1.0)
+        {
+            justice.EscapeFightChance = 0.7;
+            warnings.Add("justice.escapeFightChance outside [0.05,1.0] → 0.7");
+        }
+        if (justice.EscapeChoiceSeconds < 3 || justice.EscapeChoiceSeconds > 60)
+        {
+            justice.EscapeChoiceSeconds = 10;
+            warnings.Add("justice.escapeChoiceSeconds outside [3,60] → 10");
+        }
     }
 
     private static void ValidateTeleport(TeleportConfig tp, List<string> warnings)

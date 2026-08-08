@@ -73,6 +73,18 @@ public sealed class GameInput : IGameInput
     public bool IsMenuAcceptJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendAccept);
     public bool IsMenuCancelJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendCancel);
     public bool IsDashHotkeyPressed => _dashKey.HasValue && Game.IsKeyPressed(_dashKey.Value);
+
+    private bool _dashWasDown;
+    public bool IsDashKeyJustPressed
+    {
+        get
+        {
+            bool down = _dashKey.HasValue && Game.IsKeyPressed(_dashKey.Value);
+            bool edge = down && !_dashWasDown;
+            _dashWasDown = down;
+            return edge;
+        }
+    }
     public bool IsTimeStopHotkeyJustPressed => _timeStopKey.HasValue && _timeStopDown && !_timeStopWasDown;
     public bool IsInvisibleHotkeyJustPressed => _invisibleKey.HasValue && _invisibleDown && !_invisibleWasDown;
     public bool IsInteractKeyJustPressed => _interactKey.HasValue && _interactDown && !_interactWasDown;
