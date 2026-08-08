@@ -1,0 +1,1450 @@
+C:\github\gtav-chrono\tools\ApiInspect\Program.cs(52,35): warning CS8604: Possible null reference argument for parameter 't' in 'string TypeName(Type t)'. [C:\github\gtav-chrono\tools\ApiInspect\ApiInspect.csproj]
+== ScriptHookVDotNet3 3.9.0.0 ==
+
+### GTA.Script : Public
+  System.Void .ctor()
+  E EventHandler Aborted
+  ? KeyDown (unresolvable)
+  ? KeyUp (unresolvable)
+  E EventHandler Tick
+  M void Abort()
+  M string GetRelativeFilePath(string filePath)
+  M T InstantiateScript()
+  M void Pause()
+  M void Resume()
+  M string ToString()
+  M void Wait(Int32 ms)
+  M void Yield()
+  P string BaseDirectory { get; }
+  P string Filename { get; }
+  P Boolean IsExecuting { get; }
+  P Boolean IsPaused { get; }
+  P Boolean IsRunning { get; }
+  P string Name { get; }
+  P ScriptSettings Settings { get; }
+
+### GTA.KeyEventArgs: NOT FOUND
+
+### GTA.Game : Public
+  M Boolean AddCustomGxtEntry(UInt32 originalHash, UInt32 newHash)
+  M void DisableAllControlsThisFrame()
+  M void DisableControlThisFrame(Control control)
+  M void DoAutoSave()
+  M void EnableAllControlsThisFrame()
+  M void EnableControlThisFrame(Control control)
+  M IntPtr FindPattern(string pattern, IntPtr startAddress)
+  M IntPtr FindPattern(string pattern, string mask, IntPtr startAddress)
+  M IntPtr FindPatternInScript(string pattern, Int32 scriptHash)
+  M Int32 GenerateHash(string input)
+  M Int32 GetControlValue(Control control)
+  M Single GetControlValueNormalized(Control control)
+  M Boolean GetCustomGxtEntry(UInt32 originalHash, UInt32& entryHash)
+  M Single GetDisabledControlValueNormalized(Control control)
+  M string GetLocalizedString(string entry)
+  M string GetLocalizedString(Int32 entryLabelHash)
+  M Int32 GetProfileSetting(Int32 index)
+  M Int32 GetScriptGlobalFromAddress(IntPtr address, Int32 offset)
+  M string GetUserInput(string defaultText)
+  M string GetUserInput(WindowTitle windowTitle, string defaultText, Int32 maxLength)
+  M Boolean IsControlEnabled(Control control)
+  M Boolean IsControlJustPressed(Control control)
+  M Boolean IsControlJustReleased(Control control)
+  M Boolean IsControlPressed(Control control)
+  M Boolean IsEnabledControlJustPressed(Control control)
+  M Boolean IsEnabledControlJustReleased(Control control)
+  M Boolean IsEnabledControlPressed(Control control)
+  ? IsKeyPressed (unresolvable)
+  M Boolean IsSteeringAutoCenteringWhenExitingVehicleActive()
+  M Boolean IsUsingMpSelectionWheels()
+  M void LockRadioStation(RadioStation station)
+  M void Pause(Boolean value)
+  M Boolean RemoveCustomGxtEntry(UInt32 originalHash, UInt32& oldHash)
+  M void SetControlValueNormalized(Control control, Single value)
+  M Boolean SetLocalizedString(Int32 entryLabelHash, string entry)
+  M void ShowSaveMenu()
+  M void ToggleSteeringAutoCenteringWhenExitingVehicle(Boolean value)
+  M void UnlockAllRadioStations()
+  M void UnlockRadioStation(RadioStation station)
+  M Boolean UpdateCustomGxtEntry(UInt32 originalHash, UInt32 newHash)
+  M void UseMpSelectionWheels(Boolean value)
+  M Boolean WasButtonCombinationJustEntered(Button[] buttons)
+  M Boolean WasCheatStringJustEntered(string cheat)
+  P Version FileVersion { get; }
+  P Single FPS { get; }
+  P Int32 FrameCount { get; }
+  P Int32 GameTime { get; }
+  P Boolean IsCutsceneActive { get; }
+  P Boolean isEnhanced { get; }
+  P Boolean IsLoading { get; }
+  P Boolean IsMissionActive { get; set; }
+  P Boolean IsNightVisionActive { get; set; }
+  P Boolean IsPaused { get; set; }
+  P Boolean IsRandomEventActive { get; set; }
+  P Boolean IsRiotModeEnabled { set; }
+  P Boolean IsThermalVisionActive { get; set; }
+  P Boolean IsVibrationEnabled { get; }
+  P Boolean IsWaypointActive { get; }
+  P Language Language { get; set; }
+  P Single LastFrameTime { get; }
+  P InputMethod LastInputMethod { get; }
+  P Ped LocalPlayerPed { get; }
+  P Int32 MaxWantedLevel { get; set; }
+  P MeasurementSystem MeasurementSystem { get; }
+  P Blip NorthBlip { get; }
+  P Player Player { get; }
+  P Blip PlayerBlip { get; }
+  P PlayerTargetingMode PlayerTargetingMode { get; }
+  P RadioStation RadioStation { get; set; }
+  P Single TimeScale { get; set; }
+  P GameVersion Version { get; }
+
+### GTA.GameplayCamera : Public
+  F Int32 DefaultDwellTime
+  F Int32 DefaultInterpInTime
+  F Int32 DefaultInterpOutTime
+  M void DisableFirstPersonFlashEffectThisUpdate()
+  M void DisableOnFootFirstPersonViewThisUpdate()
+  M void FollowCameraIgnoreAttachParentMovementThisUpdate()
+  M void ForceRelativeHeadingAndPitch(Single heading, Single pitch, Single smoothRate)
+  M CamViewMode GetCamViewModeForContext(CamViewModeContext context)
+  M Vector3 GetOffsetPosition(Vector3 offset)
+  M Vector3 GetPositionOffset(Vector3 worldCoords)
+  M CamViewMode SetCamViewModeForContext(CamViewModeContext context, CamViewMode viewMode)
+  M void SetCoordHint(Vector3 coord, Int32 dwellTime, Int32 interpTo, Int32 interpFrom, CameraHintHelperNameHash overriddenHintType)
+  M void SetEntityHint(Entity entity, Vector3 offset, Boolean relativeOffset, Int32 dwellTime, Int32 interpTo, Int32 interpFrom, CameraHintHelperNameHash overriddenHintType)
+  M void SetInVehicleCameraStateThisUpdate(Vehicle vehicle, CamInVehicleState inVehicleState)
+  M void SetRelativePitch(Single pitch, Single smoothRate)
+  M void SetThirdPersonCameraOrbitDistanceLimitsThisUpdate(Single minDistance, Single maxDistance)
+  M void SetThirdPersonCameraRelativeHeadingLimitsThisUpdate(Single minRelativeHeading, Single maxRelativeHeading)
+  M void SetThirdPersonCameraRelativePitchLimitsThisUpdate(Single minRelativePitch, Single maxRelativePitch)
+  M void Shake(CameraShake shakeType, Single amplitude)
+  M void StopCodeGameplayHint(Boolean stopImmediately)
+  M void StopGameplayHint(Boolean stopImmediately)
+  M void StopShaking()
+  M void StopShaking(Boolean stopImmediately)
+  P CamViewModeContext ActiveViewModeContext { get; }
+  P Vector3 Direction { get; }
+  P Single FieldOfView { get; }
+  P Single FirstPersonAimCamZoomFactor { get; set; }
+  P CamViewMode FollowPedCamViewMode { get; set; }
+  P CamViewMode FollowVehicleCamViewMode { get; set; }
+  P Vector3 ForwardVector { get; }
+  P Single HintBaseOrbitPitchOffset { set; }
+  P Single HintCameraRelativeSideOffset { set; }
+  P Single HintCameraRelativeVerticalOffset { set; }
+  P Single HintFollowDistanceScalar { set; }
+  P Single HintFovOverride { set; }
+  P Boolean IsAimCamActive { get; }
+  P Boolean IsCodeHintActive { get; }
+  P Boolean IsFirstPersonAimCamActive { get; }
+  P Boolean IsFollowPedCamActive { get; }
+  P Boolean IsFollowVehicleCamActive { get; }
+  P Boolean IsHintActive { get; }
+  P Boolean IsLookingBehind { get; }
+  P Boolean IsRendering { get; }
+  P Boolean IsShaking { get; }
+  P Matrix Matrix { get; }
+  P IntPtr MemoryAddress { get; }
+  P Vector3 Position { get; }
+  P Single RelativeHeading { get; set; }
+  P Single RelativePitch { get; set; }
+  P Vector3 RightVector { get; }
+  P Vector3 Rotation { get; }
+  P Single ShakeAmplitude { set; }
+  P Vector3 UpVector { get; }
+  P Single Zoom { get; }
+
+### GTA.World : Public
+  M void AddExplosion(Vector3 position, ExplosionType type, Single radius, Single cameraShake, Ped owner, Boolean aubidble, Boolean invisible)
+  M RelationshipGroup AddRelationshipGroup(string name)
+  M Rope AddRope(RopeType type, Vector3 position, Vector3 rotation, Single length, Single minLength, Boolean breakable)
+  M Single CalculateTravelDistance(Vector3 origin, Vector3 destination)
+  M void ClearAngledAreaOfVehicles(Vector3 position1, Vector3 position2, Single areaWidth, Boolean leaveCarGenCars, Boolean checkViewFrustum, Boolean ifWrecked, Boolean ifAbandoned, Boolean ifEngineOnFire)
+  M void ClearArea(Vector3 position, Single radius, Boolean deleteProjectiles, Boolean leaveCarGenCars, Boolean clearLowPriorityPickupsOnly)
+  M void ClearAreaOfCops(Vector3 position, Single radius)
+  M void ClearAreaOfPeds(Vector3 position, Single radius)
+  M void ClearAreaOfProjectiles(Vector3 position, Single radius)
+  M void ClearAreaOfProps(Vector3 position, Single radius, ClearPropsFlags flags)
+  M void ClearAreaOfVehicles(Vector3 position, Single radius, Boolean leaveCarGenCars, Boolean checkViewFrustum, Boolean ifWrecked, Boolean ifAbandoned, Boolean ifEngineOnFire)
+  M Prop CreateAmbientPickup(PickupType type, Vector3 position, PickupPlacementFlags placementFlags, Int32 amount, Model customModel, Boolean createAsScriptObject)
+  M Prop CreateAmbientPickup(PickupType type, Vector3 position, Model model, Int32 value)
+  M Blip CreateBlip(Vector3 position)
+  M Blip CreateBlip(Vector3 position, Single radius)
+  M Camera CreateCamera(Vector3 position, Vector3 rotation, Single fov)
+  M Checkpoint CreateCheckpoint(CheckpointIcon icon, Vector3 position, Vector3 pointTo, Single radius, Color color)
+  M Checkpoint CreateCheckpoint(CheckpointCustomIcon icon, Vector3 position, Vector3 pointTo, Single radius, Color color)
+  M ParticleEffect CreateParticleEffect(ParticleEffectAsset asset, string effectName, Entity entity, Vector3 offset, Vector3 rotation, Single scale, InvertAxisFlags invertAxis)
+  M ParticleEffect CreateParticleEffect(ParticleEffectAsset asset, string effectName, EntityBone entityBone, Vector3 offset, Vector3 rotation, Single scale, InvertAxisFlags invertAxis)
+  M ParticleEffect CreateParticleEffect(ParticleEffectAsset asset, string effectName, Vector3 position, Vector3 rotation, Single scale, InvertAxisFlags invertAxis)
+  M Boolean CreateParticleEffectNonLooped(ParticleEffectAsset asset, string effectName, Vector3 pos, Vector3 rot, Single scale, InvertAxisFlags invertAxis)
+  M Boolean CreateParticleEffectNonLooped(ParticleEffectAsset asset, string effectName, Entity entity, Vector3 off, Vector3 rot, Single scale, InvertAxisFlags invertAxis)
+  M Boolean CreateParticleEffectNonLooped(ParticleEffectAsset asset, string effectName, EntityBone entityBone, Vector3 off, Vector3 rot, Single scale, InvertAxisFlags invertAxis)
+  M Ped CreatePed(Model model, Vector3 position, Single heading)
+  M Pickup CreatePickup(PickupType type, Vector3 position, PickupPlacementFlags placementFlags, Int32 amount, Model customModel)
+  M Pickup CreatePickup(PickupType type, Vector3 position, Vector3 rotation, PickupPlacementFlags placementFlags, Int32 amount, EulerRotationOrder rotOrder, Model customModel)
+  M Pickup CreatePickup(PickupType type, Vector3 position, Model model, Int32 value)
+  M Pickup CreatePickup(PickupType type, Vector3 position, Vector3 rotation, Model model, Int32 value)
+  M Prop CreateProp(Model model, Vector3 position, Boolean dynamic, Boolean placeOnGround)
+  M Prop CreateProp(Model model, Vector3 position, Vector3 rotation, Boolean dynamic, Boolean placeOnGround)
+  M Prop CreatePropNoOffset(Model model, Vector3 position, Boolean dynamic)
+  M Prop CreatePropNoOffset(Model model, Vector3 position, Vector3 rotation, Boolean dynamic)
+  M Ped CreateRandomPed(Vector3 position)
+  M Ped CreateRandomPed(Vector3 position, Single heading, Func<Model,Boolean> predicate)
+  M Vehicle CreateRandomVehicle(Vector3 position, Single heading, Func<Model,Boolean> predicate)
+  M Vehicle CreateVehicle(Model model, Vector3 position, Single heading)
+  M void DeleteAllTrains()
+  M void DestroyAllCameras()
+  M void DrawBoxForAngledArea(Vector3 originEdge, Vector3 extentEdge, Single width, Color color, DrawBoxFlags drawFlags)
+  M void DrawLightWithRange(Vector3 position, Color color, Single range, Single intensity)
+  M void DrawLine(Vector3 start, Vector3 end, Color color)
+  M void DrawMarker(MarkerType type, Vector3 pos, Vector3 dir, Vector3 rot, Vector3 scale, Color color, Boolean bobUpAndDown, Boolean faceCamera, Boolean rotateY, string textueDict, string textureName, Boolean drawOnEntity)
+  M void DrawMarkerEx(MarkerType type, Vector3 pos, Vector3 dir, Vector3 rot, Vector3 scale, Color color, Boolean bounce, Boolean faceCamera, EulerRotationOrder rotOrder, Boolean rotate, Nullable<TextureAsset> texAsset, Boolean renderInverted, Boolean usePreAlphaDepth, Boolean matchEntityRotOrder)
+  M void DrawPolygon(Vector3 vertexA, Vector3 vertexB, Vector3 vertexC, Color color)
+  M void DrawSpotLight(Vector3 pos, Vector3 dir, Color color, Single distance, Single brightness, Single roundness, Single radius, Single fadeout)
+  M void DrawSpotLightWithShadow(Vector3 pos, Vector3 dir, Color color, Single distance, Single brightness, Single roundness, Single radius, Single fadeout)
+  M void ForceLightningFlash()
+  M AnimatedBuilding[] GetAllAnimatedBuildings()
+  M Blip[] GetAllBlips(BlipSprite[] blipTypes)
+  M Building[] GetAllBuildings()
+  M Checkpoint[] GetAllCheckpoints()
+  M Entity[] GetAllEntities()
+  M InteriorInstance[] GetAllInteriorInstances()
+  M InteriorProxy[] GetAllInteriorProxies()
+  M Ped[] GetAllPeds(Model[] models)
+  M PickupObjectPlacement[] GetAllPickupObjectPlacements()
+  M Prop[] GetAllPickupObjects()
+  M Projectile[] GetAllProjectiles()
+  M Prop[] GetAllProps(Model[] models)
+  M ProjectileRocket[] GetAllRocketProjectiles()
+  M ProjectileThrown[] GetAllThrownProjectiles()
+  M Vehicle[] GetAllVehicles(Model[] models)
+  M Single GetApproxFloorForArea(Vector2 minPosition, Vector2 maxPosition)
+  M Single GetApproxFloorForPoint(Vector2 position)
+  M Single GetApproxHeightForArea(Vector2 minPosition, Vector2 maxPosition)
+  M Single GetApproxHeightForPoint(Vector2 position)
+  M T GetClosest(Vector3 position, T[] spatials)
+  M T GetClosest(Vector2 position, T[] spatials)
+  M Building GetClosest(Vector3 position, Building[] buildings)
+  M Building GetClosest(Vector2 position, Building[] buildings)
+  M AnimatedBuilding GetClosest(Vector3 position, AnimatedBuilding[] animatedBuildings)
+  M AnimatedBuilding GetClosest(Vector2 position, AnimatedBuilding[] animatedBuildings)
+  M InteriorInstance GetClosest(Vector3 position, InteriorInstance[] interiorInstances)
+  M InteriorInstance GetClosest(Vector2 position, InteriorInstance[] interiorInstances)
+  M InteriorProxy GetClosest(Vector3 position, InteriorProxy[] interiorProxies)
+  M InteriorProxy GetClosest(Vector2 position, InteriorProxy[] interiorProxies)
+  M AnimatedBuilding GetClosestAnimatedBuilding(Vector3 position, Single radius)
+  M Building GetClosestBuilding(Vector3 position, Single radius)
+  M InteriorInstance GetClosestInteriorInstance(Vector3 position, Single radius)
+  M InteriorProxy GetClosestInteriorProxy(Vector3 position, Single radius)
+  M Ped GetClosestPed(Vector3 position, Single radius, Model[] models)
+  M Prop GetClosestPickupObject(Vector3 position, Single radius)
+  M Projectile GetClosestProjectile(Vector3 position, Single radius)
+  M Prop GetClosestProp(Vector3 position, Single radius, Model[] models)
+  M ProjectileRocket GetClosestRocketProjectile(Vector3 position, Single radius)
+  M ProjectileThrown GetClosestThrownProjectile(Vector3 position, Single radius)
+  M Vehicle GetClosestVehicle(Vector3 position, Single radius, Model[] models)
+  M RaycastResult GetCrosshairCoordinates()
+  M RaycastResult GetCrosshairCoordinates(IntersectFlags intersectOptions, Entity ignoreEntity)
+  M Single GetDistance(Vector3 origin, Vector3 destination)
+  M Boolean GetGroundHeight(Vector3 position, Single& height, GetGroundHeightMode mode)
+  M Single GetGroundHeight(Vector2 position)
+  M Single GetGroundHeight(Vector3 position)
+  M Boolean GetGroundHeightAndNormal(Vector3 position, Single& height, Vector3& normal)
+  M Boolean GetGroundHeightExcludingProps(Vector3 position, Single& height, GetGroundHeightMode mode)
+  M AnimatedBuilding[] GetNearbyAnimatedBuildings(Vector3 position, Single radius)
+  M Blip[] GetNearbyBlips(Vector3 position, Single radius, BlipSprite[] blipTypes)
+  M Building[] GetNearbyBuildings(Vector3 position, Single radius)
+  M Entity[] GetNearbyEntities(Vector3 position, Single radius)
+  M InteriorInstance[] GetNearbyInteriorInstances(Vector3 position, Single radius)
+  M InteriorProxy[] GetNearbyInteriorProxies(Vector3 position, Single radius)
+  M Ped[] GetNearbyPeds(Ped ped, Single radius, Model[] models)
+  M Ped[] GetNearbyPeds(Vector3 position, Single radius, Model[] models)
+  M PickupObjectPlacement[] GetNearbyPickupObjectPlacements(Vector3 position, Single radius)
+  M Prop[] GetNearbyPickupObjects(Vector3 position, Single radius)
+  M Projectile[] GetNearbyProjectiles(Vector3 position, Single radius)
+  M Prop[] GetNearbyProps(Vector3 position, Single radius, Model[] models)
+  M ProjectileRocket[] GetNearbyRocketProjectiles(Vector3 position, Single radius)
+  M ProjectileThrown[] GetNearbyThrownProjectiles(Vector3 position, Single radius)
+  M Vehicle[] GetNearbyVehicles(Ped ped, Single radius, Model[] models)
+  M Vehicle[] GetNearbyVehicles(Vector3 position, Single radius, Model[] models)
+  M Vector3 GetNextPositionOnSidewalk(Vector2 position)
+  M Vector3 GetNextPositionOnSidewalk(Vector3 position)
+  M Vector3 GetNextPositionOnStreet(Vector2 position, Boolean unoccupied)
+  M Vector3 GetNextPositionOnStreet(Vector3 position, Boolean unoccupied)
+  M Vector3 GetNextPositionOnStreetWithHeading(Vector2 position, Single& heading, Boolean unoccupied)
+  M Vector3 GetNextPositionOnStreetWithHeading(Vector3 position, Single& heading, Boolean unoccupied)
+  M Vector3 GetNextPositionOnWater(Vector2 position, Boolean unoccupied)
+  M Vector3 GetNextPositionOnWater(Vector3 position, Boolean unoccupied)
+  M Boolean GetPositionOnRoadside(Vector3 position, Direction direction, Vector3& output)
+  M Vector3 GetSafeCoordForPed(Vector3 position, Boolean sidewalk, Int32 flags)
+  M Boolean GetSafePositionForPed(Vector3 position, Vector3& safePosition, GetSafePositionFlags flags)
+  M string GetStreetName(Vector2 position)
+  M string GetStreetName(Vector3 position)
+  M string GetStreetName(Vector3 position, String& crossingRoadName)
+  M string GetZoneDisplayName(Vector2 position)
+  M string GetZoneDisplayName(Vector3 position)
+  M string GetZoneLocalizedName(Vector2 position)
+  M string GetZoneLocalizedName(Vector3 position)
+  M Boolean IsPointInAngledArea(Vector3 point, Vector3 originEdge, Vector3 extentEdge, Single width, Boolean includeZAxis)
+  M void PauseClock(Boolean value)
+  M RaycastResult Raycast(Vector3 source, Vector3 target, IntersectFlags options, Entity ignoreEntity)
+  M RaycastResult Raycast(Vector3 source, Vector3 direction, Single maxDistance, IntersectFlags options, Entity ignoreEntity)
+  M RaycastResult RaycastCapsule(Vector3 source, Vector3 target, Single radius, IntersectFlags options, Entity ignoreEntity)
+  M RaycastResult RaycastCapsule(Vector3 source, Vector3 direction, Single maxDistance, Single radius, IntersectFlags options, Entity ignoreEntity)
+  M void RemoveAllParticleEffectsInRange(Vector3 pos, Single range)
+  M void RemoveWaypoint()
+  M void SetAmbientPedDensityMultiplierThisFrame(Single densityMult)
+  M void SetAmbientVehicleDensityMultiplierThisFrame(Single densityMult)
+  M void SetRandomWeather()
+  M void SetWindSpeedOverrideBySpeed(Single windSpeed)
+  M void ShootBullet(Vector3 sourcePosition, Vector3 targetPosition, Ped owner, WeaponAsset weaponAsset, Int32 damage, Single speed)
+  M void ShootSingleBullet(Vector3 startPosition, Vector3 endPosition, Int32 damage, WeaponAsset weapon, Ped owner, Boolean perfectAccuracy, Boolean createTraceVfx, Boolean allowRumble, Single initialVelocity)
+  M void ShootSingleBulletIgnoreEntity(Vector3 startPosition, Vector3 endPosition, Int32 damage, WeaponAsset weapon, Ped owner, Boolean perfectAccuracy, Boolean createTraceVfx, Boolean allowRumble, Single initialVelocity, Entity ignoreEntity, Entity targetEntity)
+  M void ShootSingleBulletIgnoreEntityNew(Vector3 startPosition, Vector3 endPosition, Int32 damage, WeaponAsset weapon, Ped owner, Boolean perfectAccuracy, Boolean createTraceVfx, Boolean allowRumble, Single initialVelocity, Entity ignoreEntity, Boolean forceCreateNewProjectileObject, Boolean disablePlayerCoverStartAdjustment, Entity targetEntity, Boolean freezeProjectileWaitingOnCollision, Boolean ignoreCollisionEntity, Boolean ignoreCollisionResetNoBB)
+  M void TransitionToWeather(Weather weather, Single duration)
+  M void VehicleHighSpeedBumpMultiplier(Single multiplier)
+  P Int32 AnimatedBuildingCapacity { get; }
+  P Int32 AnimatedBuildingCount { get; }
+  P Boolean Blackout { set; }
+  P Int32 BuildingCapacity { get; }
+  P Int32 BuildingCount { get; }
+  P DateTime CurrentDate { get; set; }
+  P TimeSpan CurrentTimeOfDay { get; set; }
+  P Int32 EntityColliderCapacity { get; }
+  P Int32 EntityColliderCount { get; }
+  P Single GravityLevel { get; set; }
+  P Int32 InteriorInstanceCapacity { get; }
+  P Int32 InteriorInstanceCount { get; }
+  P Int32 InteriorProxyCapacity { get; }
+  P Int32 InteriorProxyCount { get; }
+  P Boolean IsClockPaused { get; set; }
+  P Int32 MillisecondsPerGameMinute { get; set; }
+  P Weather NextWeather { get; set; }
+  P Int32 PedCapacity { get; }
+  P Int32 PedCount { get; }
+  P Int32 PickupObjectCapacity { get; }
+  P Int32 PickupObjectCount { get; }
+  P Int32 PickupObjectPlacementCapacity { get; }
+  P Int32 PickupObjectPlacementCount { get; }
+  P Int32 ProjectileCapacity { get; }
+  P Int32 ProjectileCount { get; }
+  P Int32 PropCapacity { get; }
+  P Int32 PropCount { get; }
+  P Single RainLevel { get; }
+  P Single RainLevelOverride { set; }
+  P Camera RenderingCamera { get; set; }
+  P Single SnowLevel { get; }
+  P Single SnowLevelOverride { set; }
+  P Int32 VehicleCapacity { get; }
+  P Int32 VehicleCount { get; }
+  P Blip WaypointBlip { get; }
+  P Vector3 WaypointPosition { get; set; }
+  P Weather Weather { get; set; }
+  P Vector3 WindDirection { get; }
+  P Single WindSpeed { get; }
+  P Single WindSpeedOverride { set; }
+
+### GTA.RaycastResult : Public
+  System.Void .ctor(System.Int32)
+  P Boolean DidHit { get; }
+  P Entity HitEntity { get; }
+  P Vector3 HitPosition { get; }
+  P MaterialHash MaterialHash { get; }
+  P Int32 Result { get; }
+  P Vector3 SurfaceNormal { get; }
+
+### GTA.Player : Public
+  M void ActivateSpecialAbility()
+  M Boolean ChangeModel(Model model)
+  M void ChargeSpecialAbility(Int32 absoluteAmount)
+  M void ChargeSpecialAbility(Int32 absoluteAmount, Boolean ignoreActive)
+  M void ChargeSpecialAbility(Single normalizedRatio)
+  M void ChargeSpecialAbility(Single normalizedRatio, Boolean ignoreActive)
+  M void DeactivateSpecialAbility()
+  M void DeactivateSpecialAbilityInstantly()
+  M void DepleteSpecialAbility()
+  M void DepleteSpecialAbility(Boolean ignoreActive)
+  M void DisableFiringThisFrame()
+  M Boolean Equals(Object obj)
+  M Int32 GetHashCode()
+  M Boolean IsTargeting(Entity entity)
+  M void RefillSpecialAbility()
+  M void RefillSpecialAbility(Boolean ignoreActive)
+  M void SetControlState(Boolean setControlOn, SetPlayerControlFlags flags)
+  M void SetExplosiveAmmoThisFrame()
+  M void SetExplosiveMeleeThisFrame()
+  M void SetFireAmmoThisFrame()
+  M void SetMayNotEnterAnyVehicleThisFrame()
+  M void SetMayOnlyEnterThisVehicleThisFrame(Vehicle vehicle)
+  M void SetRunSpeedMultThisFrame(Single mult)
+  M void SetSuperJumpThisFrame()
+  M void SetSwimSpeedMultThisFrame(Single mult)
+  P Boolean CanControlCharacter { get; set; }
+  P Boolean CanControlRagdoll { set; }
+  P Boolean CanLeaveParachuteSmokeTrail { set; }
+  P Boolean CanStartMission { get; }
+  P Boolean CanUseCover { set; }
+  P Ped Character { get; }
+  P Vector3 ClosestFreeAimTargetPos { get; }
+  P Boolean DispatchsCops { get; set; }
+  P Boolean ForcedAim { set; }
+  P Int32 Handle { get; set; }
+  P Boolean HasSpecialAbility { get; }
+  P Boolean IgnoredByEveryone { get; set; }
+  P Boolean IgnoredByPolice { get; set; }
+  P Boolean IsAiming { get; }
+  P Boolean IsAlive { get; }
+  P Boolean IsClimbing { get; }
+  P Boolean IsDead { get; }
+  P Boolean IsInvincible { get; set; }
+  P Boolean IsPlaying { get; }
+  P Boolean IsPressingHorn { get; }
+  P Boolean IsRidingTrain { get; }
+  P Boolean IsSpecialAbilityActive { get; }
+  P Boolean IsSpecialAbilityEnabled { get; set; }
+  P Boolean IsTargetingAnything { get; }
+  P Vector3 LastLockOnTargetPos { get; }
+  P Vehicle LastVehicle { get; }
+  P Entity LockedOnEntity { get; }
+  P Int32 MaxArmor { get; set; }
+  P Int32 MaxHealth { get; set; }
+  P Single MaxSpecialAbilityMeter { get; set; }
+  P IntPtr MemoryAddress { get; }
+  P Int32 Money { get; set; }
+  P string Name { get; }
+  P UInt64 NativeValue { get; set; }
+  P Color ParachuteSmokeTrailColor { get; set; }
+  P ParachuteTint PrimaryParachuteTint { get; set; }
+  P Single RemainingSpecialAbilityMeter { get; set; }
+  P Single RemainingSprintStamina { get; }
+  P Single RemainingSprintTime { get; }
+  P Single RemainingUnderwaterTime { get; }
+  P ParachuteTint ReserveParachuteTint { get; set; }
+  P Building TargetedBuilding { get; }
+  P Entity TargetedEntity { get; }
+  P Wanted Wanted { get; }
+  P Vector3 WantedCenterPosition { get; set; }
+  P Int32 WantedLevel { get; set; }
+
+### GTA.Ped : Public
+  M void ApplyBloodDamage(PedDamageZone zone, Vector3 position, PedBloodDamage bloodDamage)
+  M void ApplyBloodDamage(PedDamageZone zone, Vector2 position, PedBloodDamage bloodDamage)
+  M void ApplyBloodDamage(PedDamageZone zone, Vector2 position, PedBloodDamage bloodDamage, Single rotation, Single scale, Int32 frameIndex, Single woundAge)
+  M void ApplyDamage(Int32 damageAmount)
+  M void ApplyRelativeForceCenterOfMass(Vector3 force, ForceType forceType, RagdollComponent component, Boolean scaleByMass, Boolean applyToChildren)
+  M void ApplyRelativeForceRelativeOffset(Vector3 force, Vector3 offset, ForceType forceType, RagdollComponent component, Boolean scaleByMass, Boolean triggerAudio, Boolean scaleByTimeScale)
+  M void ApplyRelativeForceWorldOffset(Vector3 force, Vector3 offset, ForceType forceType, RagdollComponent component, Boolean scaleByMass, Boolean triggerAudio, Boolean scaleByTimeScale)
+  M void ApplyWorldForceCenterOfMass(Vector3 force, ForceType forceType, RagdollComponent component, Boolean scaleByMass, Boolean applyToChildren)
+  M void ApplyWorldForceRelativeOffset(Vector3 force, Vector3 offset, ForceType forceType, RagdollComponent component, Boolean scaleByMass, Boolean triggerAudio, Boolean scaleByTimeScale)
+  M void ApplyWorldForceWorldOffset(Vector3 force, Vector3 offset, ForceType forceType, RagdollComponent component, Boolean scaleByMass, Boolean triggerAudio, Boolean scaleByTimeScale)
+  M void CancelRagdoll()
+  M void ClearBloodDamage()
+  M void ClearCauseOfDeathRecord()
+  M void ClearFacialIdleAnimationOverride()
+  M void ClearKillerRecord()
+  M void ClearLastWeaponDamage()
+  M void ClearRagdollBlockingFlags(RagdollBlockingFlags flags)
+  M void ClearTimeOfDeathRecord()
+  M void ClearVisibleDamage()
+  M Ped Clone(Boolean linkBlends)
+  M Ped Clone(Single heading)
+  M Ped CloneAlt(Boolean linkBlends, Boolean cloneCompressedDamage)
+  M void CloneToTarget(Ped target)
+  M void CloneToTargetAlt(Ped target, Boolean cloneCompressedDamage)
+  M void DryOff()
+  M Boolean Exists()
+  M void FireVehicleWeaponAt(Entity target)
+  M void FireVehicleWeaponAt(Vector3 target)
+  M Boolean ForceMotionStateThisFrame(PedMotionState state, Boolean restartState, ForceAnimAIUpdateState exitState, Boolean forceAIPreCameraUpdate)
+  M PedHash[] GetAllLoadedModelsAppropriateForAmbientPeds()
+  M PedHash[] GetAllModels()
+  M Single GetCombatFloatAttribute(CombatFloatAttributes attribute)
+  M Boolean GetConfigFlag(PedConfigFlagToggles configFlagToggle)
+  M Boolean GetConfigFlag(Int32 flagID)
+  M void GetCurrentScriptTaskNameHashAndStatus(ScriptTaskNameHash& nameHash, ScriptTaskStatus& status)
+  M NavMeshRouteResult GetNavMeshRouteResult()
+  M Relationship GetRelationshipWithPed(Ped ped)
+  M Boolean GetResetFlag(PedResetFlagToggles configFlag)
+  M ScriptTaskStatus GetScriptTaskStatus(ScriptTaskNameHash taskNameHash)
+  M void GiveHelmet(Boolean canBeRemovedByPed, Helmet helmetType, Int32 textureIndex)
+  M void GiveHelmet(Boolean dontTakeOffHelmet, HelmetPropFlags helmetPropFlags, Int32 overwriteHelmetTextureId)
+  M Boolean HasBeenDamagedBy(WeaponHash weapon)
+  M Boolean HasBeenDamagedByAnyMeleeWeapon()
+  M Boolean HasBeenDamagedByAnyWeapon()
+  M Boolean HasReceivedEvent(EventType eventType)
+  M Boolean IsArmed(WeaponCheckFlags flags)
+  M Boolean IsHeadtracking(Entity entity)
+  M Boolean IsInCombatAgainst(Ped target)
+  M Boolean IsInVehicle()
+  M Boolean IsInVehicle(Vehicle vehicle)
+  M Boolean IsRespondingToEvent(EventType eventType)
+  M Boolean IsSittingInVehicle()
+  M Boolean IsSittingInVehicle(Vehicle vehicle)
+  M Boolean IsStandingOnVehicle()
+  M Boolean IsStandingOnVehicle(Vehicle vehicle)
+  M void Kill()
+  M void LeaveGroup()
+  M void OpenParachute()
+  M void PlayAmbientSpeech(string speechName, SpeechModifier modifier)
+  M void PlayAmbientSpeech(string speechName, string voiceName, SpeechModifier modifier)
+  M void PlayFacialAnimation(CrClipAsset clipAsset)
+  M void PlayFacialAnimation(string animName)
+  M void PlayFacialAnimation(CommonPedFacialAnimation anim)
+  M void Ragdoll(Int32 duration, RagdollType ragdollType)
+  M void RemoveHelmet(Boolean instantly)
+  M void ResetConfigFlag(Int32 flagID)
+  M void ResetMovementClipSet(Nullable<AnimationBlendDuration> blendDuration)
+  M void ResetStrafeClipSet()
+  M void ResetWeaponMovementClipSet()
+  M void Resurrect()
+  M void SetAsCop(Boolean setRelationshipGroup)
+  M void SetCombatAttribute(CombatAttributes attribute, Boolean activeSkill)
+  M void SetCombatFloatAttribute(CombatFloatAttributes attribute, Single newValue)
+  M void SetConfigFlag(PedConfigFlagToggles configFlagToggle, Boolean value)
+  M void SetConfigFlag(Int32 flagID, Boolean value)
+  M void SetFacialClipset(ClipSet clipSet)
+  M void SetFacialIdleAnimationOverride(CrClipAsset clipAsset)
+  M void SetFacialIdleAnimationOverride(string animName)
+  M void SetFacialIdleAnimationOverride(CommonPedFacialAnimation anim)
+  M void SetFleeAttributes(FleeAttributes attributes, Boolean activeSkill)
+  M void SetIKTarget(IKPart ikPart, PedBone targetBone, Vector3 targetOffset, IKTargetFlags flags, Int32 blendInTimeMS, Int32 blendOutTimeMS)
+  M void SetIKTarget(IKPart ikPart, EntityBone targetBone, Vector3 targetOffset, IKTargetFlags flags, Int32 blendInTimeMS, Int32 blendOutTimeMS)
+  M void SetIKTarget(IKPart ikPart, Entity targetEntity, Int32 boneTag, Vector3 targetOffset, IKTargetFlags flags, Int32 blendInTimeMS, Int32 blendOutTimeMS)
+  M void SetIKTarget(IKPart ikPart, Vector3 target, IKTargetFlags flags, Int32 blendInTimeMS, Int32 blendOutTimeMS)
+  M void SetIntoVehicle(Vehicle vehicle, VehicleSeat seat)
+  M void SetIsPersistentNoClearTask(Boolean value)
+  M void SetMovementClipSet(ClipSet clipSet, Nullable<AnimationBlendDuration> blendDuration)
+  M void SetRagdollBlockingFlags(RagdollBlockingFlags flags)
+  M void SetResetFlag(PedResetFlagToggles configFlag, Boolean value)
+  M void SetStrafeClipSet(ClipSet clipSet)
+  M Boolean SetToRagdoll(Int32 minTime, Int32 maxTime, RagdollType ragdollType, Boolean forceScriptControl)
+  M Boolean SetToRagdollWithFall(Int32 minTime, Int32 maxTime, RagdollFallType fallType, Vector3 direction, Single groundHeight)
+  M void SetVehicleChaseBehaviorFlags(VehicleChaseBehaviorFlags flags, Boolean value)
+  M void SetVehicleChaseIdealPursuitDistance(Single distance)
+  M void SetWeaponMovementClipSet(ClipSet clipSet)
+  M void SetWetnessEnabledThisFrame()
+  M void StopCurrentPlayingAmbientSpeech()
+  M void StopCurrentPlayingSpeech()
+  M Boolean TrySetVehicleWeapon(VehicleWeaponHash hash)
+  M void Wet(Single height)
+  M void Wet(Single height, Single wetLevel)
+  P Int32 Accuracy { get; set; }
+  P Boolean AlwaysKeepTask { set; }
+  P Int32 Armor { get; set; }
+  P Single ArmorFloat { get; set; }
+  P Boolean BlockPermanentEvents { get; set; }
+  P PedBoneCollection Bones { get; }
+  P Boolean CanBeDraggedOutOfVehicle { get; set; }
+  P Boolean CanBeKnockedOffBike { set; }
+  P Boolean CanBeKnockedOffVehicle { get; }
+  P Boolean CanBeShotInVehicle { get; set; }
+  P Boolean CanBeTargetted { get; set; }
+  P Boolean CanFlyThroughWindscreen { get; set; }
+  P Boolean CanPlayGestures { get; set; }
+  P Boolean CanRagdoll { get; set; }
+  P Boolean CanSufferCriticalHits { get; set; }
+  P Boolean CanSwitchWeapons { get; set; }
+  P Boolean CanWearHelmet { get; set; }
+  P Boolean CanWrithe { get; set; }
+  P WeaponHash CauseOfDeath { get; }
+  P CombatAbility CombatAbility { set; }
+  P CombatMovement CombatMovement { get; set; }
+  P CombatRange CombatRange { get; set; }
+  P Ped CombatTarget { get; }
+  P ScriptTaskNameHash CurrentScriptTaskNameHash { get; }
+  P ScriptTaskStatus CurrentScriptTaskStatus { get; }
+  P Vehicle CurrentVehicle { get; }
+  P DecisionMaker DecisionMaker { get; set; }
+  P Boolean DiesInstantlyInWater { get; set; }
+  P Boolean DiesOnLowHealth { set; }
+  P Single DrivingAggressiveness { set; }
+  P Single DrivingSpeed { set; }
+  P DrivingStyle DrivingStyle { set; }
+  P Boolean DropsEquippedWeaponOnDeath { get; set; }
+  P Boolean DrownsInSinkingVehicle { get; set; }
+  P Boolean DrownsInWater { get; set; }
+  P Euphoria Euphoria { get; }
+  P Single FatalInjuryHealthThreshold { get; set; }
+  P FiringPattern FiringPattern { get; set; }
+  P Gender Gender { get; }
+  P Entity GroundEntity { get; }
+  P Single HearingRange { get; set; }
+  P Single InjuryHealthThreshold { get; set; }
+  P Boolean IsAiming { get; }
+  P Boolean IsAimingFromCover { get; }
+  P Boolean IsAmbientSpeechEnabled { get; }
+  P Boolean IsAmbientSpeechPlaying { get; }
+  P Boolean IsAnySpeechPlaying { get; }
+  P Boolean IsBeingJacked { get; }
+  P Boolean IsBeingStealthKilled { get; }
+  P Boolean IsBeingStunned { get; }
+  P Boolean IsClimbing { get; }
+  P Boolean IsClimbingLadder { get; }
+  P Boolean IsCuffed { get; }
+  P Boolean IsDiving { get; }
+  P Boolean IsDoingDriveBy { get; }
+  P Boolean IsDucking { get; set; }
+  P Boolean IsEnemy { get; set; }
+  P Boolean IsEnteringVehicle { get; }
+  P Boolean IsExitingVehicle { get; }
+  P Boolean IsFalling { get; }
+  P Boolean IsFleeing { get; }
+  P Boolean IsGettingIntoVehicle { get; }
+  P Boolean IsGettingUp { get; }
+  P Boolean IsGoingIntoCover { get; }
+  P Boolean IsHuman { get; }
+  P Boolean IsIdle { get; }
+  P Boolean IsInBoat { get; }
+  P Boolean IsInCombat { get; }
+  P Boolean IsInCover { get; }
+  P Boolean IsInCoverFacingLeft { get; }
+  P Boolean IsInFlyingVehicle { get; }
+  P Boolean IsInGroup { get; }
+  P Boolean IsInHeli { get; }
+  P Boolean IsInjured { get; }
+  P Boolean IsInMeleeCombat { get; }
+  P Boolean IsInParachuteFreeFall { get; }
+  P Boolean IsInPlane { get; }
+  P Boolean IsInPoliceVehicle { get; }
+  P Boolean IsInStealthMode { get; }
+  P Boolean IsInSub { get; }
+  P Boolean IsInTaxi { get; }
+  P Boolean IsInTrain { get; }
+  P Boolean IsJacking { get; }
+  P Boolean IsJumping { get; }
+  P Boolean IsJumpingOutOfVehicle { get; }
+  P Boolean IsOnBike { get; }
+  P Boolean IsOnFoot { get; }
+  P Boolean IsPainAudioEnabled { set; }
+  P Boolean IsPerformingCounterAttack { get; }
+  P Boolean IsPerformingMeleeAction { get; }
+  P Boolean IsPerformingStealthKill { get; }
+  P Boolean IsPlantingBomb { get; }
+  P Boolean IsPlayer { get; }
+  P Boolean IsPriorityTargetForEnemies { get; set; }
+  P Boolean IsProne { get; }
+  P Boolean IsRagdoll { get; }
+  P Boolean IsReadyToShoot { get; }
+  P Boolean IsReloading { get; }
+  P Boolean IsRunning { get; }
+  P Boolean IsRunningRagdollTask { get; }
+  P Boolean IsScriptedSpeechPlaying { get; }
+  P Boolean IsShooting { get; }
+  P Boolean IsSprinting { get; }
+  P Boolean IsStopped { get; }
+  P Boolean IsSwimming { get; }
+  P Boolean IsSwimmingUnderWater { get; }
+  P Boolean IsTakingOffHelmet { get; }
+  P Boolean IsTryingToEnterALockedVehicle { get; }
+  P Boolean IsVaulting { get; }
+  P Boolean IsWalking { get; }
+  P Boolean IsWearingHelmet { get; }
+  P Boolean IsWet { get; }
+  P Ped Jacker { get; }
+  P Ped JackTarget { get; }
+  P Boolean KeepTaskWhenMarkedAsNoLongerNeeded { set; }
+  P Entity Killer { get; }
+  P KnockOffVehicleType KnockOffVehicleType { get; set; }
+  P Vehicle LastVehicle { get; }
+  P Vector3 LastWeaponImpactPosition { get; }
+  P Single LowerWetnessHeight { get; set; }
+  P Single LowerWetnessLevel { get; set; }
+  P Single MaxDrivingSpeed { set; }
+  P Int32 MaxHealth { get; set; }
+  P Ped MeleeTarget { get; }
+  P Int32 Money { get; set; }
+  P string MovementAnimationSet { set; }
+  P PedMoveNetworkTaskInterface MoveNetworkTaskInterface { get; }
+  P Boolean NeverLeavesGroup { get; set; }
+  P ParachuteLandingType ParachuteLandingType { get; }
+  P ParachuteState ParachuteState { get; }
+  P PedConfigFlags PedConfigFlags { get; }
+  P PedGroup PedGroup { get; }
+  P PedResetFlags PedResetFlags { get; }
+  P PedType PedType { get; }
+  P Boolean RandomPedsBlockingNonTempEventsThisFrame { set; }
+  P RelationshipGroup RelationshipGroup { get; set; }
+  P VehicleSeat SeatIndex { get; }
+  P Single SeeingRange { get; set; }
+  P Int32 ShootRate { set; }
+  P Boolean StaysInVehicleWhenJacked { get; set; }
+  P Style Style { get; }
+  P Single Sweat { get; set; }
+  P TargetLossResponse TargetLossResponse { set; }
+  P TaskInvoker Task { get; }
+  P Int32 TaskSequenceProgress { get; }
+  P Int32 TimeOfDeath { get; }
+  P Single UpperWetnessHeight { get; set; }
+  P Single UpperWetnessLevel { get; set; }
+  P VehicleDrivingFlags VehicleDrivingFlags { set; }
+  P Vehicle VehicleTryingToEnter { get; }
+  P VehicleWeaponHash VehicleWeapon { get; set; }
+  P Single VisualFieldCenterAngle { get; set; }
+  P Single VisualFieldMaxAngle { get; set; }
+  P Single VisualFieldMaxElevationAngle { get; set; }
+  P Single VisualFieldMinAngle { get; set; }
+  P Single VisualFieldMinElevationAngle { get; set; }
+  P Single VisualFieldPeripheralRange { get; set; }
+  P string Voice { set; }
+  P Boolean WasKilledByStealth { get; }
+  P Boolean WasKilledByTakedown { get; }
+  P WeaponCollection Weapons { get; }
+  P Single WetnessHeight { set; }
+
+### GTA.Vehicle : Public
+  M Boolean ActivateDriftMode(DriftCarHash driftType)
+  M Boolean ActivateSpecialFlightMode()
+  M void ApplyDamage(Vector3 position, Single damageAmount, Single radius)
+  M void ApplyDamageDeformation(Vector3 position, Single damage, Single deformation, Boolean localDamage)
+  M void AttachOnToTrailer(Vehicle trailer, Vector3 offset, Vector3 trailerOffset, Vector3 rotation, Single physicalStrength)
+  M void AttachToTrailer(Vehicle trailer, Single inverseMassScale)
+  M void BringToHalt(Single stoppingDistance, Int32 timeToStopFor, Boolean controlVerticalVelocity)
+  M void CargoBobMagnetGrabVehicle()
+  M void CargoBobMagnetReleaseVehicle()
+  M void CloseBombBay()
+  M Ped CreatePedOnSeat(VehicleSeat seat, Model model)
+  M Ped CreateRandomPedOnSeat(VehicleSeat seat)
+  M Boolean DeactivateDriftMode()
+  M Boolean DeactivateSpecialFlightMode()
+  M void DetachFromTowTruck()
+  M void DetachFromTrailer()
+  M void DetachTowedVehicle()
+  M void DropCargobobHook(CargobobHook hook)
+  M Boolean Exists()
+  M void Explode()
+  M Boolean ExtraExists(Int32 extra)
+  M void ForceUseAudioGameObject(string gameObjectName)
+  M VehicleMissionType GetActiveMissionType()
+  M VehicleHash[] GetAllLoadedModelsAppropriateForAmbientVehicles()
+  M VehicleHash[] GetAllModels()
+  M VehicleHash[] GetAllModelsOfClass(VehicleClass vehicleClass)
+  M VehicleHash[] GetAllModelsOfType(VehicleType vehicleType)
+  M Int32[] GetAllModelValues()
+  M string GetClassDisplayName(VehicleClass vehicleClass)
+  M VehicleClass GetModelClass(Model vehicleModel)
+  M string GetModelDisplayName(Model vehicleModel)
+  M string GetModelMakeName(Model vehicleModel)
+  M VehicleType GetModelType(Model vehicleModel)
+  M Ped GetPedOnSeat(VehicleSeat seat)
+  M Int32 GetRestrictedAmmoCount(Int32 vehicleWeaponIndex)
+  M Boolean IsCargobobHookActive()
+  M Boolean IsCargobobHookActive(CargobobHook hook)
+  M Boolean IsDriftModeActivated()
+  M Boolean IsExtraOn(Int32 extra)
+  M Boolean IsModelHandlingCompatibleWithVehicleModel(Model newModel, Model currentModel)
+  M Boolean IsSeatFree(VehicleSeat seat)
+  M Boolean IsSpecialFlightModeActivated()
+  M Boolean IsStuckTimerUp(VehicleStuckType stuckType, UInt16 requiredTime)
+  M void OpenBombBay()
+  M void PatchEngineTorqueMultiplierUpdate()
+  M Boolean PlaceOnGround()
+  M void PlaceOnNextStreet()
+  M void Repair()
+  M void ResetVehicleStuckTimer(VehicleStuckType stuckType)
+  M void RetractCargobobHook()
+  M void SetHeliYawPitchRollMult(Single mult)
+  M void SetHydraulicsControl(Boolean toggle)
+  M void SetReducedGripLevel(Int32 level)
+  M void SetRestrictedAmmoCount(Int32 vehicleWeaponIndex, Int32 ammoCount)
+  M void SetScriptedLightSetting(ScriptedVehicleLightSetting lightSetting)
+  M void SetSpecialFlightModeAllowed(Boolean allowed)
+  M void SetTrailerLegsLowered()
+  M void SetTrailerLegsRaised()
+  M void SoundHorn(Int32 duration)
+  M void StartAlarm()
+  M void StartParachuting(Boolean allowPlayerToCancel)
+  M void StopBringingToHalt()
+  M void ToggleExtra(Int32 extra, Boolean toggle)
+  M void TowVehicle(Vehicle vehicle, Vector3 attachPointOffset)
+  M void TowVehicle(EntityBone vehicleBone, Vector3 attachPointOffset)
+  M void TowVehicle(Vehicle vehicle, Boolean rear)
+  M Boolean TrySetCanUseSiren(Boolean value)
+  M void Wash()
+  P Single Acceleration { get; }
+  P Int32 AlarmTimeLeft { get; set; }
+  P Boolean AllowRappel { get; }
+  P Boolean AreBrakeLightsOn { set; }
+  P Boolean AreExhaustPopsEnabled { set; }
+  P Boolean AreHighBeamsOn { get; set; }
+  P Boolean AreLightsOn { get; set; }
+  P Boolean AreWingsEnabledForSpecialFlightMode { get; set; }
+  P Single BodyHealth { get; set; }
+  P Int32 BombAmmoCount { get; set; }
+  P Single BrakePower { get; set; }
+  P Boolean CanBeVisiblyDamaged { set; }
+  P Boolean CanEngineDegrade { set; }
+  P Boolean CanJump { get; }
+  P Boolean CanPretendOccupants { get; set; }
+  P Boolean CanStandOnTop { get; }
+  P Boolean CanTiresBurst { get; set; }
+  P Boolean CanUseSiren { get; }
+  P Boolean CanWheelsBreak { get; set; }
+  P string ClassDisplayName { get; }
+  P string ClassLocalizedName { get; }
+  P VehicleClass ClassType { get; }
+  P Single Clutch { get; set; }
+  P Int32 CountermeasureAmmoCount { get; set; }
+  P Int32 CurrentGear { get; set; }
+  P Single CurrentRPM { get; set; }
+  P Single DirtLevel { get; set; }
+  P string DisplayName { get; }
+  P VehicleDoorCollection Doors { get; }
+  P Ped Driver { get; }
+  P Boolean DropsMoneyOnExplosion { get; set; }
+  P Single EngineHealth { get; set; }
+  P Single EnginePowerMultiplier { get; set; }
+  P Single EngineTemperature { get; }
+  P Single EngineTorqueMultiplier { get; set; }
+  P Single EnvEffLevel { get; set; }
+  P VehicleExtraCollection Extras { get; }
+  P Single ForwardSpeed { set; }
+  P Single FuelLevel { get; set; }
+  P Int32 Gears { get; set; }
+  P HandlingData HandlingData { get; }
+  P Boolean HasBombBay { get; }
+  P Boolean HasBulletProofGlass { get; }
+  P Boolean HasDamageDecals { get; }
+  P Boolean HasDonkHydraulics { get; }
+  P Boolean HasForks { get; }
+  P Boolean HasLowerFrictionTires { set; }
+  P Boolean HasLowriderHydraulics { get; }
+  P Boolean HasParachute { get; }
+  P Boolean HasRocketBoost { get; }
+  P Boolean HasRoof { get; }
+  P Boolean HasSiren { get; }
+  P Boolean HasTowArm { get; }
+  P Single HeliBladesSpeed { get; set; }
+  P Single HeliEngineHealth { get; set; }
+  P Single HeliMainRotorHealth { get; set; }
+  P Single HeliTailRotorHealth { get; set; }
+  P Int32 HighGear { get; set; }
+  P Boolean IsAircraft { get; }
+  P Boolean IsAlarmSet { get; set; }
+  P Boolean IsAlarmSounding { get; }
+  P Boolean IsAmphibious { get; }
+  P Boolean IsAmphibiousAutomobile { get; }
+  P Boolean IsAmphibiousQuadBike { get; }
+  P Boolean IsAttachedToTrailer { get; }
+  P Boolean IsAutomobile { get; }
+  P Boolean IsAxlesStrong { set; }
+  P Boolean IsBeingBroughtToHalt { get; }
+  P Boolean IsBicycle { get; }
+  P Boolean IsBig { get; }
+  P Boolean IsBike { get; }
+  P Boolean IsBlimp { get; }
+  P Boolean IsBoat { get; }
+  P Boolean IsBurnoutForced { set; }
+  P Boolean IsConsideredDestroyed { get; set; }
+  P Boolean IsConvertible { get; }
+  P Boolean IsDamaged { get; }
+  P Boolean IsDriveable { get; set; }
+  P Boolean IsEngineRunning { get; set; }
+  P Boolean IsEngineStarting { get; }
+  P Boolean IsFrontBumperBrokenOff { get; }
+  P Boolean IsHandbrakeForcedOn { set; }
+  P Boolean IsHelicopter { get; }
+  P Boolean IsHornActive { get; }
+  P Boolean IsHornEnabled { set; }
+  P Boolean IsInBurnout { get; }
+  P Boolean IsInteriorLightOn { get; set; }
+  P Boolean IsLeftHeadLightBroken { get; set; }
+  P Boolean IsLeftIndicatorLightOn { get; set; }
+  P Boolean IsMotorcycle { get; }
+  P Boolean IsOnAllWheels { get; }
+  P Boolean IsParachuteDeployed { get; }
+  P Boolean IsPlane { get; }
+  P Boolean IsQuadBike { get; }
+  P Boolean IsRadioEnabled { set; }
+  P Boolean IsRearBumperBrokenOff { get; }
+  P Boolean IsRegularAutomobile { get; }
+  P Boolean IsRegularQuadBike { get; }
+  P Boolean IsRightHeadLightBroken { get; set; }
+  P Boolean IsRightIndicatorLightOn { get; set; }
+  P Boolean IsRocketBoostActive { get; set; }
+  P Boolean IsSearchLightOn { get; set; }
+  P Boolean IsSirenActive { get; set; }
+  P Boolean IsSirenSilent { get; set; }
+  P Boolean IsStolen { get; set; }
+  P Boolean IsStopped { get; }
+  P Boolean IsStoppedAtTrafficLights { get; }
+  P Boolean IsSubmarine { get; }
+  P Boolean IsSubmarineCar { get; }
+  P Boolean IsTaxiLightOn { get; set; }
+  P Boolean IsTrailer { get; }
+  P Boolean IsTrain { get; }
+  P Boolean IsUndriveable { set; }
+  P Boolean IsValid { get; }
+  P Boolean IsWanted { get; set; }
+  P VehicleLandingGearState LandingGearState { get; set; }
+  P Single LightsMultiplier { get; set; }
+  P string LocalizedName { get; }
+  P VehicleLockStatus LockStatus { get; set; }
+  P Single LodMultiplier { get; set; }
+  P Single MaxBraking { get; }
+  P Single MaxTraction { get; }
+  P VehicleModCollection Mods { get; }
+  P Boolean NeedsToBeHotwired { get; set; }
+  P Int32 NextGear { get; set; }
+  P Ped[] Occupants { get; }
+  P Single OilLevel { get; set; }
+  P Single OilVolume { get; }
+  P Int32 PassengerCapacity { get; }
+  P Int32 PassengerCount { get; }
+  P Ped[] Passengers { get; }
+  P Single PetrolTankHealth { get; set; }
+  P Single PetrolTankVolume { get; }
+  P Boolean PreviouslyOwnedByPlayer { get; set; }
+  P Boolean ProvidesCover { get; set; }
+  P RadioStation RadioStation { set; }
+  P VehicleRoofState RoofState { get; set; }
+  P Single SpecialFlightModeCurrentRatio { get; set; }
+  P Single SpecialFlightModeTargetRatio { get; set; }
+  P Single SpecialFlightModeWingRatio { get; set; }
+  P Single SteeringAngle { get; set; }
+  P Single SteeringScale { get; set; }
+  P Single Throttle { get; set; }
+  P Single ThrottlePower { get; set; }
+  P Single TowArmPosition { set; }
+  P Vehicle TowedVehicle { get; }
+  P Vehicle TrailerVehicle { get; }
+  P Single Turbo { get; set; }
+  P VehicleType Type { get; }
+  P VehicleWheelCollection Wheels { get; }
+  P Single WheelSpeed { get; }
+  P VehicleWindowCollection Windows { get; }
+
+### GTA.Prop : Public
+  M Projectile AsProjectile()
+  M ProjectileRocket AsProjectileRocket()
+  M ProjectileThrown AsProjectileThrown()
+  M Boolean Exists()
+  P Boolean HasBeenDetachedFromParentEntity { get; }
+  P Entity ParentEntityDetachedFrom { get; }
+
+### GTA.Entities.Entity: NOT FOUND
+
+### GTA.ParticleEffectsAsset: NOT FOUND
+
+### GTA.ParticleEffect : Public
+  M void Delete()
+  M Boolean Equals(Object obj)
+  M Boolean Exists()
+  M Int32 GetHashCode()
+  M void SetParameter(string parameterName, Single value)
+  M string ToString()
+  P string AssetName { get; }
+  P EntityBone Bone { get; }
+  P Color Color { get; set; }
+  P string EffectName { get; }
+  P Entity Entity { get; }
+  P IntPtr MemoryAddress { get; }
+  P Vector3 Offset { get; set; }
+  P Single Range { get; set; }
+  P Vector3 Rotation { set; }
+  P Single Scale { get; set; }
+
+### GTA.UI.Notification : Public
+  M void Hide(Int32 handle)
+  M FeedPost PostAward(string message, TextureAsset texAsset, Int32 xp, HudColor awardColor, string title)
+  M FeedPost PostMessageText(string message, TextureAsset texAsset, Boolean isImportant, FeedTextIcon icon, string characterName, string subtitle)
+  M FeedPost PostTicker(string message, Boolean isImportant, Boolean cacheMessage)
+  M FeedPost PostTickerForced(string message, Boolean isImportant, Boolean cacheMessage)
+  M FeedPost PostTickerWithTokens(string message, Boolean isImportant, Boolean cacheMessage)
+  M FeedPost PostUnlock(string message, string title, FeedUnlockIcon iconType)
+  M FeedPost PostUnlockTitleUpdate(string message, string title, FeedUnlockIcon iconType, Boolean isImportant)
+  M FeedPost PostUnlockTitleUpdateWithColor(string message, string title, FeedUnlockIcon iconType, Boolean isImportant, HudColor titleColor, Boolean titleIsLiteral)
+  M FeedPost PostVersusTitleUpdate(TextureAsset char1TexAsset, Int32 val1, TextureAsset char2TexAsset, Int32 val2, HudColor customColor1, HudColor customColor2)
+  M Int32 Show(string message, Boolean blinking)
+  M Int32 Show(NotificationIcon icon, string sender, string subject, string message, Boolean fadeIn, Boolean blinking)
+
+### GTA.UI.Text: NOT FOUND
+
+### GTA.UI.Sprite : Public
+  System.Void .ctor(System.String, System.String, System.Drawing.SizeF, System.Drawing.PointF)
+  System.Void .ctor(System.String, System.String, System.Drawing.SizeF, System.Drawing.PointF, System.Drawing.Color)
+  System.Void .ctor(System.String, System.String, System.Drawing.SizeF, System.Drawing.PointF, System.Drawing.Color, System.Single)
+  System.Void .ctor(System.String, System.String, System.Drawing.SizeF, System.Drawing.PointF, System.Drawing.Color, System.Single, System.Boolean)
+  M void Dispose()
+  M void Draw()
+  M void Draw(SizeF offset)
+  M void ScaledDraw()
+  M void ScaledDraw(SizeF offset)
+  M void WorldDraw(Vector3 position)
+  M void WorldDraw(Vector3 position, SizeF offset)
+  M void WorldScaledDraw(Vector3 position)
+  M void WorldScaledDraw(Vector3 position, SizeF offset)
+  P Boolean Centered { get; set; }
+  P Color Color { get; set; }
+  P Boolean Enabled { get; set; }
+  P PointF Position { get; set; }
+  P Single Rotation { get; set; }
+  P SizeF Size { get; set; }
+  P RectangleF TextureCoordinates { get; set; }
+
+### GTA.UI.Rectangle: NOT FOUND
+
+### GTA.UI.Screen : Public
+  F Single Height
+  F Single Width
+  M void ClearHelpText()
+  M void FadeIn(Int32 time)
+  M void FadeOut(Int32 time)
+  M Boolean IsEffectActive(ScreenEffect effectName)
+  M Boolean IsSphereVisible(Vector3 position, Single radius)
+  M void ShowHelpText(string helpText, Int32 duration, Boolean beep, Boolean looped)
+  M void ShowHelpTextThisFrame(string helpText)
+  M void ShowHelpTextThisFrame(string helpText, Boolean beep)
+  M void ShowSubtitle(string message, Int32 duration)
+  M void ShowSubtitle(string message, Int32 duration, Boolean drawImmediately)
+  M void StartEffect(ScreenEffect effectName, Int32 duration, Boolean looped)
+  M void StopEffect(ScreenEffect effectName)
+  M void StopEffects()
+  M PointF WorldToScreen(Vector3 position, Boolean scaleWidth)
+  P Boolean AreScreenKillEffectsEnabled { get; }
+  P Single AspectRatio { get; }
+  P Boolean IsFadedIn { get; }
+  P Boolean IsFadedOut { get; }
+  P Boolean IsFadingIn { get; }
+  P Boolean IsFadingOut { get; }
+  P Boolean IsHelpTextDisplayed { get; }
+  P Size MainWindowResolution { get; }
+  P Single PhysicalAspectRatio { get; }
+  P Size Resolution { get; }
+  P Int32 SafeZoneSizeProfile { get; }
+  P Single ScaledWidth { get; }
+
+### GTA.Control : Public
+  F Control AccurateAim
+  F Control Aim
+  F Control Arrest
+  F Control Attack
+  F Control Attack2
+  F Control CharacterWheel
+  F Control CinematicSlowMo
+  F Control Context
+  F Control ContextSecondary
+  F Control Cover
+  F Control CreatorAccept
+  F Control CreatorDelete
+  F Control CreatorLS
+  F Control CreatorLT
+  F Control CreatorMenuToggle
+  F Control CreatorRS
+  F Control CreatorRT
+  F Control CursorAccept
+  F Control CursorCancel
+  F Control CursorScrollDown
+  F Control CursorScrollUp
+  F Control CursorX
+  F Control CursorY
+  F Control Detonate
+  F Control Dive
+  F Control DropAmmo
+  F Control DropWeapon
+  F Control Duck
+  F Control EatSnack
+  F Control Enter
+  F Control EnterCheatCode
+  F Control FlyLeftRight
+  F Control FlyUpDown
+  F Control FrontendAccept
+  F Control FrontendAxisX
+  F Control FrontendAxisY
+  F Control FrontendCancel
+  F Control FrontendDelete
+  F Control FrontendDown
+  F Control FrontendEndscreenAccept
+  F Control FrontendEndscreenExpand
+  F Control FrontendLb
+  F Control FrontendLeaderboard
+  F Control FrontendLeft
+  F Control FrontendLs
+  F Control FrontendLt
+  F Control FrontendPause
+  F Control FrontendPauseAlternate
+  F Control FrontendRb
+  F Control FrontendRdown
+  F Control FrontendRight
+  F Control FrontendRightAxisX
+  F Control FrontendRightAxisY
+  F Control FrontendRleft
+  F Control FrontendRright
+  F Control FrontendRs
+  F Control FrontendRt
+  F Control FrontendRup
+  F Control FrontendSelect
+  F Control FrontendSocialClub
+  F Control FrontendSocialClubSecondary
+  F Control FrontendUp
+  F Control FrontendX
+  F Control FrontendY
+  F Control HudmarkerSelect
+  F Control HUDSpecial
+  F Control InteractionMenu
+  F Control Jump
+  F Control LookBehind
+  F Control LookDown
+  F Control LookDownOnly
+  F Control LookLeft
+  F Control LookLeftOnly
+  F Control LookLeftRight
+  F Control LookRight
+  F Control LookRightOnly
+  F Control LookUp
+  F Control LookUpDown
+  F Control LookUpOnly
+  F Control Map
+  F Control MapPointOfInterest
+  F Control MeleeAttack1
+  F Control MeleeAttack2
+  F Control MeleeAttackAlternate
+  F Control MeleeAttackHeavy
+  F Control MeleeAttackLight
+  F Control MeleeBlock
+  F Control MoveDown
+  F Control MoveDownOnly
+  F Control MoveLeft
+  F Control MoveLeftOnly
+  F Control MoveLeftRight
+  F Control MoveRight
+  F Control MoveRightOnly
+  F Control MoveUp
+  F Control MoveUpDown
+  F Control MoveUpOnly
+  F Control MpTextChatAll
+  F Control MpTextChatCrew
+  F Control MpTextChatFriends
+  F Control MpTextChatTeam
+  F Control MultiplayerInfo
+  F Control NextCamera
+  F Control NextWeapon
+  F Control ParachuteBrakeLeft
+  F Control ParachuteBrakeRight
+  F Control ParachuteDeploy
+  F Control ParachuteDetach
+  F Control ParachutePitchDownOnly
+  F Control ParachutePitchUpDown
+  F Control ParachutePitchUpOnly
+  F Control ParachutePrecisionLanding
+  F Control ParachuteSmoke
+  F Control ParachuteTurnLeftOnly
+  F Control ParachuteTurnLeftRight
+  F Control ParachuteTurnRightOnly
+  F Control Phone
+  F Control PhoneCameraDOF
+  F Control PhoneCameraExpression
+  F Control PhoneCameraFocusLock
+  F Control PhoneCameraGrid
+  F Control PhoneCameraSelfie
+  F Control PhoneCancel
+  F Control PhoneDown
+  F Control PhoneExtraOption
+  F Control PhoneLeft
+  F Control PhoneOption
+  F Control PhoneRight
+  F Control PhoneScrollBackward
+  F Control PhoneScrollForward
+  F Control PhoneSelect
+  F Control PhoneUp
+  F Control Pickup
+  F Control PrevWeapon
+  F Control PushToTalk
+  F Control QuadLocoReverse
+  F Control RadioWheelLeftRight
+  F Control RadioWheelUpDown
+  F Control RappelJump
+  F Control RappelLongJump
+  F Control RappelSmashWindow
+  F Control Reload
+  F Control ReplayAdvance
+  F Control ReplayBack
+  F Control ReplayCameraDown
+  F Control ReplayCameraUp
+  F Control ReplayClipDelete
+  F Control ReplayCtrl
+  F Control ReplayCycleMarkerLeft
+  F Control ReplayCycleMarkerRight
+  F Control ReplayEndpoint
+  F Control ReplayFfwd
+  F Control ReplayFOVDecrease
+  F Control ReplayFOVIncrease
+  F Control ReplayHidehud
+  F Control ReplayMarkerDelete
+  F Control ReplayNewmarker
+  F Control ReplayPause
+  F Control ReplayPreview
+  F Control ReplayPreviewAudio
+  F Control ReplayRecord
+  F Control ReplayRestart
+  F Control ReplayRewind
+  F Control ReplaySave
+  F Control ReplayScreenshot
+  F Control ReplayShowhotkey
+  F Control ReplaySnapmaticPhoto
+  F Control ReplayStartpoint
+  F Control ReplayStartStopRecording
+  F Control ReplayStartStopRecordingSecondary
+  F Control ReplayTimelineDuplicateClip
+  F Control ReplayTimelinePickupClip
+  F Control ReplayTimelinePlaceClip
+  F Control ReplayTimelineSave
+  F Control ReplayToggletime
+  F Control ReplayToggleTimeline
+  F Control ReplayToggletips
+  F Control ReplayTools
+  F Control RespawnFaster
+  F Control SaveReplayClip
+  F Control ScaledLookDownOnly
+  F Control ScaledLookLeftOnly
+  F Control ScaledLookLeftRight
+  F Control ScaledLookRightOnly
+  F Control ScaledLookUpDown
+  F Control ScaledLookUpOnly
+  F Control ScriptedFlyZDown
+  F Control ScriptedFlyZUp
+  F Control ScriptLB
+  F Control ScriptLeftAxisX
+  F Control ScriptLeftAxisY
+  F Control ScriptLS
+  F Control ScriptLT
+  F Control ScriptPadDown
+  F Control ScriptPadLeft
+  F Control ScriptPadRight
+  F Control ScriptPadUp
+  F Control ScriptRB
+  F Control ScriptRDown
+  F Control ScriptRightAxisX
+  F Control ScriptRightAxisY
+  F Control ScriptRLeft
+  F Control ScriptRRight
+  F Control ScriptRS
+  F Control ScriptRT
+  F Control ScriptRUp
+  F Control ScriptSelect
+  F Control SelectCharacterFranklin
+  F Control SelectCharacterMichael
+  F Control SelectCharacterMultiplayer
+  F Control SelectCharacterTrevor
+  F Control SelectNextWeapon
+  F Control SelectPrevWeapon
+  F Control SelectWeapon
+  F Control SelectWeaponAutoRifle
+  F Control SelectWeaponHandgun
+  F Control SelectWeaponHeavy
+  F Control SelectWeaponMelee
+  F Control SelectWeaponShotgun
+  F Control SelectWeaponSmg
+  F Control SelectWeaponSniper
+  F Control SelectWeaponSpecial
+  F Control SelectWeaponUnarmed
+  F Control SkipCutscene
+  F Control SniperZoom
+  F Control SniperZoomIn
+  F Control SniperZoomInAlternate
+  F Control SniperZoomInOnly
+  F Control SniperZoomInSecondary
+  F Control SniperZoomOut
+  F Control SniperZoomOutAlternate
+  F Control SniperZoomOutOnly
+  F Control SniperZoomOutSecondary
+  F Control SpecialAbility
+  F Control SpecialAbilityPC
+  F Control SpecialAbilitySecondary
+  F Control Sprint
+  F Control SwitchVisor
+  F Control Talk
+  F Control ThrowGrenade
+  F Control UseArmor
+  F Int32 value__
+  F Control VehicleAccelerate
+  F Control VehicleAim
+  F Control VehicleAttack
+  F Control VehicleAttack2
+  F Control VehicleBikeWings
+  F Control VehicleBrake
+  F Control VehicleCarJump
+  F Control VehicleCinCam
+  F Control VehicleCinematicDownOnly
+  F Control VehicleCinematicLeftRight
+  F Control VehicleCinematicUpDown
+  F Control VehicleCinematicUpOnly
+  F Control VehicleDriveLook
+  F Control VehicleDriveLook2
+  F Control VehicleDropProjectile
+  F Control VehicleDuck
+  F Control VehicleExit
+  F Control VehicleFlyAttack
+  F Control VehicleFlyAttack2
+  F Control VehicleFlyAttackCamera
+  F Control VehicleFlyBombBay
+  F Control VehicleFlyBoost
+  F Control VehicleFlyCounter
+  F Control VehicleFlyDuck
+  F Control VehicleFlyMouseControlOverride
+  F Control VehicleFlyPitchDownOnly
+  F Control VehicleFlyPitchUpDown
+  F Control VehicleFlyPitchUpOnly
+  F Control VehicleFlyRollLeftOnly
+  F Control VehicleFlyRollLeftRight
+  F Control VehicleFlyRollRightOnly
+  F Control VehicleFlySelectNextWeapon
+  F Control VehicleFlySelectPrevWeapon
+  F Control VehicleFlySelectTargetLeft
+  F Control VehicleFlySelectTargetRight
+  F Control VehicleFlyThrottleDown
+  F Control VehicleFlyThrottleUp
+  F Control VehicleFlyTransform
+  F Control VehicleFlyUnderCarriage
+  F Control VehicleFlyVerticalFlightMode
+  F Control VehicleFlyYawLeft
+  F Control VehicleFlyYawRight
+  F Control VehicleGrapplingHook
+  F Control VehicleGunDown
+  F Control VehicleGunLeft
+  F Control VehicleGunLeftRight
+  F Control VehicleGunRight
+  F Control VehicleGunUp
+  F Control VehicleGunUpDown
+  F Control VehicleHandbrake
+  F Control VehicleHeadlight
+  F Control VehicleHorn
+  F Control VehicleHotwireLeft
+  F Control VehicleHotwireRight
+  F Control VehicleHydraulicsControlDown
+  F Control VehicleHydraulicsControlLeft
+  F Control VehicleHydraulicsControlLeftRight
+  F Control VehicleHydraulicsControlRight
+  F Control VehicleHydraulicsControlToggle
+  F Control VehicleHydraulicsControlUp
+  F Control VehicleHydraulicsControlUuDown
+  F Control VehicleJump
+  F Control VehicleLookBehind
+  F Control VehicleLookLeft
+  F Control VehicleLookRight
+  F Control VehicleMeleeHold
+  F Control VehicleMeleeLeft
+  F Control VehicleMeleeRight
+  F Control VehicleMouseControlOverride
+  F Control VehicleMoveDown
+  F Control VehicleMoveDownOnly
+  F Control VehicleMoveLeft
+  F Control VehicleMoveLeftOnly
+  F Control VehicleMoveLeftRight
+  F Control VehicleMoveRight
+  F Control VehicleMoveRightOnly
+  F Control VehicleMoveUp
+  F Control VehicleMoveUpDown
+  F Control VehicleMoveUpOnly
+  F Control VehicleNextRadio
+  F Control VehicleNextRadioTrack
+  F Control VehicleParachute
+  F Control VehiclePassengerAim
+  F Control VehiclePassengerAttack
+  F Control VehiclePrevRadio
+  F Control VehiclePrevRadioTrack
+  F Control VehiclePushbikeFrontBrake
+  F Control VehiclePushbikePedal
+  F Control VehiclePushbikeRearBrake
+  F Control VehiclePushbikeSprint
+  F Control VehicleRadioWheel
+  F Control VehicleRocketBoost
+  F Control VehicleRoof
+  F Control VehicleSelectNextWeapon
+  F Control VehicleSelectPrevWeapon
+  F Control VehicleShiftGearDown
+  F Control VehicleShiftGearUp
+  F Control VehicleShuffle
+  F Control VehicleSlowMoDownOnly
+  F Control VehicleSlowMoUpDown
+  F Control VehicleSlowMoUpOnly
+  F Control VehicleSpecial
+  F Control VehicleSpecialAbilityFranklin
+  F Control VehicleStuntUpDown
+  F Control VehicleSubAscend
+  F Control VehicleSubDescend
+  F Control VehicleSubMouseControlOverride
+  F Control VehicleSubPitchDownOnly
+  F Control VehicleSubPitchUpDown
+  F Control VehicleSubPitchUpOnly
+  F Control VehicleSubThrottleDown
+  F Control VehicleSubThrottleUp
+  F Control VehicleSubTurnHardLeft
+  F Control VehicleSubTurnHardRight
+  F Control VehicleSubTurnLeftOnly
+  F Control VehicleSubTurnLeftRight
+  F Control VehicleSubTurnRightOnly
+  F Control WeaponSpecial
+  F Control WeaponSpecial2
+  F Control WeaponWheelLeftRight
+  F Control WeaponWheelNext
+  F Control WeaponWheelPrev
+  F Control WeaponWheelUpDown
+  F Control Whistle
+
+### GTA.Hash: NOT FOUND
+
+### GTA.Math.Vector3 : Public
+  System.Void .ctor(System.Single, System.Single, System.Single)
+  F Single X
+  F Single Y
+  F Single Z
+  M Vector3 Add(Vector3 left, Vector3 right)
+  M Single Angle(Vector3 from, Vector3 to)
+  M Vector3 Around(Single distance)
+  M Vector3 Clamp(Vector3 value, Vector3 min, Vector3 max)
+  M Vector3 Cross(Vector3 left, Vector3 right)
+  M Single Distance(Vector3 position1, Vector3 position2)
+  M Single Distance2D(Vector3 position1, Vector3 position2)
+  M Single DistanceSquared(Vector3 position1, Vector3 position2)
+  M Single DistanceSquared2D(Vector3 position1, Vector3 position2)
+  M Single DistanceTo(Vector3 position)
+  M Single DistanceTo2D(Vector3 position)
+  M Single DistanceToSquared(Vector3 position)
+  M Single DistanceToSquared2D(Vector3 position)
+  M Vector3 Divide(Vector3 value, Single scale)
+  M Single Dot(Vector3 left, Vector3 right)
+  M Boolean Equals(Object obj)
+  M Boolean Equals(Vector3 other)
+  M Int32 GetHashCode()
+  M Single Length()
+  M Single LengthSquared()
+  M Vector3 Lerp(Vector3 start, Vector3 end, Single amount)
+  M Vector3 Maximize(Vector3 left, Vector3 right)
+  M Vector3 Minimize(Vector3 left, Vector3 right)
+  M Vector3 Multiply(Vector3 value, Single scale)
+  M Vector3 Multiply(Vector3 left, Vector3 right)
+  M Vector3 Negate(Vector3 value)
+  M void Normalize()
+  M Vector3 Normalize(Vector3 vector)
+  M Vector3 Project(Vector3 vector, Vector3 onNormal)
+  M Vector3 ProjectOnPlane(Vector3 vector, Vector3 planeNormal)
+  M Vector3 RandomXY()
+  M Vector3 RandomXYZ()
+  M Vector3 Reflect(Vector3 vector, Vector3 normal)
+  M Vector3 Round(Int32 decimalPlaces)
+  M Single SignedAngle(Vector3 from, Vector3 to, Vector3 planeNormal)
+  M Vector3 Subtract(Vector3 left, Vector3 right)
+  M Single[] ToArray()
+  M Single ToHeading()
+  M string ToString()
+  M string ToString(string format)
+  M string ToString(string format, IFormatProvider provider)
+  P Single Item { get; set; }
+  P Vector3 Normalized { get; }
+  P Vector3 One { get; }
+  P Vector3 RelativeBack { get; }
+  P Vector3 RelativeBottom { get; }
+  P Vector3 RelativeFront { get; }
+  P Vector3 RelativeLeft { get; }
+  P Vector3 RelativeRight { get; }
+  P Vector3 RelativeTop { get; }
+  P Vector3 UnitX { get; }
+  P Vector3 UnitY { get; }
+  P Vector3 UnitZ { get; }
+  P Vector3 WorldDown { get; }
+  P Vector3 WorldEast { get; }
+  P Vector3 WorldNorth { get; }
+  P Vector3 WorldSouth { get; }
+  P Vector3 WorldUp { get; }
+  P Vector3 WorldWest { get; }
+  P Vector3 Zero { get; }
