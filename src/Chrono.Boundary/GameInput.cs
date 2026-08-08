@@ -11,6 +11,8 @@ public sealed class GameInput : IGameInput
 {
     private readonly Keys _menuKey;
     private readonly Keys? _dashKey;
+    private bool _menuKeyDown;
+    private bool _menuKeyWasDown;
 
     public GameInput(string menuKeyName, string dashHotkeyName)
     {
@@ -20,7 +22,14 @@ public sealed class GameInput : IGameInput
             : ParseKey(dashHotkeyName, Keys.F9);
     }
 
-    public bool IsMenuKeyPressed => Game.IsKeyPressed(_menuKey);
+    public void Update()
+    {
+        _menuKeyWasDown = _menuKeyDown;
+        _menuKeyDown = Game.IsKeyPressed(_menuKey);
+    }
+
+    public bool IsMenuKeyPressed => _menuKeyDown;
+    public bool IsMenuKeyJustPressed => _menuKeyDown && !_menuKeyWasDown;
     public bool IsMenuUpJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendUp);
     public bool IsMenuDownJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendDown);
     public bool IsMenuAcceptJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendAccept);

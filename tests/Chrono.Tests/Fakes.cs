@@ -119,6 +119,17 @@ public sealed class FakeInput : IGameInput
     public bool MenuCancel { get; set; }
     public bool DashHotkey { get; set; }
 
+    // Simulated edge detection: setting MenuKeyPressed to true produces ONE just-pressed edge
+    // (subsequent true stays held); set to false then true again for another press.
+    private bool _wasPressed;
+
+    public void Update()
+    {
+        IsMenuKeyJustPressed = MenuKeyPressed && !_wasPressed;
+        _wasPressed = MenuKeyPressed;
+    }
+
+    public bool IsMenuKeyJustPressed { get; private set; }
     public bool IsMenuKeyPressed => MenuKeyPressed;
     public bool IsMenuUpJustPressed => MenuUp;
     public bool IsMenuDownJustPressed => MenuDown;
@@ -133,4 +144,15 @@ public sealed class FakeConfigStore : IConfigStore
     public int SaveCount { get; private set; }
     public ChronoConfig Load() => Config;
     public void Save(ChronoConfig config) { Config = config; SaveCount++; }
+}
+
+public sealed class FakeVfx : IVfxBoundary
+{
+    public List<string> Calls { get; } = new();
+    public void SetTimecycleModifier(string name, float strength) => Calls.Add($"timecycle:{name}:{strength}");
+    public void ClearTimecycleModifier() => Calls.Add("timecycle:clear");
+    public void SpawnParticle(string asset, string effect, System.Numerics.Vector3 pos, float scale) => Calls.Add($"particle:{effect}");
+    public void ShakeCamera(float amplitude) => Calls.Add("shake");
+    public void StopCameraShake() => Calls.Add("shake:stop");
+    public void ScreenFlash(int fadeInMs) => Calls.Add("flash");
 }

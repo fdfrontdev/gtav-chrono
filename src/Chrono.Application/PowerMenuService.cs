@@ -80,12 +80,17 @@ public sealed class PowerMenuService
         else if (_rootScreen != null) _menu.Open(_rootScreen);
     }
 
+    /// <summary>Menu visibility — exposed for tests and diagnostics.</summary>
+    public bool IsMenuOpen => _menu.IsOpen;
+
     /// <summary>Per-frame update: warp progression, menu input, time-stop maintenance.</summary>
     public void Tick(long nowMs)
     {
+        _input.Update();
+
         if (_vfx.IsWarping)
         {
-            if (_input.IsMenuKeyPressed) { _vfx.CancelWarp(); _notifier.Show(UiStrings.WarpCancelled); }
+            if (_input.IsMenuKeyJustPressed) { _vfx.CancelWarp(); _notifier.Show(UiStrings.WarpCancelled); }
             else if (_vfx.TickWarp(nowMs))
             {
                 var result = _teleport.TryMapTeleport();
@@ -101,12 +106,12 @@ public sealed class PowerMenuService
             else if (_input.IsMenuDownJustPressed) _menu.NavigateDown();
             else if (_input.IsMenuAcceptJustPressed) _menu.Accept();
             else if (_input.IsMenuCancelJustPressed) _menu.NavigateBack();
-            else if (_input.IsMenuKeyPressed) _menu.Close();
+            else if (_input.IsMenuKeyJustPressed) _menu.Close();
             _menu.Render();
         }
         else
         {
-            if (_input.IsMenuKeyPressed) ToggleMenu();
+            if (_input.IsMenuKeyJustPressed) ToggleMenu();
             if (_input.IsDashHotkeyPressed) ExecuteDash();
         }
 

@@ -24,9 +24,11 @@ public class ChronoScript : Script
     {
         try
         {
-            var scriptsDir = Path.Combine(BaseDirectory, "scripts", "Chrono");
-            var configPath = Path.Combine(scriptsDir, "config.json");
-            var logPath = Path.Combine(scriptsDir, "chrono.log");
+            // SHVDN sets Script.BaseDirectory to the folder containing this script
+            // (scripts\Chrono for subfolder installs) — config and log live next to the DLL.
+            var modDir = BaseDirectory;
+            var configPath = Path.Combine(modDir, "config.json");
+            var logPath = Path.Combine(modDir, "chrono.log");
 
             // Config: load → validate → fail-soft (FR-5, SRS §7)
             var store = new JsonConfigStore(configPath);
@@ -68,9 +70,8 @@ public class ChronoScript : Script
             // Logging may not exist yet — write a minimal error file (never crash the game)
             try
             {
-                var dir = Path.Combine(BaseDirectory, "scripts", "Chrono");
-                Directory.CreateDirectory(dir);
-                File.AppendAllText(Path.Combine(dir, "chrono.log"),
+                Directory.CreateDirectory(BaseDirectory);
+                File.AppendAllText(Path.Combine(BaseDirectory, "chrono.log"),
                     $"[{DateTime.Now:HH:mm:ss}] ERROR: Chrono init failed: {ex}{Environment.NewLine}");
             }
             catch { /* last resort: silent */ }
