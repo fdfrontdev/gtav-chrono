@@ -16,4 +16,7 @@ public interface IVfxBoundary
     void FlashColor(int r, int g, int b, int alpha, int frames);   // anime flash overlay (Minato/Goku)
     void SetPlayerAlpha(int alpha);      // 0 = invisible (vanish), 255 = visible
     void ResetPlayerAlpha();
+
+    /// <summary>Draw a world-space targeting marker (dash aim reticle, v0.8.0).</summary>
+    void DrawMarker(System.Numerics.Vector3 pos, float scale, int r, int g, int b, int a);
 }

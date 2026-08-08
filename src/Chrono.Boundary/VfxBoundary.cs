@@ -88,6 +88,18 @@ public sealed class VfxBoundary : IVfxBoundary
         Function.Call(Hash.RESET_ENTITY_ALPHA, ped.Handle);
     }
 
+    public void DrawMarker(System.Numerics.Vector3 pos, float scale, int r, int g, int b, int a)
+    {
+        // UpsideDownCone (type 1) — reads as a "land here" reticle at the blink point
+        Function.Call(Hash.DRAW_MARKER, 1,
+            pos.X, pos.Y, pos.Z,
+            0f, 0f, 0f,
+            0f, 180f, 0f,
+            scale, scale, scale,
+            r, g, b, a,
+            false, false, 2, false, null, null, false);
+    }
+
     private ParticleEffectAsset GetOrCreateAsset(string assetName)
     {
         if (!_assets.TryGetValue(assetName, out var asset))

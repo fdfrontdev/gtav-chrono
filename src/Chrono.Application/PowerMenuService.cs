@@ -190,6 +190,13 @@ public sealed class PowerMenuService
             _player.SetNpcAwareness(false);
         else
             _npcReaction.Tick();
+
+        // Dash aim reticle: show where the blink will land while aiming (v0.8.0)
+        if (!_menu.IsOpen && _player.IsAiming)
+        {
+            var aimTarget = _teleport.GetAimTarget();
+            if (aimTarget.HasValue) _vfx.DrawDashTarget(aimTarget.Value);
+        }
     }
 
     private void ToggleInvisible()

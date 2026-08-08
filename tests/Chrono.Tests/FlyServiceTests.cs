@@ -43,11 +43,12 @@ public class FlyServiceTests
         service.SetEnabled(true);
         input.FlyForward = true;
 
-        service.Tick();
+        service.Tick(0.1f);   // inertia ramp (v0.8.0) — velocity builds over ~0.5s
+        service.Tick(0.1f);
 
         Assert.Contains("skydive@freefall/free_forward", player.LoopedAnims);
-        Assert.Single(player.HeadingCalls);
-        Assert.Equal(0f, player.HeadingCalls[0], 2);   // north = heading 0
+        Assert.NotEmpty(player.HeadingCalls);
+        Assert.Equal(0f, player.HeadingCalls[player.HeadingCalls.Count - 1], 2);   // north = heading 0
     }
 
     [Fact]
@@ -59,7 +60,8 @@ public class FlyServiceTests
         service.SetEnabled(true);
         input.FlyAscend = true;   // vertical-only movement
 
-        service.Tick();
+        service.Tick(0.1f);
+        service.Tick(0.1f);
 
         Assert.DoesNotContain("skydive@freefall/free_forward", player.LoopedAnims);
         Assert.Empty(player.HeadingCalls);
@@ -72,7 +74,8 @@ public class FlyServiceTests
         service.SetEnabled(true);
         input.FlyAscend = true;
 
-        service.Tick();
+        service.Tick(0.1f);
+        service.Tick(0.1f);
 
         Assert.DoesNotContain("skydive@freefall/free_forward", player.LoopedAnims);
     }
@@ -84,11 +87,12 @@ public class FlyServiceTests
         var (service, player, input) = Build();
         service.SetEnabled(true);
         input.FlyForward = true;
-        service.Tick();                  // dive pose active
+        service.Tick(0.1f);
+        service.Tick(0.1f);              // dive pose active
         Assert.Contains("skydive@freefall/free_forward", player.LoopedAnims);
 
         input.FlyForward = false;
-        service.Tick();                  // hover → clear
+        for (int i = 0; i < 8; i++) service.Tick(0.1f);   // decay → hover → clear
 
         Assert.Equal(1, player.ClearAnimCount);
     }
@@ -100,8 +104,8 @@ public class FlyServiceTests
         service.SetEnabled(true);
         input.FlyForward = true;
 
-        service.Tick();
-        service.Tick();
+        service.Tick(0.1f);
+        service.Tick(0.1f);
 
         Assert.Single(player.LoopedAnims);   // same pose → played once
     }

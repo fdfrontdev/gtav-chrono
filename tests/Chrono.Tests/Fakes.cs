@@ -219,4 +219,5 @@ public sealed class FakeVfx : IVfxBoundary
     public void FlashColor(int r, int g, int b, int alpha, int frames) => Calls.Add($"flashcolor:{r},{g},{b},{alpha},{frames}");
     public void SetPlayerAlpha(int alpha) => Calls.Add($"alpha:{alpha}");
     public void ResetPlayerAlpha() => Calls.Add("alpha:reset");
+    public void DrawMarker(System.Numerics.Vector3 pos, float scale, int r, int g, int b, int a) => Calls.Add($"marker:{r},{g},{b}");
 }

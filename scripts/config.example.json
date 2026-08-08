@@ -20,7 +20,8 @@
     "groundProbeDistance": 100.0
   },
   "fly": {
-    "speed": 25.0
+    "speed": 25.0,
+    "acceleration": 6.0
   },
   "npc": {
     "reactionDelayMs": 3000
