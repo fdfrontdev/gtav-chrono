@@ -26,7 +26,8 @@ public sealed class EntityRepository : IEntityRepository
     {
         var result = new List<GameEntity>(entities.Length);
         foreach (var e in entities)
-            if (e.Exists()) result.Add(new GameEntity(e.Handle, kind));
+            if (e.Exists())
+                result.Add(new GameEntity(e.Handle, kind, EntityFreezer.ToNumerics(e.Position)));
         return result;
     }
 }

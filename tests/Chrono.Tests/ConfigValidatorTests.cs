@@ -80,7 +80,25 @@ public class ConfigValidatorTests
         var cfg = new ChronoConfig();
         cfg.TimeStop.MaxFrozenEntities = 99999;
         var result = ConfigValidator.Validate(cfg);
-        Assert.Equal(512, result.Config.TimeStop.MaxFrozenEntities);
+        Assert.Equal(1024, result.Config.TimeStop.MaxFrozenEntities);
+    }
+
+    [Fact]
+    public void Validate_FreezeRadiusOutOfBounds_Defaults()
+    {
+        var cfg = new ChronoConfig();
+        cfg.TimeStop.FreezeRadius = 999f;
+        var result = ConfigValidator.Validate(cfg);
+        Assert.Equal(100f, result.Config.TimeStop.FreezeRadius);
+    }
+
+    [Fact]
+    public void Validate_FlySpeedOutOfBounds_Defaults()
+    {
+        var cfg = new ChronoConfig();
+        cfg.Fly.Speed = 200f;
+        var result = ConfigValidator.Validate(cfg);
+        Assert.Equal(25f, result.Config.Fly.Speed);
     }
 
     [Fact]

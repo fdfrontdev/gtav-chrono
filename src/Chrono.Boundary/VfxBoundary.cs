@@ -13,6 +13,25 @@ namespace Chrono.Boundary;
 public sealed class VfxBoundary : IVfxBoundary
 {
     private readonly Dictionary<string, ParticleEffectAsset> _assets = new();
+    private int _flashR, _flashG, _flashB, _flashA, _flashFrames;
+
+    /// <summary>Per-frame overlay maintenance: color flash countdown + draw.</summary>
+    public void Tick()
+    {
+        if (_flashFrames > 0)
+        {
+            // Full-screen flash overlay (normalized coords 0.5/0.5, size 2.0 covers screen)
+            Function.Call(Hash.DRAW_RECT, 0.5f, 0.5f, 2.0f, 2.0f, _flashR, _flashG, _flashB, _flashA);
+            _flashFrames--;
+        }
+    }
+
+    /// <summary>Queue a full-screen color flash for N frames (anime flash effect).</summary>
+    public void FlashColor(int r, int g, int b, int alpha, int frames)
+    {
+        _flashR = r; _flashG = g; _flashB = b; _flashA = alpha;
+        _flashFrames = frames;
+    }
 
     public void SetTimecycleModifier(string name, float strength)
         => Function.Call(Hash.SET_TIMECYCLE_MODIFIER, name, strength);

@@ -21,9 +21,15 @@ public sealed class PowerMenuService
     private readonly ILogSink _log;
     private readonly ChronoConfig _config;
     private readonly IConfigStore _configStore;
+    private readonly GodModeService _godMode;
+    private readonly InvisibilityService _invisible;
+    private readonly FlyService _fly;
 
     private MenuScreen? _rootScreen;
     private MenuItem? _timeStopItem;
+    private MenuItem? _godModeItem;
+    private MenuItem? _invisibleItem;
+    private MenuItem? _flyItem;
 
     public PowerMenuService(
         MenuFramework menu,
@@ -35,7 +41,10 @@ public sealed class PowerMenuService
         INotifier notifier,
         ILogSink log,
         ChronoConfig config,
-        IConfigStore configStore)
+        IConfigStore configStore,
+        GodModeService? godMode = null,
+        InvisibilityService? invisible = null,
+        FlyService? fly = null)
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -47,6 +56,9 @@ public sealed class PowerMenuService
         _log = log;
         _config = config;
         _configStore = configStore;
+        _godMode = godMode ?? new GodModeService(player, log);
+        _invisible = invisible ?? new InvisibilityService(player, log);
+        _fly = fly ?? new FlyService(player, input, log, config.Fly);
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -58,6 +70,21 @@ public sealed class PowerMenuService
             Title = UiStrings.ItemTimeStop,
             OnActivate = ToggleTimeStop
         };
+        _godModeItem = new MenuItem
+        {
+            Title = UiStrings.ItemGodMode,
+            OnActivate = () => { _godMode.Toggle(); RefreshPowerLabels(); }
+        };
+        _invisibleItem = new MenuItem
+        {
+            Title = UiStrings.ItemInvisible,
+            OnActivate = () => { _invisible.Toggle(); RefreshPowerLabels(); }
+        };
+        _flyItem = new MenuItem
+        {
+            Title = UiStrings.ItemFly,
+            OnActivate = () => { _fly.Toggle(); RefreshPowerLabels(); }
+        };
 
         _rootScreen = new MenuScreen
         {
@@ -67,10 +94,14 @@ public sealed class PowerMenuService
                 _timeStopItem,
                 new MenuItem { Title = UiStrings.ItemDash, OnActivate = ExecuteDash },
                 new MenuItem { Title = UiStrings.ItemMapTeleport, OnActivate = ExecuteMapTeleport },
+                _godModeItem,
+                _invisibleItem,
+                _flyItem,
                 new MenuItem { Title = UiStrings.ItemSettings, Submenu = settings }
             }
         };
 
+        RefreshPowerLabels();
         RefreshTimeStopLabel();
     }
 
@@ -94,11 +125,11 @@ public sealed class PowerMenuService
             else if (_vfx.TickWarp(nowMs))
             {
                 var from = _player.Position;
-                _vfx.BeginInstantTransmission();
+                _vfx.BeginGokuTransmission();
                 var result = _teleport.TryMapTeleport();
                 if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
                 {
-                    _vfx.CompleteInstantTransmission(from, result.Point.Value);
+                    _vfx.CompleteGokuTransmission(from, result.Point.Value);
                     _notifier.Show(UiStrings.WarpArrived);
                 }
                 else
@@ -106,6 +137,7 @@ public sealed class PowerMenuService
                     _vfx.AbortInstantTransmission();
                 }
             }
+            _vfx.Tick();
             return; // no menu while warping
         }
 
@@ -125,6 +157,10 @@ public sealed class PowerMenuService
         }
 
         _timeStop.Tick(nowMs);
+        _vfx.Tick();
+        _godMode.Tick();
+        _invisible.Tick();
+        _fly.Tick();
     }
 
     private void ToggleTimeStop()
@@ -209,6 +245,12 @@ public sealed class PowerMenuService
                 },
                 new MenuItem
                 {
+                    Title = UiStrings.ItemFlySpeed,
+                    Value = $"{_config.Fly.Speed:0.0}",
+                    OnAdjust = AdjustFlySpeed
+                },
+                new MenuItem
+                {
                     Title = UiStrings.ItemFreezeProps,
                     Value = _config.TimeStop.FreezeProps ? "ON" : "OFF",
                     OnActivate = () =>
@@ -230,6 +272,14 @@ public sealed class PowerMenuService
                 new MenuItem { Title = UiStrings.ItemBack, OnActivate = () => _menu.NavigateBack() }
             }
         };
+    }
+
+    private void AdjustFlySpeed(int direction)
+    {
+        float next = _config.Fly.Speed + direction * 5.0f;
+        _config.Fly.Speed = next < 5.0f ? 5.0f : (next > 80.0f ? 80.0f : next);
+        PersistConfig();
+        RefreshSettingsValues();
     }
 
     private void AdjustDashRange(int direction)
@@ -255,9 +305,17 @@ public sealed class PowerMenuService
         foreach (var item in settings.Items)
         {
             if (item.Title == UiStrings.ItemDashRange) item.Value = $"{_config.Dash.Range:0.0} m";
+            else if (item.Title == UiStrings.ItemFlySpeed) item.Value = $"{_config.Fly.Speed:0.0}";
             else if (item.Title == UiStrings.ItemFreezeProps) item.Value = _config.TimeStop.FreezeProps ? "ON" : "OFF";
             else if (item.Title == UiStrings.ItemPauseClock) item.Value = _config.TimeStop.PauseClock ? "ON" : "OFF";
         }
+    }
+
+    private void RefreshPowerLabels()
+    {
+        if (_godModeItem != null) _godModeItem.Value = _godMode.IsEnabled ? "ON" : "OFF";
+        if (_invisibleItem != null) _invisibleItem.Value = _invisible.IsEnabled ? "ON" : "OFF";
+        if (_flyItem != null) _flyItem.Value = _fly.IsEnabled ? "ON" : "OFF";
     }
 
     private void RefreshTimeStopLabel()

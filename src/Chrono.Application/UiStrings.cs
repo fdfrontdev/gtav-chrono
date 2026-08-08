@@ -8,8 +8,12 @@ public static class UiStrings
     public const string ItemTimeStop = "Time Stop";
     public const string ItemDash = "Dash Teleport";
     public const string ItemMapTeleport = "Map Teleport";
+    public const string ItemGodMode = "God Mode";
+    public const string ItemInvisible = "Invisible";
+    public const string ItemFly = "Fly";
     public const string ItemSettings = "Settings";
     public const string ItemDashRange = "Dash Range";
+    public const string ItemFlySpeed = "Fly Speed";
     public const string ItemFreezeProps = "Freeze Props";
     public const string ItemPauseClock = "Pause Clock";
     public const string ItemBack = "Back";
