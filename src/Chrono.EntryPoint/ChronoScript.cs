@@ -69,7 +69,7 @@ public class ChronoScript : Script
             var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice);
             _justice = new JusticeService(
                 new WantedMonitor(), player, recordStore,
-                identity, warrant, notifier, _log, config.Justice, media);
+                identity, warrant, notifier, _log, config.Justice, clock, media, vfxService);
 
             Tick += OnTick;
             _log.Info($"Chrono initialized — menu key {config.MenuKey}");

@@ -111,7 +111,7 @@ public class MediaServiceTests
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
-            new FakeNotifier(), new FakeLog(), new JusticeConfig(),
+            new FakeNotifier(), new FakeLog(), new JusticeConfig(), new FakeClock(),
             new MediaService(media, new FakeLog(), new JusticeConfig()));
 
         wanted.CurrentStars = 5;

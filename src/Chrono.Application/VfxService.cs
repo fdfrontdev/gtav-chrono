@@ -50,6 +50,12 @@ public sealed class VfxService
     /// <summary>Per-frame maintenance: color flash overlays, particle retries.</summary>
     public void Tick() => _vfx.Tick();
 
+    // --- screen transitions (justice flow, S3) ---
+
+    public void ScreenFadeOut(int ms) => _vfx.ScreenFadeOut(ms);
+    public void ScreenFadeIn(int ms) => _vfx.ScreenFadeIn(ms);
+    public void ScreenFlash(int ms) => _vfx.ScreenFlash(ms);
+
     /// <summary>Time Stop cue: desaturation tint while active.</summary>
     public void SetTimeStopCue(bool active)
     {

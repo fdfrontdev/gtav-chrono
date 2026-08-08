@@ -74,6 +74,9 @@ public sealed class VfxBoundary : IVfxBoundary
     public void ScreenFadeOut(int fadeOutMs)
         => GTA.UI.Screen.FadeOut(fadeOutMs);
 
+    public void ScreenFadeIn(int fadeInMs)
+        => GTA.UI.Screen.FadeIn(fadeInMs);
+
     public void SetPlayerAlpha(int alpha)
     {
         var ped = Game.Player.Character;
