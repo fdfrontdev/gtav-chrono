@@ -16,6 +16,7 @@ namespace Chrono.EntryPoint;
 public class ChronoScript : Script
 {
     private PowerMenuService? _menu;
+    private JusticeService? _justice;
     private TimeStopService? _timeStop;
     private ChronoLogger? _log;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -61,6 +62,14 @@ public class ChronoScript : Script
                 input, player, notifier, _log, config, store);
             _menu.BuildMenu();
 
+            // Justice layer (v0.9.0) — S1: crime recording from wanted edges
+            var recordStore = new JsonRecordStore(BaseDirectory, _log);
+            var identity = new IdentityService(recordStore, _log);
+            var warrant = new WarrantService(recordStore, _log);
+            _justice = new JusticeService(
+                new WantedMonitor(), player, recordStore,
+                identity, warrant, notifier, _log, config.Justice);
+
             Tick += OnTick;
             _log.Info($"Chrono initialized — menu key {config.MenuKey}");
             notifier.Show(UiStrings.FirstRun);
@@ -84,6 +93,7 @@ public class ChronoScript : Script
         try
         {
             _menu?.Tick(_clock.ElapsedMilliseconds);
+            _justice?.Tick();
         }
         catch (Exception ex)
         {

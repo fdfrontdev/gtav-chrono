@@ -34,4 +34,11 @@ public interface IPlayerContext
     // --- NPC awareness (v0.6.0 realistic world reactions) ---
     /// <summary>false = NPCs &amp; police cannot perceive/track the player (SET_*_IGNORE_PLAYER).</summary>
     void SetNpcAwareness(bool enabled);
+
+    // --- justice (v0.9.0, S1) ---
+    /// <summary>true when the player is visually present (invisible power → false → no burning).</summary>
+    bool IsVisible { get; }
+
+    /// <summary>Current map zone name for crime/media flavor (e.g. "Vinewood").</summary>
+    string GetDistrictName();
 }

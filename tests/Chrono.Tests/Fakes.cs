@@ -101,6 +101,9 @@ public sealed class FakePlayer : IPlayerContext
     public void PlaceOnGround() => PlaceOnGroundCount++;
     public List<bool> AwarenessCalls { get; } = new();
     public void SetNpcAwareness(bool enabled) => AwarenessCalls.Add(enabled);
+    public bool IsVisible { get; set; } = true;
+    public string DistrictName { get; set; } = "Vinewood";
+    public string GetDistrictName() => DistrictName;
 }
 
 public sealed class FakeProbe : IWorldProbe
