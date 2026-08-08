@@ -11,6 +11,7 @@ public sealed class ChronoConfig
     public InvisibleConfig Invisible { get; set; } = new();
     public TeleportConfig Teleport { get; set; } = new();
     public FlyConfig Fly { get; set; } = new();
+    public NpcConfig Npc { get; set; } = new();
     public VisualConfig Visual { get; set; } = new();
     public LoggingConfig Logging { get; set; } = new();
 }
@@ -40,6 +41,13 @@ public sealed class InvisibleConfig
 public sealed class FlyConfig
 {
     public float Speed { get; set; } = 25.0f;
+}
+
+public sealed class NpcConfig
+{
+    /// <summary>Grace period after a power use during which NPCs/police cannot
+    /// instantly react to or track the player (realistic surprise → digest → search).</summary>
+    public int ReactionDelayMs { get; set; } = 2500;
 }
 
 public sealed class TeleportConfig

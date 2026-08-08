@@ -22,6 +22,9 @@
   "fly": {
     "speed": 25.0
   },
+  "npc": {
+    "reactionDelayMs": 2500
+  },
   "visual": {
     "timeStop": {
       "tintStrength": 0.4

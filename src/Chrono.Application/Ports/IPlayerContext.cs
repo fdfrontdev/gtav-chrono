@@ -30,4 +30,8 @@ public interface IPlayerContext
     void PlayAnimationOnce(string dict, string anim, int durationMs); // e.g. action_chest landing
     void ClearCurrentAnimation();
     void PlaceOnGround();                        // settle ped on terrain after teleport (no falling pose)
+
+    // --- NPC awareness (v0.6.0 realistic world reactions) ---
+    /// <summary>false = NPCs &amp; police cannot perceive/track the player (SET_*_IGNORE_PLAYER).</summary>
+    void SetNpcAwareness(bool enabled);
 }

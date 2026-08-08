@@ -31,11 +31,15 @@ public sealed class EntityFreezer : IEntityFreezer
         e.IsPositionFrozen = true;
         e.Velocity = ToGta(Vector3.Zero);
 
-        // Pin ONLY peds as mission entities to prevent streaming despawn during the
-        // freeze. Props and vehicles are NOT pinned — mission-flagging hundreds of
-        // ambient props caused a hard game crash on release (v0.5.0 incident).
         if (entity.Kind == EntityKind.Ped)
+        {
+            // TASK-PRESERVING freeze: move-rate 0 keeps the ped's current AI task alive
+            // (walking, bird flying, driving) so it RESUMES on restore — the missing piece
+            // for "NPCs resume their usual activities" (v0.4.0/v0.5.0). Pin prevents
+            // streaming despawn. Props/vehicles are NEVER pinned (v0.5.1 crash lesson).
+            Function.Call(Hash.SET_PED_MOVE_RATE_OVERRIDE, entity.Handle, 0f);
             Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, true, true);
+        }
     }
 
     public void Restore(GameEntity entity, FreezeSnapshot snapshot)
@@ -47,18 +51,21 @@ public sealed class EntityFreezer : IEntityFreezer
         e.Velocity = ToGta(snapshot.Velocity);
         e.IsPositionFrozen = snapshot.WasFrozen;
 
-        // Release the pin (peds only) with p2=true — the correct un-mission call.
-        // NOTE: SET_PED_AS_NO_LONGER_NEEDED is deliberately NOT used here — bulk
-        // no-longer-needed right after unpinning crashed the game (v0.5.0 incident).
         if (entity.Kind == EntityKind.Ped)
         {
+            // Resume the ORIGINAL task (move rate back to 1) — NO task clearing:
+            // CLEAR_PED_TASKS left NPCs standing (v0.4.0/v0.5.0) and ejected vehicle
+            // drivers (v0.5.0 user report).
+            Function.Call(Hash.SET_PED_MOVE_RATE_OVERRIDE, entity.Handle, 1f);
             Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, true);
-            Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, entity.Handle);
         }
         else if (entity.Kind == EntityKind.Vehicle)
         {
+            // Driver stays SEATED (no task clear). If the vehicle was moving when
+            // frozen, nudge the driver to drive off — guarantees "cars resume driving".
             int driver = Function.Call<int>(Hash.GET_PED_IN_VEHICLE_SEAT, entity.Handle, -1);
-            if (driver != 0) Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, driver);
+            if (driver != 0 && snapshot.Velocity.LengthSquared() > 25f)   // was moving (>5 m/s)
+                Function.Call(Hash.TASK_VEHICLE_DRIVE_WANDER, driver, entity.Handle, 20f, 786603);
         }
     }
 
