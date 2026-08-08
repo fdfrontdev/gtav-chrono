@@ -19,6 +19,7 @@ public class ChronoScript : Script
     private JusticeService? _justice;
     private ClinicService? _clinic;
     private CrowdReactionService? _crowd;
+    private JusticeCutsceneService? _cutscene;
     private PhoneNewsService? _phoneNews;
     private TimeStopService? _timeStop;
     private ChronoLogger? _log;
@@ -68,10 +69,12 @@ public class ChronoScript : Script
             var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice);
             var reputation = new ReputationService(recordStore, clock, media, config.Justice);
             var wantedMonitor = new WantedMonitor();
+            var cutscene = new JusticeCutsceneService(new CutsceneRenderer(), player, _log);
+            _cutscene = cutscene;
             _justice = new JusticeService(
                 wantedMonitor, player, recordStore,
                 identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input,
-                reputation, probe);
+                reputation, probe, null, cutscene);
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(
@@ -115,6 +118,7 @@ public class ChronoScript : Script
         {
             _menu?.Tick(_clock.ElapsedMilliseconds);
             _justice?.Tick();
+            _cutscene?.Tick(_clock.ElapsedMilliseconds);
             _clinic?.Tick();
             _crowd?.Tick(_clock.ElapsedMilliseconds);
             _phoneNews?.Tick();
