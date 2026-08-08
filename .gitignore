@@ -1,0 +1,25 @@
+# Build outputs
+bin/
+obj/
+*.user
+
+# Test results
+TestResults/
+
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+
+# SHVDN binary (copy from game folder — see lib/README.md)
+lib/*.dll
+lib/*.pdb
+
+# Config (user-specific)
+config.json
+*.log
+
+# OS
+Thumbs.db
+Desktop.ini
