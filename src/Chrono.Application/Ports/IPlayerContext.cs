@@ -48,6 +48,9 @@ public interface IPlayerContext
     /// <summary>Dead/alive (death while wanted → police custody, S7).</summary>
     bool IsDead { get; }
 
+    /// <summary>Freeze/unfreeze the character while the cheat menu is open (S8).</summary>
+    void SetControlEnabled(bool enabled);
+
     /// <summary>Current cash.</summary>
     int GetMoney();
 }

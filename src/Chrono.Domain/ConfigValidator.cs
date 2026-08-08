@@ -42,7 +42,7 @@ public static class ConfigValidator
     {
         if (string.IsNullOrWhiteSpace(cfg.MenuKey))
         {
-            cfg.MenuKey = "F9";
+            cfg.MenuKey = "Shift+0";   // S8: F9 collided with other bindings
             warnings.Add("menuKey empty — using F9");
         }
     }
@@ -121,6 +121,11 @@ public static class ConfigValidator
         {
             justice.PrisonYardSeconds = 10;
             warnings.Add("justice.prisonYardSeconds outside [1,dayLen) — using 10");
+        }
+        if (justice.TrialDelaySeconds < 5 || justice.TrialDelaySeconds > 600)
+        {
+            justice.TrialDelaySeconds = 45;
+            warnings.Add("justice.trialDelaySeconds outside [5,600] — using 45");
         }
     }
 

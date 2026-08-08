@@ -159,12 +159,18 @@ public sealed class PowerMenuService
         var stats = _stats.GetStats();
         var items = new List<MenuItem>
         {
-            new() { Title = $"Identity: {stats.Identity}" },
-            new() { Title = $"Warrant: {(stats.WarrantActive ? "ACTIVE — avoid public eyes" : "None")}" },
-            new() { Title = $"Age: {FormatAge(stats.AgeDays)}" },
-            new() { Title = $"Convictions: {stats.ConvictionCount}" },
-            new() { Title = $"Surgeries: {stats.Surgeries}" }
+            new() { Title = $"Identity: {(stats.Identity == IdentityState.Burned ? "BURNED — face on file" : "Clean")}" },
+            new() { Title = $"Warrant: {(stats.WarrantActive ? "ACTIVE — stay out of sight" : "None")}" },
+            new() { Title = $"Record: {stats.Crimes.Count + (stats.Crimes.Count == 20 ? "+" : "")} crimes · {stats.ConvictionCount} convictions" },
+            new() { Title = $"Fines paid: ${stats.TotalFines:N0}" },
+            new() { Title = $"Time served: {stats.DaysServed} days" },
+            new() { Title = $"Age: {FormatAge(stats.AgeDays)} · Surgeries: {stats.Surgeries}" },
+            new() { Title = $"Clinic: {(stats.ClinicReady ? "READY — stand at the door, press G" : "on cooldown")}" },
+            new() { Title = $"Police DB: {(stats.HackReady ? "READY — activate this item" : "on cooldown")}" }
         };
+
+        if (stats.Identity == IdentityState.Burned && stats.WarrantActive)
+            items.Add(new MenuItem { Title = "Tip: the clinic or a DB hack clears your warrant" });
 
         foreach (var crime in stats.Crimes)
         {
@@ -200,8 +206,16 @@ public sealed class PowerMenuService
 
     public void ToggleMenu()
     {
-        if (_menu.IsOpen) _menu.Close();
-        else if (_rootScreen != null) _menu.Open(_rootScreen);
+        if (_menu.IsOpen)
+        {
+            _menu.Close();
+            _player.SetControlEnabled(true);
+        }
+        else if (_rootScreen != null)
+        {
+            _menu.Open(_rootScreen);
+            _player.SetControlEnabled(false);   // freeze the character while the menu is up (S8)
+        }
     }
 
     /// <summary>Menu visibility — exposed for tests and diagnostics.</summary>
@@ -252,7 +266,7 @@ public sealed class PowerMenuService
             else if (_input.IsMenuDownJustPressed) _menu.NavigateDown();
             else if (_input.IsMenuAcceptJustPressed) _menu.Accept();
             else if (_input.IsMenuCancelJustPressed) _menu.NavigateBack();
-            else if (_input.IsMenuKeyJustPressed) _menu.Close();
+            else if (_input.IsMenuKeyJustPressed) { _menu.Close(); _player.SetControlEnabled(true); }
             _menu.Render();
         }
         else
@@ -343,6 +357,7 @@ public sealed class PowerMenuService
         try
         {
             _menu.Close();
+            _player.SetControlEnabled(true);
             var from = _player.Position;
 
             _npcReaction.TriggerGracePeriod();   // BEFORE the blink — peds can't queue a startle reaction
@@ -370,6 +385,7 @@ public sealed class PowerMenuService
         try
         {
             _menu.Close();
+            _player.SetControlEnabled(true);
             if (!_player.IsWaypointActive())
             {
                 _notifier.Show(UiStrings.NoWaypoint);

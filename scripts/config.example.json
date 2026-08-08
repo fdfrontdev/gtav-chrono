@@ -1,5 +1,5 @@
 {
-  "menuKey": "F9",
+  "menuKey": "Shift+0",
   "dash": {
     "range": 12.0,
     "maxRange": 30.0,
@@ -34,6 +34,7 @@
     "hackCooldownDays": 1,
     "prisonDayRealSeconds": 30,
     "prisonYardSeconds": 10,
+    "trialDelaySeconds": 45,
     "interactKey": "G",
     "newsEnabled": true,
     "viralEnabled": true

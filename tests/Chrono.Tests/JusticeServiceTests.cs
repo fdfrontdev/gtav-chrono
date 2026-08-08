@@ -191,8 +191,8 @@ public class JusticeServiceTests
         service.Tick();                  // arrest, trial due day 101
         Assert.Equal(JusticeState.Captured, service.State);
 
-        clock.CurrentGameDay = 101;
-        service.Tick();                  // court day → verdict
+        service.AdvanceTrialTime(45.0);
+        service.Tick();                  // court time elapsed → verdict
 
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Contains(player.MoneyCalls, m => m == -2000);
@@ -209,7 +209,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();                  // crime + arrest same tick
-        clock.CurrentGameDay = clock.CurrentGameDay + 1;
+        service.AdvanceTrialTime(45.0);
         service.Tick();                  // verdict
 
         Assert.Equal(JusticeState.Prison, service.State);
@@ -230,7 +230,7 @@ public class JusticeServiceTests
         service.Tick();
         wanted.CurrentStars = 4;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Single(store.Record.Convictions);
@@ -240,7 +240,7 @@ public class JusticeServiceTests
         service.Tick();
         wanted.CurrentStars = 4;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();
 
         Assert.Contains(player.MoneyCalls, m => m == -3000);
@@ -254,7 +254,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();                  // 30-day sentence, confined
         Assert.Equal(JusticeState.Prison, service.State);
 
@@ -275,7 +275,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined
 
         player.Position = new System.Numerics.Vector3(1826 + 100, 2635, 46);   // just beyond the fence (in-bounds)
@@ -295,7 +295,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined (day = 30s, yard opens at 20s)
 
         service.AdvancePrisonTime(20.0); // yard window reached (no day boundary)
@@ -311,7 +311,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined
 
         service.AdvancePrisonTime(20.0);
@@ -337,7 +337,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();
 
         service.AdvancePrisonTime(20.0);
@@ -359,7 +359,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();
 
         service.AdvancePrisonTime(20.0);
@@ -381,7 +381,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();
 
         service.AdvancePrisonTime(20.0);
@@ -402,7 +402,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();
 
         service.AdvancePrisonTime(20.0);
@@ -424,7 +424,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();
 
         service.AdvancePrisonTime(20.0);
@@ -447,7 +447,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined → booking anim
 
         Assert.Contains(player.OneShotAnims, a => a.StartsWith("mp_arrest_paired/crook_p1_front"));
@@ -468,7 +468,7 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-        clock.CurrentGameDay++;
+        service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined, cell phase
 
         player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
@@ -514,10 +514,10 @@ public class JusticeServiceTests
         service.Tick();
         wanted.CurrentStars = 0;
         player.IsDead = false;
-        service.Tick();                    // custody (trial due day 101)
+        service.Tick();                    // custody, court countdown starts
 
-        clock.CurrentGameDay = 101;
-        service.Tick();                    // court day → Minor sentence → fine-only release
+        service.AdvanceTrialTime(45.0);
+        service.Tick();                    // court time elapsed → Minor sentence → fine-only release
 
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Contains(player.MoneyCalls, m => m == -2000);
@@ -535,6 +535,28 @@ public class JusticeServiceTests
 
         Assert.Equal(JusticeState.Free, service.State);          // no custody
         Assert.DoesNotContain(notifier.Messages, m => m.Contains("POLICE CUSTODY"));
+    }
+
+    // --- S8: trial in REAL time (a GTA game day is 48 real minutes — too slow) ---
+
+    [Fact]
+    public void Trial_FiresAfterDelaySeconds_NotBefore()
+    {
+        // 2★ theft escalated to 4★ → arrested; Minor sentence → fine-only release
+        var (service, wanted, player, _, _, _, _) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 2;
+        service.Tick();                    // Minor crime
+        wanted.CurrentStars = 4;
+        service.Tick();                    // arrested
+
+        service.AdvanceTrialTime(44.9);    // 45s default delay
+        service.Tick();
+        Assert.Equal(JusticeState.Captured, service.State);      // not yet
+
+        service.AdvanceTrialTime(0.2);
+        service.Tick();
+        Assert.Equal(JusticeState.Free, service.State);          // court time elapsed
     }
 }
 

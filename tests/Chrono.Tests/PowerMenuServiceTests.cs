@@ -45,6 +45,28 @@ public class PowerMenuServiceTests
     }
 
     [Fact]
+    public void MenuOpen_FreezesCharacter_S8()
+    {
+        // S8: opening the cheat menu must freeze the character so WASD navigation
+        // doesn't fight movement
+        var service = BuildService(out var input, out _, out _, out var player);
+
+        input.MenuKeyPressed = true;
+        service.Tick(0);   // open → control off
+
+        Assert.True(service.IsMenuOpen);
+        Assert.False(player.ControlCalls.LastOrDefault());
+
+        input.MenuKeyPressed = false;
+        service.Tick(16);
+        input.MenuKeyPressed = true;
+        service.Tick(32);  // close → control on
+
+        Assert.False(service.IsMenuOpen);
+        Assert.True(player.ControlCalls.LastOrDefault());
+    }
+
+    [Fact]
     public void F9Held_DoesNotCloseMenu()
     {
         var service = BuildService(out var input, out _, out _, out _);

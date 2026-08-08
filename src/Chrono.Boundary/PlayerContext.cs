@@ -176,4 +176,7 @@ public sealed class PlayerContext : IPlayerContext
     public int GetMoney() => Game.Player.Money;
 
     public bool IsDead => Game.Player.IsDead;
+
+    public void SetControlEnabled(bool enabled)
+        => Game.Player.SetControlState(enabled, SetPlayerControlFlags.None);
 }
