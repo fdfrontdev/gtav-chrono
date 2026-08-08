@@ -16,6 +16,9 @@ public interface IGameInput
     bool IsInvisibleHotkeyJustPressed { get; }  // B — edge
     bool IsInteractKeyJustPressed { get; }      // G — world interaction (clinic, S5) — edge
 
+    /// <summary>Phone key (Up arrow) — WEBNET social feed (S7).</summary>
+    bool IsPhoneKeyJustPressed { get; }
+
     // --- flight controls (held, camera-relative) ---
     bool IsFlyForward { get; }
     bool IsFlyBack { get; }

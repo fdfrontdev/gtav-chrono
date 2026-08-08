@@ -18,6 +18,7 @@ public class ChronoScript : Script
     private PowerMenuService? _menu;
     private JusticeService? _justice;
     private ClinicService? _clinic;
+    private PhoneNewsService? _phoneNews;
     private TimeStopService? _timeStop;
     private ChronoLogger? _log;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -73,11 +74,17 @@ public class ChronoScript : Script
             var hack = new PoliceDbHackService(
                 wantedMonitor, recordStore, identity, warrant, _justice,
                 notifier, _log, config.Justice, clock, vfxService);
+            var stats = new JusticeStatsService(recordStore, identity, warrant);
 
             _menu = new PowerMenuService(
                 menuFramework, _timeStop, teleport, vfxService,
-                input, player, notifier, _log, config, store, hack: hack);
+                input, player, notifier, _log, config, store,
+                hack: hack, stats: stats);
             _menu.BuildMenu();
+
+            var phone = new PhoneNewsService(
+                input, () => media.Feed, new PhoneOverlay());
+            _phoneNews = phone;
             CreateClinicBlip();
 
             Tick += OnTick;
@@ -105,6 +112,7 @@ public class ChronoScript : Script
             _menu?.Tick(_clock.ElapsedMilliseconds);
             _justice?.Tick();
             _clinic?.Tick();
+            _phoneNews?.Tick();
         }
         catch (Exception ex)
         {

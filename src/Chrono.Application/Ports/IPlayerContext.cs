@@ -45,6 +45,9 @@ public interface IPlayerContext
     /// <summary>Add money (negative = fine deduction, FR-8.3).</summary>
     void AddMoney(int delta);
 
+    /// <summary>Dead/alive (death while wanted → police custody, S7).</summary>
+    bool IsDead { get; }
+
     /// <summary>Current cash.</summary>
     int GetMoney();
 }

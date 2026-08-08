@@ -67,6 +67,8 @@ public sealed class GameInput : IGameInput
     public bool IsInvisibleHotkeyJustPressed => _invisibleKey.HasValue && _invisibleDown && !_invisibleWasDown;
     public bool IsInteractKeyJustPressed => _interactKey.HasValue && _interactDown && !_interactWasDown;
 
+    public bool IsPhoneKeyJustPressed => Game.IsControlJustPressed(GTA.Control.Phone);
+
     // --- flight controls (camera-relative movement, controller-friendly) ---
     public bool IsFlyForward => Game.IsControlPressed(GTA.Control.MoveUpOnly);
     public bool IsFlyBack => Game.IsControlPressed(GTA.Control.MoveDownOnly);

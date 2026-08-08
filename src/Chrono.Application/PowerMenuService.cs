@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Chrono.Application.Ports;
 using Chrono.Domain;
@@ -26,6 +27,7 @@ public sealed class PowerMenuService
     private readonly FlyService _fly;
     private readonly NpcReactionService _npcReaction;
     private readonly PoliceDbHackService? _hack;
+    private readonly JusticeStatsService? _stats;
 
     private MenuScreen? _rootScreen;
     private MenuItem? _timeStopItem;
@@ -33,7 +35,9 @@ public sealed class PowerMenuService
     private MenuItem? _invisibleItem;
     private MenuItem? _flyItem;
     private MenuItem? _hackItem;
+    private MenuItem? _recordItem;
     private MenuScreen? _justiceScreen;
+    private MenuScreen? _recordScreen;
 
     public PowerMenuService(
         MenuFramework menu,
@@ -50,7 +54,8 @@ public sealed class PowerMenuService
         InvisibilityService? invisible = null,
         FlyService? fly = null,
         NpcReactionService? npcReaction = null,
-        PoliceDbHackService? hack = null)
+        PoliceDbHackService? hack = null,
+        JusticeStatsService? stats = null)
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -67,6 +72,7 @@ public sealed class PowerMenuService
         _fly = fly ?? new FlyService(player, input, log, config.Fly);
         _npcReaction = npcReaction ?? new NpcReactionService(player, log, config.Npc);
         _hack = hack;
+        _stats = stats;
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -121,15 +127,66 @@ public sealed class PowerMenuService
             Title = UiStrings.ItemHackPoliceDb,
             OnActivate = ExecuteHack
         };
+        RebuildRecordScreen();
+        _recordItem = new MenuItem
+        {
+            Title = UiStrings.ItemCriminalRecord,
+            Submenu = _recordScreen
+        };
+
+        var items = new List<MenuItem>();
+        if (_hack != null) items.Add(_hackItem);
+        if (_stats != null) items.Add(_recordItem);
+
         _justiceScreen = new MenuScreen
         {
             Title = UiStrings.ItemJustice,
-            Items = _hack != null
-                ? new[] { _hackItem }
-                : Array.Empty<MenuItem>()
+            Items = items
         };
         return _justiceScreen;
     }
+
+    /// <summary>Live snapshot of the criminal record (S7): identity, warrant, age,
+    /// convictions + each crime. Rebuilt while the Justice screen is open.</summary>
+    private void RebuildRecordScreen()
+    {
+        if (_stats == null)
+        {
+            _recordScreen = new MenuScreen { Title = UiStrings.ItemCriminalRecord, Items = Array.Empty<MenuItem>() };
+            return;
+        }
+
+        var stats = _stats.GetStats();
+        var items = new List<MenuItem>
+        {
+            new() { Title = $"Identity: {stats.Identity}" },
+            new() { Title = $"Warrant: {(stats.WarrantActive ? "ACTIVE — avoid public eyes" : "None")}" },
+            new() { Title = $"Age: {FormatAge(stats.AgeDays)}" },
+            new() { Title = $"Convictions: {stats.ConvictionCount}" },
+            new() { Title = $"Surgeries: {stats.Surgeries}" }
+        };
+
+        foreach (var crime in stats.Crimes)
+        {
+            string time = crime.GameTime.Length >= 16 ? crime.GameTime.Substring(11, 5) : crime.GameTime;
+            items.Add(new MenuItem
+            {
+                Title = $"{crime.Severity} — {crime.Kind} ({crime.District}, {time})"
+            });
+        }
+
+        if (stats.Crimes.Count == 0)
+            items.Add(new MenuItem { Title = "No crimes recorded" });
+
+        _recordScreen = new MenuScreen
+        {
+            Title = UiStrings.ItemCriminalRecord,
+            Items = items
+        };
+    }
+
+    private static string FormatAge(int ageDays)
+        => $"{ageDays / 365}y {ageDays % 365}d";
 
     private void ExecuteHack()
     {
@@ -211,6 +268,13 @@ public sealed class PowerMenuService
         _godMode.Tick();
         _invisible.Tick();
         _fly.Tick();
+
+        // Criminal Record screen refresh while the Justice screen is open (S7)
+        if (_menu.IsOpen && _menu.CurrentScreen == _justiceScreen)
+        {
+            RebuildRecordScreen();
+            if (_recordItem != null) _recordItem.Submenu = _recordScreen;
+        }
 
         // Persistent fly-controls hint while flying (user request v0.3.0: "no instructions on screen")
         if (_fly.IsEnabled && !_menu.IsOpen)

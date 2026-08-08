@@ -174,4 +174,6 @@ public sealed class PlayerContext : IPlayerContext
     public void AddMoney(int delta) => Game.Player.Money += delta;
 
     public int GetMoney() => Game.Player.Money;
+
+    public bool IsDead => Game.Player.IsDead;
 }
