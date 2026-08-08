@@ -1,0 +1,29 @@
+namespace Chrono.Application;
+
+/// <summary>Single source of truth for all user-visible strings (UIUX doc §5).
+/// Text-only — the GTA font cannot render emoji (UIUX doc rule).</summary>
+public static class UiStrings
+{
+    public const string MenuTitle = "CHRONO";
+    public const string ItemTimeStop = "Time Stop";
+    public const string ItemDash = "Dash Teleport";
+    public const string ItemMapTeleport = "Map Teleport";
+    public const string ItemSettings = "Settings";
+    public const string ItemDashRange = "Dash Range";
+    public const string ItemFreezeProps = "Freeze Props";
+    public const string ItemPauseClock = "Pause Clock";
+    public const string ItemBack = "Back";
+
+    public const string TimeStopOn = "Time frozen - move freely";
+    public const string TimeStopOff = "Time resumes";
+    public const string TimeStopCapped = "Too many entities - freeze capped";
+    public const string DashSuccess = "Dash";
+    public const string DashBlocked = "No clear path";
+    public const string WarpStart = "Warping...";
+    public const string WarpArrived = "Arrived";
+    public const string WarpCancelled = "Warp cancelled";
+    public const string NoWaypoint = "Set a waypoint on the map first";
+    public const string ConfigError = "Chrono: config issue - defaults loaded (see log)";
+    public const string BugError = "Chrono error - see chrono.log";
+    public const string FirstRun = "Chrono ready - press F9";
+}

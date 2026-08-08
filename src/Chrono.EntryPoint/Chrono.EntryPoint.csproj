@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Chrono</AssemblyName>
   </PropertyGroup>
 
 <ItemGroup>
@@ -12,6 +15,11 @@
   <ProjectReference Include="..\Chrono.Domain\Chrono.Domain.csproj" />
   <ProjectReference Include="..\Chrono.Application\Chrono.Application.csproj" />
   <ProjectReference Include="..\Chrono.Boundary\Chrono.Boundary.csproj" />
-  <ProjectReference Include="..\Chrono.UI\Chrono.UI.csproj" />
 </ItemGroup>
+<ItemGroup>
+    <Reference Include="ScriptHookVDotNet3">
+      <HintPath>..\..\lib\ScriptHookVDotNet3.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
 </Project>

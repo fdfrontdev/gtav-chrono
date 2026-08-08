@@ -1,0 +1,34 @@
+{
+  "menuKey": "F9",
+  "dash": {
+    "range": 7.0,
+    "maxRange": 15.0,
+    "hotkey": ""
+  },
+  "timeStop": {
+    "freezeProps": true,
+    "pauseClock": true,
+    "maintenanceIntervalMs": 2000,
+    "maxFrozenEntities": 512
+  },
+  "teleport": {
+    "groundProbeDistance": 100.0
+  },
+  "visual": {
+    "timeStop": {
+      "tintStrength": 0.4
+    },
+    "dash": {
+      "enabled": true,
+      "trail": true
+    },
+    "mapTeleport": {
+      "enabled": true,
+      "useScreenFlash": false,
+      "shake": true
+    }
+  },
+  "logging": {
+    "level": "info"
+  }
+}
