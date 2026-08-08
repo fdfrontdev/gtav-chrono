@@ -9,7 +9,7 @@ public class TeleportServiceTests
         FakeLog log, DashConfig? dash = null, TeleportConfig? tp = null)
     {
         return new TeleportService(player, probe, notifier, log,
-            dash ?? new DashConfig { Range = 7f, MaxRange = 15f },
+            dash ?? new DashConfig(),                          // defaults: range 12, maxRange 30
             tp ?? new TeleportConfig { GroundProbeDistance = 100f });
     }
 
@@ -24,7 +24,7 @@ public class TeleportServiceTests
 
         Assert.Equal(TeleportOutcome.Success, result.Outcome);
         Assert.Single(player.TeleportCalls);
-        Assert.Equal(7f, player.TeleportCalls[0].Y, 2); // north 7m
+        Assert.Equal(12f, player.TeleportCalls[0].Y, 2); // default range 12m north
         Assert.Equal(10f, player.TeleportCalls[0].Z, 2); // ground-snapped
     }
 
@@ -43,8 +43,8 @@ public class TeleportServiceTests
         var result = service.TryDash();
 
         Assert.Equal(TeleportOutcome.Success, result.Outcome);
-        Assert.True(player.TeleportCalls[0].Y > 7f); // clamped to 15m max range → 15
-        Assert.Equal(15f, player.TeleportCalls[0].Y, 2);
+        Assert.True(player.TeleportCalls[0].Y > 12f); // clamped to 30m max range → 30
+        Assert.Equal(30f, player.TeleportCalls[0].Y, 2);
     }
 
     [Fact]

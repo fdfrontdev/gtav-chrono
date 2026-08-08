@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Numerics;
 using Chrono.Application.Ports;
 using GTA;
@@ -5,9 +6,14 @@ using GTA.Native;
 
 namespace Chrono.Boundary;
 
-/// <summary>VFX primitives: timecycle tint, particles, camera shake, screen flash.</summary>
+/// <summary>
+/// VFX primitives: timecycle tint, particles (retry-until-loaded), camera shake,
+/// screen flash, player alpha (vanish/rematerialize — Goku instant transmission).
+/// </summary>
 public sealed class VfxBoundary : IVfxBoundary
 {
+    private readonly Dictionary<string, ParticleEffectAsset> _assets = new();
+
     public void SetTimecycleModifier(string name, float strength)
         => Function.Call(Hash.SET_TIMECYCLE_MODIFIER, name, strength);
 
@@ -16,9 +22,14 @@ public sealed class VfxBoundary : IVfxBoundary
 
     public void SpawnParticle(string assetName, string effectName, Vector3 position, float scale)
     {
-        var asset = new ParticleEffectAsset(assetName);
-        asset.Request();
-        if (!asset.IsLoaded) return;   // VFX never blocks a power
+        var asset = GetOrCreateAsset(assetName);
+        // Particle assets load asynchronously — keep requesting until ready (retry model,
+        // never blocks a power; the flash+alpha carry the effect meanwhile).
+        if (!asset.IsLoaded)
+        {
+            asset.Request();
+            return;
+        }
 
         World.CreateParticleEffectNonLooped(
             asset,
@@ -37,7 +48,35 @@ public sealed class VfxBoundary : IVfxBoundary
 
     public void ScreenFlash(int fadeInMs)
     {
-        GTA.UI.Screen.FadeOut(0);
+        ScreenFadeOut(0);
         GTA.UI.Screen.FadeIn(fadeInMs);
+    }
+
+    public void ScreenFadeOut(int fadeOutMs)
+        => GTA.UI.Screen.FadeOut(fadeOutMs);
+
+    public void SetPlayerAlpha(int alpha)
+    {
+        var ped = Game.Player.Character;
+        if (ped == null || !ped.Exists()) return;
+        Function.Call(Hash.SET_ENTITY_ALPHA, ped.Handle, alpha, false);
+    }
+
+    public void ResetPlayerAlpha()
+    {
+        var ped = Game.Player.Character;
+        if (ped == null || !ped.Exists()) return;
+        Function.Call(Hash.RESET_ENTITY_ALPHA, ped.Handle);
+    }
+
+    private ParticleEffectAsset GetOrCreateAsset(string assetName)
+    {
+        if (!_assets.TryGetValue(assetName, out var asset))
+        {
+            asset = new ParticleEffectAsset(assetName);
+            _assets[assetName] = asset;
+            asset.Request();
+        }
+        return asset;
     }
 }

@@ -1,8 +1,8 @@
 {
   "menuKey": "F9",
   "dash": {
-    "range": 7.0,
-    "maxRange": 15.0,
+    "range": 12.0,
+    "maxRange": 30.0,
     "hotkey": ""
   },
   "timeStop": {

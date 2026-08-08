@@ -46,14 +46,14 @@ public static class ConfigValidator
 
     private static void ValidateDash(DashConfig dash, List<string> warnings)
     {
-        if (dash.Range < 3.0f || dash.Range > 15.0f)
+        if (dash.Range < 5.0f || dash.Range > 30.0f)
         {
-            dash.Range = 7.0f;
-            warnings.Add($"dash.range {Format(dash.Range)} outside [3,15] — using 7");
+            dash.Range = 12.0f;
+            warnings.Add($"dash.range {Format(dash.Range)} outside [5,30] — using 12");
         }
         if (dash.MaxRange < dash.Range)
         {
-            dash.MaxRange = Math.Max(dash.Range, 15.0f);
+            dash.MaxRange = Math.Max(dash.Range, 30.0f);
             warnings.Add("dash.maxRange < dash.range — clamped");
         }
     }

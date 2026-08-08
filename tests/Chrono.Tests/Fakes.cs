@@ -154,5 +154,8 @@ public sealed class FakeVfx : IVfxBoundary
     public void SpawnParticle(string asset, string effect, System.Numerics.Vector3 pos, float scale) => Calls.Add($"particle:{effect}");
     public void ShakeCamera(float amplitude) => Calls.Add("shake");
     public void StopCameraShake() => Calls.Add("shake:stop");
-    public void ScreenFlash(int fadeInMs) => Calls.Add("flash");
+    public void ScreenFlash(int fadeInMs) => Calls.Add($"flash:{fadeInMs}");
+    public void ScreenFadeOut(int fadeOutMs) => Calls.Add($"fadeout:{fadeOutMs}");
+    public void SetPlayerAlpha(int alpha) => Calls.Add($"alpha:{alpha}");
+    public void ResetPlayerAlpha() => Calls.Add("alpha:reset");
 }

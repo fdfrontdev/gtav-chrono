@@ -11,4 +11,7 @@ public interface IVfxBoundary
     void ShakeCamera(float amplitude);
     void StopCameraShake();
     void ScreenFlash(int fadeInMs);
+    void ScreenFadeOut(int fadeOutMs);
+    void SetPlayerAlpha(int alpha);      // 0 = invisible (vanish), 255 = visible
+    void ResetPlayerAlpha();
 }

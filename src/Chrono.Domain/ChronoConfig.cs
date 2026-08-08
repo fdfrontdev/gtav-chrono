@@ -15,8 +15,8 @@ public sealed class ChronoConfig
 
 public sealed class DashConfig
 {
-    public float Range { get; set; } = 7.0f;
-    public float MaxRange { get; set; } = 15.0f;
+    public float Range { get; set; } = 12.0f;
+    public float MaxRange { get; set; } = 30.0f;
     public string Hotkey { get; set; } = "";
 }
 
