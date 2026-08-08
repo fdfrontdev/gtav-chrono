@@ -13,6 +13,7 @@ namespace Chrono.Boundary;
 public sealed class GameInput : IGameInput
 {
     private readonly Keys _menuKey;
+    private readonly bool _menuKeyShift;
     private readonly Keys? _dashKey;
     private readonly Keys? _timeStopKey;
     private readonly Keys? _invisibleKey;
@@ -22,10 +23,11 @@ public sealed class GameInput : IGameInput
     private bool _timeStopDown, _timeStopWasDown;
     private bool _invisibleDown, _invisibleWasDown;
     private bool _interactDown, _interactWasDown;
+    private bool _wDown, _wWasDown, _sDown, _sWasDown, _aDown, _aWasDown, _dDown, _dWasDown;
 
     public GameInput(string menuKeyName, string dashHotkeyName, string timeStopHotkeyName, string invisibleHotkeyName, string? interactKeyName = null)
     {
-        _menuKey = ParseKey(menuKeyName, Keys.F9);
+        (_menuKey, _menuKeyShift) = ParseComboKey(menuKeyName, Keys.F9);
         _dashKey = ParseOptionalKey(dashHotkeyName);
         _timeStopKey = ParseOptionalKey(timeStopHotkeyName);
         _invisibleKey = ParseOptionalKey(invisibleHotkeyName);
@@ -35,7 +37,7 @@ public sealed class GameInput : IGameInput
     public void Update()
     {
         _menuKeyWasDown = _menuKeyDown;
-        _menuKeyDown = Game.IsKeyPressed(_menuKey);
+        _menuKeyDown = Game.IsKeyPressed(_menuKey) && (!_menuKeyShift || Game.IsKeyPressed(Keys.ShiftKey));
 
         if (_timeStopKey.HasValue)
         {
@@ -54,12 +56,20 @@ public sealed class GameInput : IGameInput
             _interactWasDown = _interactDown;
             _interactDown = Game.IsKeyPressed(_interactKey.Value);
         }
+
+        // WASD menu navigation edges (S8 — arrows conflict with other bindings)
+        _wWasDown = _wDown; _wDown = Game.IsControlPressed(GTA.Control.MoveUpOnly);
+        _sWasDown = _sDown; _sDown = Game.IsControlPressed(GTA.Control.MoveDownOnly);
+        _aWasDown = _aDown; _aDown = Game.IsControlPressed(GTA.Control.MoveLeftOnly);
+        _dWasDown = _dDown; _dDown = Game.IsControlPressed(GTA.Control.MoveRightOnly);
     }
 
     public bool IsMenuKeyPressed => _menuKeyDown;
     public bool IsMenuKeyJustPressed => _menuKeyDown && !_menuKeyWasDown;
-    public bool IsMenuUpJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendUp);
-    public bool IsMenuDownJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendDown);
+    public bool IsMenuUpJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendUp) || (_wDown && !_wWasDown);
+    public bool IsMenuDownJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendDown) || (_sDown && !_sWasDown);
+    public bool IsMenuLeftJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendLeft) || (_aDown && !_aWasDown);
+    public bool IsMenuRightJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendRight) || (_dDown && !_dWasDown);
     public bool IsMenuAcceptJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendAccept);
     public bool IsMenuCancelJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendCancel);
     public bool IsDashHotkeyPressed => _dashKey.HasValue && Game.IsKeyPressed(_dashKey.Value);
@@ -79,6 +89,25 @@ public sealed class GameInput : IGameInput
 
     private static Keys ParseKey(string name, Keys fallback)
         => Enum.TryParse(name, true, out Keys key) ? key : fallback;
+
+    /// <summary>Parse "Shift+0" style combos — the only supported modifier is Shift.</summary>
+    private static (Keys key, bool shift) ParseComboKey(string name, Keys fallback)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return (fallback, false);
+
+        string trimmed = name.Trim();
+        int plus = trimmed.IndexOf('+');
+        if (plus > 0 && trimmed.Substring(0, plus).Trim().Equals("Shift", StringComparison.OrdinalIgnoreCase))
+        {
+            string rest = trimmed.Substring(plus + 1).Trim();
+            return Enum.TryParse(rest, true, out Keys key) && key != Keys.None
+                ? (key, true)
+                : (fallback, false);
+        }
+
+        return Enum.TryParse(trimmed, true, out Keys plain) ? (plain, false) : (fallback, false);
+    }
 
     private static Keys? ParseOptionalKey(string name)
     {

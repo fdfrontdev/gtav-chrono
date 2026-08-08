@@ -5,7 +5,7 @@ namespace Chrono.Domain;
 /// <summary>Root configuration model (contract per SRS §7 + Animation doc §7).</summary>
 public sealed class ChronoConfig
 {
-    public string MenuKey { get; set; } = "F9";
+    public string MenuKey { get; set; } = "Shift+0";   // S8: F9 collided with other bindings
     public DashConfig Dash { get; set; } = new();
     public TimeStopConfig TimeStop { get; set; } = new();
     public InvisibleConfig Invisible { get; set; } = new();

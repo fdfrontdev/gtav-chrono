@@ -15,6 +15,10 @@ public sealed class JusticeConfig
     /// <summary>Yard-time window per in-game day (escape window, FR-10.1). Must be &lt; PrisonDayRealSeconds.</summary>
     public double PrisonYardSeconds { get; set; } = 10;
 
+    /// <summary>Seconds until the court date after capture (real time — a full GTA
+    /// game day is 48 real minutes, so the trial must NOT wait for it).</summary>
+    public double TrialDelaySeconds { get; set; } = 45;
+
     /// <summary>World interaction key (clinic door, FR-5.2).</summary>
     public string InteractKey { get; set; } = "G";
     public bool NewsEnabled { get; set; } = true;          // FR-4.1

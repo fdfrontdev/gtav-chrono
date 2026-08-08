@@ -114,6 +114,8 @@ public sealed class FakePlayer : IPlayerContext
     public void AddMoney(int delta) { Money += delta; MoneyCalls.Add(delta); }
     public int GetMoney() => Money;
     public bool IsDead { get; set; }
+    public List<bool> ControlCalls { get; } = new();
+    public void SetControlEnabled(bool enabled) => ControlCalls.Add(enabled);
 }
 
 public sealed class FakeProbe : IWorldProbe

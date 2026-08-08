@@ -44,7 +44,8 @@ public sealed class JusticeService
     private readonly PrisonCalendar _prisonCalendar;
     private CrimeSeverity? _episodeSeverity;   // original offense of the current chase
     private int _lastStars;
-    private int _trialDueDay;
+    private double _trialElapsedMs;             // real-time court countdown (S8)
+    private readonly Stopwatch _trialClock = Stopwatch.StartNew();
     private int _sentenceDays;
     private int _servedDays;
     private bool _arrested;
@@ -131,8 +132,13 @@ public sealed class JusticeService
         if (State == JusticeState.Wanted && stars >= ArrestStars && !_arrested)
             OnCaptured();
 
-        if (State == JusticeState.Captured && _clock.CurrentGameDay >= _trialDueDay)
-            OnTrialVerdict();
+        if (State == JusticeState.Captured)
+        {
+            _trialElapsedMs += _trialClock.Elapsed.TotalMilliseconds;
+            _trialClock.Restart();
+            if (_trialElapsedMs >= _config.TrialDelaySeconds * 1000)
+                OnTrialVerdict();
+        }
 
         if (State == JusticeState.Prison)
             PrisonTick();
@@ -150,8 +156,9 @@ public sealed class JusticeService
 
         State = JusticeState.Captured;
         _arrested = true;
-        _trialDueDay = _clock.CurrentGameDay + 1;
-        _notifier.Show("You wake up in POLICE CUSTODY — court date set (1 day)");
+        _trialElapsedMs = 0;
+        _trialClock.Restart();
+        _notifier.Show("You wake up in POLICE CUSTODY — the court date is set");
         _log.Info("Death-capture: custody started, hospital fee refunded");
     }
 
@@ -191,12 +198,16 @@ public sealed class JusticeService
     {
         _arrested = true;
         State = JusticeState.Captured;
-        _trialDueDay = _clock.CurrentGameDay + 1;   // court date 1 in-game day later
+        _trialElapsedMs = 0;
+        _trialClock.Restart();
         _vfx?.ScreenFadeOut(300);
         _vfx?.ScreenFlash(300);
-        _notifier.Show("ARRESTED — court date tomorrow");
-        _log.Info($"Arrested; trial due game-day {_trialDueDay}");
+        _notifier.Show("ARRESTED — the court date is set");
+        _log.Info("Captured at 4★+ — custody started");
     }
+
+    /// <summary>Testable seam — the real loop accumulates elapsed time from the Stopwatch.</summary>
+    public void AdvanceTrialTime(double realSeconds) => _trialElapsedMs += realSeconds * 1000;
 
     private void OnTrialVerdict()
     {
@@ -409,6 +420,7 @@ public sealed class JusticeService
             var profile = _store.LoadProfile();
             int before = profile.AgeYears;
             profile.AddDays(_servedDays);
+            profile.DaysServed += _servedDays;   // stat page (S8)
             _store.SaveProfileAtomic(profile);
             int after = profile.AgeYears;
             if (after > before)

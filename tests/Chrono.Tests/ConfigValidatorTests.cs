@@ -17,15 +17,15 @@ public class ConfigValidatorTests
         var result = ConfigValidator.Validate(null!);
         Assert.NotNull(result.Config);
         Assert.Single(result.Warnings);
-        Assert.Equal("F9", result.Config.MenuKey);
+        Assert.Equal("Shift+0", result.Config.MenuKey);
     }
 
     [Fact]
-    public void Validate_EmptyMenuKey_DefaultsToF9()
+    public void Validate_EmptyMenuKey_DefaultsToShift0()
     {
         var cfg = new ChronoConfig { MenuKey = "" };
         var result = ConfigValidator.Validate(cfg);
-        Assert.Equal("F9", result.Config.MenuKey);
+        Assert.Equal("Shift+0", result.Config.MenuKey);
         Assert.Contains(result.Warnings, w => w.Contains("menuKey"));
     }
 

@@ -74,7 +74,7 @@ public class ChronoScript : Script
             var hack = new PoliceDbHackService(
                 wantedMonitor, recordStore, identity, warrant, _justice,
                 notifier, _log, config.Justice, clock, vfxService);
-            var stats = new JusticeStatsService(recordStore, identity, warrant);
+            var stats = new JusticeStatsService(recordStore, identity, warrant, clock, config.Justice);
 
             _menu = new PowerMenuService(
                 menuFramework, _timeStop, teleport, vfxService,

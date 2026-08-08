@@ -12,6 +12,9 @@ public sealed class CharacterProfile
     public string DateOfBirth { get; set; } = "1999-08-08";
     public int Surgeries { get; set; }
 
+    /// <summary>Total in-game days served across all prison terms (stat page, S8).</summary>
+    public int DaysServed { get; set; }
+
     public int AgeYears => AgeDays / DaysPerYear;
 
     /// <summary>Prison aging (FR-7.2/FR-9.4): served in-game days add to age.</summary>
