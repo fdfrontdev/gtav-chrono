@@ -26,6 +26,16 @@
   "npc": {
     "reactionDelayMs": 3000
   },
+  "justice": {
+    "recordFromWanted": true,
+    "clinicBaseCost": 5000,
+    "perEventCost": 1000,
+    "surgeryCooldownDays": 1,
+    "hackCooldownDays": 1,
+    "prisonDayRealSeconds": 30,
+    "newsEnabled": true,
+    "viralEnabled": true
+  },
   "visual": {
     "timeStop": {
       "tintStrength": 0.4
