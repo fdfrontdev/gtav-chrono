@@ -8,4 +8,6 @@ public sealed class WantedMonitor : IWantedMonitor
 {
     // SHVDN 3.9: Player.WantedLevel is obsolete — use the Wanted API
     public int CurrentStars => Game.Player.Wanted.WantedLevel;
+
+    public void SetStars(int stars) => Game.Player.Wanted.SetWantedLevel(stars, false);
 }

@@ -22,4 +22,10 @@ public sealed class FakeRecordStore : IRecordStore
 public sealed class FakeWantedMonitor : IWantedMonitor
 {
     public int CurrentStars { get; set; }
+    public List<int> StarSets { get; } = new();
+    public void SetStars(int stars)
+    {
+        CurrentStars = stars;
+        StarSets.Add(stars);
+    }
 }

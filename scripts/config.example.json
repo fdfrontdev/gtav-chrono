@@ -33,6 +33,7 @@
     "surgeryCooldownDays": 1,
     "hackCooldownDays": 1,
     "prisonDayRealSeconds": 30,
+    "prisonYardSeconds": 10,
     "newsEnabled": true,
     "viralEnabled": true
   },

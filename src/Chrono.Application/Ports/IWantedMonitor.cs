@@ -4,4 +4,7 @@ namespace Chrono.Application.Ports;
 public interface IWantedMonitor
 {
     int CurrentStars { get; }
+
+    /// <summary>Set the wanted level directly (escape manhunt, FR-10.2).</summary>
+    void SetStars(int stars);
 }

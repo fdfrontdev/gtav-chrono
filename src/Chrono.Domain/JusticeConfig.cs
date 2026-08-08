@@ -11,6 +11,9 @@ public sealed class JusticeConfig
     public int SurgeryCooldownDays { get; set; } = 1;      // FR-5.5
     public int HackCooldownDays { get; set; } = 1;         // FR-6.4
     public double PrisonDayRealSeconds { get; set; } = 30; // FR-9.1 (1 in-game day ≈ 30 real s)
+
+    /// <summary>Yard-time window per in-game day (escape window, FR-10.1). Must be &lt; PrisonDayRealSeconds.</summary>
+    public double PrisonYardSeconds { get; set; } = 10;
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
 }

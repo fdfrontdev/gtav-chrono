@@ -117,6 +117,11 @@ public static class ConfigValidator
             justice.PrisonDayRealSeconds = 30;
             warnings.Add("justice.prisonDayRealSeconds outside [5,3600] — using 30");
         }
+        if (justice.PrisonYardSeconds < 1 || justice.PrisonYardSeconds >= justice.PrisonDayRealSeconds)
+        {
+            justice.PrisonYardSeconds = 10;
+            warnings.Add("justice.prisonYardSeconds outside [1,dayLen) — using 10");
+        }
     }
 
     private static void ValidateTeleport(TeleportConfig tp, List<string> warnings)
