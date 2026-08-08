@@ -8,6 +8,7 @@ public sealed class ChronoConfig
     public string MenuKey { get; set; } = "F9";
     public DashConfig Dash { get; set; } = new();
     public TimeStopConfig TimeStop { get; set; } = new();
+    public InvisibleConfig Invisible { get; set; } = new();
     public TeleportConfig Teleport { get; set; } = new();
     public FlyConfig Fly { get; set; } = new();
     public VisualConfig Visual { get; set; } = new();
@@ -28,6 +29,12 @@ public sealed class TimeStopConfig
     public int MaintenanceIntervalMs { get; set; } = 2000;
     public int MaxFrozenEntities { get; set; } = 1024;
     public float FreezeRadius { get; set; } = 100.0f;   // 0 = no limit; keeps only visible entities
+    public string Hotkey { get; set; } = "Z";           // quick toggle ("" = disabled)
+}
+
+public sealed class InvisibleConfig
+{
+    public string Hotkey { get; set; } = "B";           // quick toggle ("" = disabled)
 }
 
 public sealed class FlyConfig

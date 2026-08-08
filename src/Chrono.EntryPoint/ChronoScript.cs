@@ -47,7 +47,7 @@ public class ChronoScript : Script
             IPlayerContext player = new PlayerContext();
             IWorldProbe probe = new WorldProbe();
             INotifier notifier = new Notifier();
-            IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey);
+            IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey);
             IVfxBoundary vfx = new VfxBoundary();
             IMenuRenderer renderer = new NativeMenuRenderer();
 

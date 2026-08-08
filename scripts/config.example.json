@@ -10,7 +10,11 @@
     "pauseClock": true,
     "maintenanceIntervalMs": 2000,
     "maxFrozenEntities": 1024,
-    "freezeRadius": 100.0
+    "freezeRadius": 100.0,
+    "hotkey": "Z"
+  },
+  "invisible": {
+    "hotkey": "B"
   },
   "teleport": {
     "groundProbeDistance": 100.0

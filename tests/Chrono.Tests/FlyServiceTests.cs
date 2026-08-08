@@ -51,20 +51,22 @@ public class FlyServiceTests
     }
 
     [Fact]
-    public void Hovering_PlaysIdlePose()
+    public void Hovering_StandsStill_NoDivePose()
     {
+        // Anime spec: hovering/ascending/descending = standing (takeoff/landing pose),
+        // dive pose ONLY when moving horizontally (user report v0.4.0)
         var (service, player, input) = Build();
         service.SetEnabled(true);
-        // no input → hover
+        input.FlyAscend = true;   // vertical-only movement
 
         service.Tick();
 
-        Assert.Contains("skydive@base/free_idle", player.LoopedAnims);
-        Assert.Empty(player.HeadingCalls);   // no direction to face
+        Assert.DoesNotContain("skydive@freefall/free_forward", player.LoopedAnims);
+        Assert.Empty(player.HeadingCalls);
     }
 
     [Fact]
-    public void Ascending_PlaysDivePose()
+    public void Ascending_Stands_NoDivePose()
     {
         var (service, player, input) = Build();
         service.SetEnabled(true);
@@ -72,8 +74,23 @@ public class FlyServiceTests
 
         service.Tick();
 
-        // pure vertical: heading unchanged but dive pose (moving)
+        Assert.DoesNotContain("skydive@freefall/free_forward", player.LoopedAnims);
+    }
+
+    [Fact]
+    public void DiveToHover_ClearsAnimation()
+    {
+        // Transition: forward dive → hover must clear the dive anim (return to stand)
+        var (service, player, input) = Build();
+        service.SetEnabled(true);
+        input.FlyForward = true;
+        service.Tick();                  // dive pose active
         Assert.Contains("skydive@freefall/free_forward", player.LoopedAnims);
+
+        input.FlyForward = false;
+        service.Tick();                  // hover → clear
+
+        Assert.Equal(1, player.ClearAnimCount);
     }
 
     [Fact]

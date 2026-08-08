@@ -114,6 +114,12 @@ public sealed class PowerMenuService
     /// <summary>Menu visibility — exposed for tests and diagnostics.</summary>
     public bool IsMenuOpen => _menu.IsOpen;
 
+    /// <summary>Invisibility state — exposed for tests and diagnostics.</summary>
+    public bool IsInvisible => _invisible.IsEnabled;
+
+    /// <summary>Time Stop state — exposed for tests and diagnostics.</summary>
+    public bool IsTimeStopActive => _timeStop.IsActive;
+
     /// <summary>Per-frame update: warp progression, menu input, time-stop maintenance.</summary>
     public void Tick(long nowMs)
     {
@@ -130,8 +136,10 @@ public sealed class PowerMenuService
                 if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
                 {
                     _vfx.CompleteGokuTransmission(from, result.Point.Value);
-                    // Superhero landing pose (verified anim: skydive@parachute@/land_bend_knees)
-                    _player.PlayAnimationOnce("skydive@parachute@", "land_bend_knees", 1200);
+                    // Settle on terrain first (kills the falling/parachute pose), then
+                    // superhero chest-landing pose (verified anim, DurtyFree dump)
+                    _player.PlaceOnGround();
+                    _player.PlayAnimationOnce("anim@scripted@heist@ig20_chest_land@male@", "action_chest", 1200);
                     _notifier.Show(UiStrings.WarpArrived);
                 }
                 else
@@ -156,6 +164,12 @@ public sealed class PowerMenuService
         {
             if (_input.IsMenuKeyJustPressed) ToggleMenu();
             if (_input.IsDashHotkeyPressed) ExecuteDash();
+            if (_input.IsTimeStopHotkeyJustPressed) ToggleTimeStop();       // Z
+            if (_input.IsInvisibleHotkeyJustPressed)                        // B
+            {
+                _invisible.Toggle();
+                RefreshPowerLabels();
+            }
         }
 
         _timeStop.Tick(nowMs);

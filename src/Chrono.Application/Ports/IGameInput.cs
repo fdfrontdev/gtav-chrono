@@ -12,6 +12,8 @@ public interface IGameInput
     bool IsMenuAcceptJustPressed { get; }
     bool IsMenuCancelJustPressed { get; }
     bool IsDashHotkeyPressed { get; }    // optional dash hotkey ("" = disabled)
+    bool IsTimeStopHotkeyJustPressed { get; }   // Z — edge
+    bool IsInvisibleHotkeyJustPressed { get; }  // B — edge
 
     // --- flight controls (held, camera-relative) ---
     bool IsFlyForward { get; }

@@ -84,9 +84,10 @@ public sealed class VfxService
         if (_visual.Dash.Enabled)
         {
             _vfx.ScreenFadeOut(0);
-            _vfx.FlashColor(r, g, b, FlashAlpha, 5);
             _vfx.SetPlayerAlpha(0);
             _hidden = true;
+            // NOTE: no color flash here — ONE flash on arrival only (user report v0.4.0:
+            // "double light animation, expect only show once on character")
         }
     }
 

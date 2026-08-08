@@ -43,19 +43,26 @@ public sealed class EntityFreezer : IEntityFreezer
         e.Rotation = ToGta(snapshot.Rotation);
         e.Velocity = ToGta(snapshot.Velocity);
         e.IsPositionFrozen = snapshot.WasFrozen;
-        // Release the mission pin so entities can be streamed normally again
-        Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, false);
 
-        // User report v0.3.0: NPCs stood frozen after resume — their navigation tasks
-        // had completed while pinned. Reset to ambient AI so they resume usual activities.
+        // Release the mission pin with p2=true — (false,false) left entities in a
+        // pinned state where ambient AI never re-tasks them (user report: NPCs stand
+        // frozen after resume). Then return them to ambient management so they resume
+        // their usual activities (walking, driving).
+        Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, true);
+
         if (entity.Kind == EntityKind.Ped)
         {
             Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, entity.Handle);
+            Function.Call(Hash.SET_PED_AS_NO_LONGER_NEEDED, entity.Handle);
         }
         else if (entity.Kind == EntityKind.Vehicle)
         {
             int driver = Function.Call<int>(Hash.GET_PED_IN_VEHICLE_SEAT, entity.Handle, -1);
-            if (driver != 0) Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, driver);
+            if (driver != 0)
+            {
+                Function.Call(Hash.CLEAR_PED_TASKS_IMMEDIATELY, driver);
+                Function.Call(Hash.SET_PED_AS_NO_LONGER_NEEDED, driver);
+            }
         }
     }
 
