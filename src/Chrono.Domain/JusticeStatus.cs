@@ -15,4 +15,7 @@ public sealed class JusticeStatus
 
     /// <summary>Game-day of the last plastic surgery (clinic cooldown, FR-5.5); 0 = never.</summary>
     public int LastSurgeryDay { get; set; }
+
+    /// <summary>Game-day of the last police-DB hack (cooldown, FR-6.4); 0 = never.</summary>
+    public int LastHackDay { get; set; }
 }
