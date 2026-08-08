@@ -11,6 +11,12 @@ public sealed class PrisonCalendar
     public int DayIndex { get; private set; }
     public double DayProgressSeconds { get; private set; }
 
+    public void Reset()
+    {
+        DayIndex = 0;
+        DayProgressSeconds = 0;
+    }
+
     public PrisonCalendar(double dayRealSeconds)
     {
         _dayRealSeconds = dayRealSeconds > 0 ? dayRealSeconds : 30.0;

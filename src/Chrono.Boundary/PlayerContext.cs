@@ -170,4 +170,8 @@ public sealed class PlayerContext : IPlayerContext
             return "San Andreas";
         }
     }
+
+    public void AddMoney(int delta) => Game.Player.Money += delta;
+
+    public int GetMoney() => Game.Player.Money;
 }

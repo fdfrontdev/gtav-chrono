@@ -41,4 +41,10 @@ public interface IPlayerContext
 
     /// <summary>Current map zone name for crime/media flavor (e.g. "Vinewood").</summary>
     string GetDistrictName();
+
+    /// <summary>Add money (negative = fine deduction, FR-8.3).</summary>
+    void AddMoney(int delta);
+
+    /// <summary>Current cash.</summary>
+    int GetMoney();
 }

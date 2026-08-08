@@ -13,6 +13,7 @@ public interface IVfxBoundary
     void StopCameraShake();
     void ScreenFlash(int fadeInMs);
     void ScreenFadeOut(int fadeOutMs);
+    void ScreenFadeIn(int fadeInMs);
     void FlashColor(int r, int g, int b, int alpha, int frames);   // anime flash overlay (Minato/Goku)
     void SetPlayerAlpha(int alpha);      // 0 = invisible (vanish), 255 = visible
     void ResetPlayerAlpha();

@@ -14,6 +14,7 @@ public sealed class FakeClock : IGameClock
     public bool IsPaused { get; private set; }
     public int PauseCount { get; private set; }
     public int ResumeCount { get; private set; }
+    public int CurrentGameDay { get; set; } = 100;
     public void Pause() { IsPaused = true; PauseCount++; }
     public void Resume() { IsPaused = false; ResumeCount++; }
 }
@@ -86,7 +87,11 @@ public sealed class FakePlayer : IPlayerContext
     public Vector3 GetAimDirection() => AimDirection;
     public bool IsWaypointActive() => WaypointActive;
     public Vector3 GetWaypointPosition() => WaypointPosition;
-    public void Teleport(Vector3 position) => TeleportCalls.Add(position);
+    public void Teleport(Vector3 position)
+    {
+        Position = position;
+        TeleportCalls.Add(position);
+    }
     public void SetVelocity(Vector3 velocity) => VelocityCalls.Add(velocity);
     public void SetGravityEnabled(bool enabled) => GravityCalls.Add(enabled);
     public void SetRagdollEnabled(bool enabled) => RagdollCalls.Add(enabled);
@@ -104,6 +109,10 @@ public sealed class FakePlayer : IPlayerContext
     public bool IsVisible { get; set; } = true;
     public string DistrictName { get; set; } = "Vinewood";
     public string GetDistrictName() => DistrictName;
+    public int Money { get; set; } = 100000;
+    public List<int> MoneyCalls { get; } = new();
+    public void AddMoney(int delta) { Money += delta; MoneyCalls.Add(delta); }
+    public int GetMoney() => Money;
 }
 
 public sealed class FakeProbe : IWorldProbe
@@ -219,6 +228,7 @@ public sealed class FakeVfx : IVfxBoundary
     public void StopCameraShake() => Calls.Add("shake:stop");
     public void ScreenFlash(int fadeInMs) => Calls.Add($"flash:{fadeInMs}");
     public void ScreenFadeOut(int fadeOutMs) => Calls.Add($"fadeout:{fadeOutMs}");
+    public void ScreenFadeIn(int fadeInMs) => Calls.Add($"fadein:{fadeInMs}");
     public void FlashColor(int r, int g, int b, int alpha, int frames) => Calls.Add($"flashcolor:{r},{g},{b},{alpha},{frames}");
     public void SetPlayerAlpha(int alpha) => Calls.Add($"alpha:{alpha}");
     public void ResetPlayerAlpha() => Calls.Add("alpha:reset");

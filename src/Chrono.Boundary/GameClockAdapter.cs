@@ -20,4 +20,16 @@ public sealed class GameClockAdapter : IGameClock
         Function.Call(Hash.PAUSE_CLOCK, false);
         IsPaused = false;
     }
+
+    public int CurrentGameDay
+    {
+        get
+        {
+            // SHVDN 3.9 has no Game.Clock property — clock access is via natives
+            int year = Function.Call<int>(Hash.GET_CLOCK_YEAR);
+            int month = Function.Call<int>(Hash.GET_CLOCK_MONTH);
+            int day = Function.Call<int>(Hash.GET_CLOCK_DAY_OF_MONTH);
+            return year * 372 + month * 31 + day;
+        }
+    }
 }
