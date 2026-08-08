@@ -6,23 +6,24 @@ namespace Chrono.Tests;
 /// <summary>S1 justice core: wanted edges → crimes, burning, warrants, state machine.</summary>
 public class JusticeServiceTests
 {
-    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeClock clock) Build()
+    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeClock clock, FakeInput input) Build()
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer();
         var store = new FakeRecordStore();
         var notifier = new FakeNotifier();
         var clock = new FakeClock();
+        var input = new FakeInput();
         var identity = new IdentityService(store, new FakeLog());
         var warrant = new WarrantService(store, new FakeLog());
-        var service = new JusticeService(wanted, player, store, identity, warrant, notifier, new FakeLog(), new JusticeConfig(), clock);
-        return (service, wanted, player, store, notifier, clock);
+        var service = new JusticeService(wanted, player, store, identity, warrant, notifier, new FakeLog(), new JusticeConfig(), clock, null, null, input);
+        return (service, wanted, player, store, notifier, clock, input);
     }
 
     [Fact]
     public void StarsIncrease_RecordsSingleCrimeAtMaxSeverity()
     {
-        var (service, wanted, _, store, _, _) = Build();
+        var (service, wanted, _, store, _, _, _) = Build();
 
         wanted.CurrentStars = 5;   // 0 → 5 jump = ONE Severe episode
         service.Tick();
@@ -35,7 +36,7 @@ public class JusticeServiceTests
     [Fact]
     public void StarsIncrease_TwoStars_IsMinor()
     {
-        var (service, wanted, _, store, _, _) = Build();
+        var (service, wanted, _, store, _, _, _) = Build();
         wanted.CurrentStars = 2;
         service.Tick();
         Assert.Equal(CrimeSeverity.Minor, store.Record.Events[0].Severity);
@@ -44,7 +45,7 @@ public class JusticeServiceTests
     [Fact]
     public void StarsIncrease_FourStars_IsModerate()
     {
-        var (service, wanted, _, store, _, _) = Build();
+        var (service, wanted, _, store, _, _, _) = Build();
         wanted.CurrentStars = 4;
         service.Tick();
         Assert.Equal(CrimeSeverity.Moderate, store.Record.Events[0].Severity);
@@ -53,7 +54,7 @@ public class JusticeServiceTests
     [Fact]
     public void VisibleCrime_BurnsIdentity_AndActivatesWarrant()
     {
-        var (service, wanted, player, store, _, _) = Build();
+        var (service, wanted, player, store, _, _, _) = Build();
         player.IsVisible = true;
 
         wanted.CurrentStars = 3;
@@ -68,7 +69,7 @@ public class JusticeServiceTests
     public void InvisibleCrime_DoesNotBurn()
     {
         // FR-2.4: no face seen while invisible → identity stays Clean, no warrant
-        var (service, wanted, player, store, _, _) = Build();
+        var (service, wanted, player, store, _, _, _) = Build();
         player.IsVisible = false;
 
         wanted.CurrentStars = 5;
@@ -82,7 +83,7 @@ public class JusticeServiceTests
     [Fact]
     public void RecordFromWantedDisabled_NoEvent()
     {
-        var (service, wanted, _, store, _, _) = Build();
+        var (service, wanted, _, store, _, _, _) = Build();
         var config = new JusticeConfig { RecordFromWanted = false };
         var identity = new IdentityService(store, new FakeLog());
         var warrant = new WarrantService(store, new FakeLog());
@@ -97,7 +98,7 @@ public class JusticeServiceTests
     [Fact]
     public void NoStarChange_NoEvent()
     {
-        var (service, wanted, _, store, _, _) = Build();
+        var (service, wanted, _, store, _, _, _) = Build();
         wanted.CurrentStars = 0;
         service.Tick();
         wanted.CurrentStars = 0;
@@ -109,7 +110,7 @@ public class JusticeServiceTests
     [Fact]
     public void StarsDrop_StateReturnsToFree_WarrantPersists()
     {
-        var (service, wanted, player, store, _, _) = Build();
+        var (service, wanted, player, store, _, _, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 3;
         service.Tick();
@@ -136,7 +137,7 @@ public class JusticeServiceTests
     public void Release_ClearsWarrant()
     {
         // FR-8.4: justice served → warrant cleared
-        var (service, wanted, player, store, _, _) = Build();
+        var (service, wanted, player, store, _, _, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
@@ -154,7 +155,7 @@ public class JusticeServiceTests
     public void FourStars_TriggersArrest()
     {
         // FR-8.1 (amended): capture at 4★+ — Moderate crimes can end in arrest
-        var (service, wanted, player, _, notifier, _) = Build();
+        var (service, wanted, player, _, notifier, _, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 4;
         service.Tick();
@@ -166,7 +167,7 @@ public class JusticeServiceTests
     [Fact]
     public void Arrest_FiresOnce_NotEveryTick()
     {
-        var (service, wanted, player, _, notifier, _) = Build();
+        var (service, wanted, player, _, notifier, _, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
@@ -182,7 +183,7 @@ public class JusticeServiceTests
     {
         // 2★ theft (Minor: fine 2000) that ESCALATED to a 4★ chase → still sentenced
         // for the original offense → fine only, released (FR-8.3 realism ruling)
-        var (service, wanted, player, store, notifier, clock) = Build();
+        var (service, wanted, player, store, notifier, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 2;
         service.Tick();
@@ -204,7 +205,7 @@ public class JusticeServiceTests
     public void TrialDayArrives_PrisonSentence_ConfinementStarts()
     {
         // 5★ crime (Severe: 25000 + 30d) → prison
-        var (service, wanted, player, store, _, clock) = Build();
+        var (service, wanted, player, store, _, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();                  // crime + arrest same tick
@@ -221,7 +222,7 @@ public class JusticeServiceTests
     [Fact]
     public void Recidivism_SecondVerdict_HarsherFine()
     {
-        var (service, wanted, player, store, _, clock) = Build();
+        var (service, wanted, player, store, _, clock, _) = Build();
         player.IsVisible = true;
 
         // First conviction: 2★ theft (Minor fine 2000) → 4★ chase → fine-only release
@@ -249,7 +250,7 @@ public class JusticeServiceTests
     [Fact]
     public void PrisonDays_Served_ReleasesAndAges()
     {
-        var (service, wanted, player, store, _, clock) = Build();
+        var (service, wanted, player, store, _, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
@@ -266,20 +267,217 @@ public class JusticeServiceTests
     }
 
     [Fact]
-    public void PrisonWanderer_PulledBackToCell()
+    public void PrisonWanderer_CrossesRadius_Escapes()
     {
-        var (service, wanted, player, _, notifier, clock) = Build();
+        // The fence is solid geometry — crossing the radius is only possible with a
+        // power, which IS the escape (S4 ruling: no more arbitrary guard escort)
+        var (service, wanted, player, store, notifier, clock, _) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
         clock.CurrentGameDay++;
         service.Tick();                  // confined
 
-        player.Position = new System.Numerics.Vector3(5000, 5000, 100);   // far away
+        player.Position = new System.Numerics.Vector3(1826 + 100, 2635, 46);   // just beyond the fence (in-bounds)
         service.Tick();
 
-        Assert.Contains(notifier.Messages, m => m.Contains("Guards"));
-        Assert.Equal(new System.Numerics.Vector3(1826, 2635, 46), player.Position);
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.Contains(notifier.Messages, m => m.Contains("ESCAPED"));
+        Assert.Contains(store.Record.Events, e => e.Kind == "prison_escape");
+    }
+
+    // --- S4: yard time + escape with powers (FR-10) ---
+
+    [Fact]
+    public void YardTime_OpensAtEndOfDay_WithHint()
+    {
+        var (service, wanted, player, _, notifier, clock, _) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();                  // confined (day = 30s, yard opens at 20s)
+
+        service.AdvancePrisonTime(20.0); // yard window reached (no day boundary)
+        service.Tick();                  // PrisonTick → UpdateYardPhase
+
+        Assert.Contains(notifier.Messages, m => m.Contains("Yard time"));
+    }
+
+    [Fact]
+    public void Escape_AtFence_TimeStopHotkey_FreezesGuards()
+    {
+        var (service, wanted, player, store, notifier, clock, input) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();                  // confined
+
+        service.AdvancePrisonTime(20.0);
+        service.Tick();                  // yard opens
+        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);   // at the fence
+
+        input.TimeStopHotkey = true;
+        input.Update();
+        service.Tick();                  // escape via time stop
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.Contains(notifier.Messages, m => m.Contains("froze the guards"));
+        Assert.Contains(store.Record.Events, e => e.Kind == "prison_escape");
+        Assert.True(service.Warrant.IsActive);
+        Assert.Equal(IdentityState.Burned, store.Status.Identity);
+        Assert.Contains(notifier.Messages, m => m.Contains("MANHUNT") || m.Contains("looking for you"));
+    }
+
+    [Fact]
+    public void Escape_AtFence_DashHotkey_BlinksOverFence()
+    {
+        var (service, wanted, player, _, notifier, clock, input) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();
+
+        service.AdvancePrisonTime(20.0);
+        service.Tick();                  // yard opens
+        player.Position = new System.Numerics.Vector3(1826 - 75, 2635, 46);
+
+        input.DashHotkey = true;
+        input.Update();
+        service.Tick();
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.Contains(notifier.Messages, m => m.Contains("blinked over the fence"));
+    }
+
+    [Fact]
+    public void Escape_AtFence_InvisibleHotkey_SlipsPastGuards()
+    {
+        var (service, wanted, player, _, notifier, clock, input) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();
+
+        service.AdvancePrisonTime(20.0);
+        service.Tick();
+        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
+
+        input.InvisibleHotkey = true;
+        input.Update();
+        service.Tick();
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.Contains(notifier.Messages, m => m.Contains("slipped past the guards"));
+    }
+
+    [Fact]
+    public void Escape_AtFence_FlyControls_FliesOverWall()
+    {
+        var (service, wanted, player, _, notifier, clock, input) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();
+
+        service.AdvancePrisonTime(20.0);
+        service.Tick();
+        player.Position = new System.Numerics.Vector3(1826 - 75, 2635, 46);
+
+        input.FlyAscend = true;
+        service.Tick();
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.Contains(notifier.Messages, m => m.Contains("flew over the wall"));
+    }
+
+    [Fact]
+    public void Escape_SetsManhuntStars_AndMedia()
+    {
+        var (service, wanted, player, store, _, clock, input) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();
+
+        service.AdvancePrisonTime(20.0);
+        service.Tick();
+        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
+        input.DashHotkey = true;
+        input.Update();
+        service.Tick();                  // escape
+
+        Assert.Contains(wanted.StarSets, s => s == 4);   // manhunt stars (FR-10.2)
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.True(service.Warrant.IsActive);
+    }
+
+    [Fact]
+    public void Manhunt_ExpiresAfterOneGameDay()
+    {
+        var (service, wanted, player, _, notifier, clock, input) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();
+
+        service.AdvancePrisonTime(20.0);
+        service.Tick();
+        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
+        input.TimeStopHotkey = true;
+        input.Update();
+        service.Tick();                  // escape — manhunt until day + 1
+
+        clock.CurrentGameDay = clock.CurrentGameDay + 1;
+        service.Tick();
+
+        Assert.Contains(notifier.Messages, m => m.Contains("heat dies down"));
+    }
+
+    [Fact]
+    public void Confinement_BookingPoseAndCellIdle()
+    {
+        var (service, wanted, player, _, _, clock, _) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();                  // confined → booking anim
+
+        Assert.Contains(player.OneShotAnims, a => a.StartsWith("mp_arrest_paired/crook_p1_front"));
+
+        service.Tick();                  // still in cell, not moving → idle loop
+        Assert.Contains(player.LoopedAnims, a => a == "anim@heists@prison_heist/ped_a_loop_a");
+
+        player.Position = new System.Numerics.Vector3(1830, 2640, 46);   // moving
+        service.Tick();
+        Assert.True(player.ClearAnimCount >= 1, "idle anim must clear when the player moves");
+    }
+
+    [Fact]
+    public void Escape_NotPossibleOutsideYardTime()
+    {
+        // In cell phase, the at-fence + hotkey combo must NOT escape (only crossing does)
+        var (service, wanted, player, _, notifier, clock, input) = Build();
+        player.IsVisible = true;
+        wanted.CurrentStars = 5;
+        service.Tick();
+        clock.CurrentGameDay++;
+        service.Tick();                  // confined, cell phase
+
+        player.Position = new System.Numerics.Vector3(1826 + 75, 2635, 46);
+        input.DashHotkey = true;
+        input.Update();
+        service.Tick();
+
+        Assert.Equal(JusticeState.Prison, service.State);   // still inside
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("ESCAPED"));
     }
 }
 
