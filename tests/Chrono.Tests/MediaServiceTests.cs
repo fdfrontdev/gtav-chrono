@@ -152,4 +152,17 @@ public class MediaServiceTests
 
         Assert.True(service.Feed.Count <= 20, $"feed capped (got {service.Feed.Count})");
     }
+
+    // --- S10: news for everything ---
+
+    [Fact]
+    public void MinorCrime_PushesBlotterFeedPost_NoTvNews()
+    {
+        var (service, media) = Build();
+        service.ReportCrime(Event(CrimeSeverity.Minor, "Paleto Bay"));
+
+        Assert.Empty(media.Headlines);                                    // no TV spam
+        Assert.Contains(service.Feed, f => f.Text.Contains("Police blotter"));
+        Assert.Contains(service.Feed, f => f.Text.Contains("Paleto Bay"));
+    }
 }

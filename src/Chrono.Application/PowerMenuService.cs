@@ -25,6 +25,7 @@ public sealed class PowerMenuService
     private readonly GodModeService _godMode;
     private readonly InvisibilityService _invisible;
     private readonly FlyService _fly;
+    private bool _menuWasOpen;
     private readonly NpcReactionService _npcReaction;
     private readonly PoliceDbHackService? _hack;
     private readonly JusticeStatsService? _stats;
@@ -173,16 +174,24 @@ public sealed class PowerMenuService
         if (stats.Identity == IdentityState.Burned && stats.WarrantActive)
             items.Add(new MenuItem { Title = "Tip: the clinic or a DB hack clears your warrant" });
 
+        // Long-list handling (S10): cap the screen at 14 crimes — the menu draws
+        // every item (no scrolling), so a 100-event record would overflow the HUD
+        int shown = 0;
         foreach (var crime in stats.Crimes)
         {
+            if (shown >= 14) break;
             string time = crime.GameTime.Length >= 16 ? crime.GameTime.Substring(11, 5) : crime.GameTime;
             items.Add(new MenuItem
             {
                 Title = $"{crime.Severity} — {crime.Kind} ({crime.District}, {time})"
             });
+            shown++;
         }
 
-        if (stats.Crimes.Count == 0)
+        if (stats.Crimes.Count > shown)
+            items.Add(new MenuItem { Title = $"…{stats.Crimes.Count - shown} older crimes — full log in record.json" });
+
+        if (shown == 0)
             items.Add(new MenuItem { Title = "No crimes recorded" });
 
         _recordScreen = new MenuScreen
@@ -233,6 +242,12 @@ public sealed class PowerMenuService
     {
         _input.Update();
 
+        // Watchdog (S10): ANY close transition must restore control — covers close
+        // paths the code above might miss (e.g. scripted closes)
+        if (_menuWasOpen && !_menu.IsOpen)
+            _player.SetControlEnabled(true);
+        _menuWasOpen = _menu.IsOpen;
+
         if (_vfx.IsWarping)
         {
             if (_input.IsMenuKeyJustPressed) { _vfx.CancelWarp(); _notifier.Show(UiStrings.WarpCancelled); }
@@ -266,7 +281,11 @@ public sealed class PowerMenuService
             if (_input.IsMenuUpJustPressed) _menu.NavigateUp();
             else if (_input.IsMenuDownJustPressed) _menu.NavigateDown();
             else if (_input.IsMenuAcceptJustPressed) _menu.Accept();
-            else if (_input.IsMenuCancelJustPressed) _menu.NavigateBack();
+            else if (_input.IsMenuCancelJustPressed)
+            {
+                _menu.NavigateBack();
+                if (!_menu.IsOpen) _player.SetControlEnabled(true);   // Esc closed at root (S10)
+            }
             else if (_input.IsMenuKeyJustPressed) { _menu.Close(); _player.SetControlEnabled(true); }
             _menu.Render();
         }
