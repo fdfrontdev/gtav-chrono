@@ -3,16 +3,20 @@
   "dash": {
     "range": 12.0,
     "maxRange": 30.0,
-    "hotkey": ""
+    "hotkey": "X"
   },
   "timeStop": {
     "freezeProps": true,
     "pauseClock": true,
     "maintenanceIntervalMs": 2000,
-    "maxFrozenEntities": 512
+    "maxFrozenEntities": 1024,
+    "freezeRadius": 100.0
   },
   "teleport": {
     "groundProbeDistance": 100.0
+  },
+  "fly": {
+    "speed": 25.0
   },
   "visual": {
     "timeStop": {

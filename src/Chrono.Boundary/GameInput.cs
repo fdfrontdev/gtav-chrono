@@ -19,7 +19,7 @@ public sealed class GameInput : IGameInput
         _menuKey = ParseKey(menuKeyName, Keys.F9);
         _dashKey = string.IsNullOrWhiteSpace(dashHotkeyName)
             ? null
-            : ParseKey(dashHotkeyName, Keys.F9);
+            : ParseKey(dashHotkeyName, Keys.None) is var k && k != Keys.None ? k : null;
     }
 
     public void Update()
@@ -35,6 +35,14 @@ public sealed class GameInput : IGameInput
     public bool IsMenuAcceptJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendAccept);
     public bool IsMenuCancelJustPressed => Game.IsControlJustPressed(GTA.Control.FrontendCancel);
     public bool IsDashHotkeyPressed => _dashKey.HasValue && Game.IsKeyPressed(_dashKey.Value);
+
+    // --- flight controls (camera-relative movement, controller-friendly) ---
+    public bool IsFlyForward => Game.IsControlPressed(GTA.Control.MoveUpOnly);
+    public bool IsFlyBack => Game.IsControlPressed(GTA.Control.MoveDownOnly);
+    public bool IsFlyLeft => Game.IsControlPressed(GTA.Control.MoveLeftOnly);
+    public bool IsFlyRight => Game.IsControlPressed(GTA.Control.MoveRightOnly);
+    public bool IsFlyAscend => Game.IsControlPressed(GTA.Control.Jump);
+    public bool IsFlyDescend => Game.IsControlPressed(GTA.Control.Duck);
 
     private static Keys ParseKey(string name, Keys fallback)
     {

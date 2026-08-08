@@ -22,6 +22,11 @@ public sealed class VfxService
     private const string DesatModifier = "hud_def_desat";
     private const long WarpWindupMs = 1200;
 
+    // Fourth Hokage (Minato) yellow flash vs Goku white flash (user request v0.3.0)
+    private const int MinatoR = 255, MinatoG = 210, MinatoB = 60;
+    private const int GokuR = 255, GokuG = 255, GokuB = 255;
+    private const int FlashAlpha = 190;
+
     private Vector3? _warpFrom;
     private Vector3? _warpTo;
     private long _warpStartedMs;
@@ -35,6 +40,9 @@ public sealed class VfxService
     }
 
     public bool IsWarping => _warpTo.HasValue;
+
+    /// <summary>Per-frame maintenance: color flash overlays, particle retries.</summary>
+    public void Tick() => _vfx.Tick();
 
     /// <summary>Time Stop cue: desaturation tint while active.</summary>
     public void SetTimeStopCue(bool active)
@@ -51,19 +59,32 @@ public sealed class VfxService
         }
     }
 
-    /// <summary>Phase 1 of Instant Transmission: flash out + vanish.</summary>
-    public void BeginInstantTransmission()
+    /// <summary>Phase 1 of Instant Transmission: flash out + vanish (Minato yellow flash).</summary>
+    public void BeginInstantTransmission() => BeginTransmission(MinatoR, MinatoG, MinatoB);
+
+    /// <summary>Phase 1, Goku style (map teleport): white flash + vanish.</summary>
+    public void BeginGokuTransmission() => BeginTransmission(GokuR, GokuG, GokuB);
+
+    /// <summary>Phase 2: bursts at both ends + afterimage trail + rematerialize + flash in + shake.</summary>
+    public void CompleteInstantTransmission(Vector3 from, Vector3 to)
+        => CompleteTransmission(MinatoR, MinatoG, MinatoB, from, to);
+
+    /// <summary>Phase 2, Goku style (map teleport): white flash + arrival burst.</summary>
+    public void CompleteGokuTransmission(Vector3 from, Vector3 to)
+        => CompleteTransmission(GokuR, GokuG, GokuB, from, to);
+
+    private void BeginTransmission(int r, int g, int b)
     {
         if (_visual.Dash.Enabled)
         {
             _vfx.ScreenFadeOut(0);
+            _vfx.FlashColor(r, g, b, FlashAlpha, 5);
             _vfx.SetPlayerAlpha(0);
             _hidden = true;
         }
     }
 
-    /// <summary>Phase 2: bursts at both ends + afterimage trail + rematerialize + flash in + shake.</summary>
-    public void CompleteInstantTransmission(Vector3 from, Vector3 to)
+    private void CompleteTransmission(int r, int g, int b, Vector3 from, Vector3 to)
     {
         if (_visual.Dash.Enabled)
         {
@@ -95,6 +116,7 @@ public sealed class VfxService
         }
         if (_visual.Dash.Enabled)
         {
+            _vfx.FlashColor(r, g, b, FlashAlpha, 6);
             _vfx.ScreenFlash(180);
             if (_visual.MapTeleport.Shake) _vfx.ShakeCamera(0.3f);
         }

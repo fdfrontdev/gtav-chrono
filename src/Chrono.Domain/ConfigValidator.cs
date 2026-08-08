@@ -29,6 +29,7 @@ public static class ConfigValidator
         ValidateDash(cfg.Dash, warnings);
         ValidateTimeStop(cfg.TimeStop, warnings);
         ValidateTeleport(cfg.Teleport, warnings);
+        ValidateFly(cfg.Fly, warnings);
         ValidateVisual(cfg.Visual, warnings);
         ValidateLogging(cfg.Logging, warnings);
 
@@ -65,10 +66,24 @@ public static class ConfigValidator
             ts.MaintenanceIntervalMs = 2000;
             warnings.Add("timeStop.maintenanceIntervalMs outside [250,10000] — using 2000");
         }
-        if (ts.MaxFrozenEntities < 1 || ts.MaxFrozenEntities > 2048)
+        if (ts.MaxFrozenEntities < 1 || ts.MaxFrozenEntities > 4096)
         {
-            ts.MaxFrozenEntities = 512;
-            warnings.Add("timeStop.maxFrozenEntities outside [1,2048] — using 512");
+            ts.MaxFrozenEntities = 1024;
+            warnings.Add("timeStop.maxFrozenEntities outside [1,4096] — using 1024");
+        }
+        if (ts.FreezeRadius < 0f || ts.FreezeRadius > 400f)
+        {
+            ts.FreezeRadius = 100f;
+            warnings.Add("timeStop.freezeRadius outside [0,400] — using 100");
+        }
+    }
+
+    private static void ValidateFly(FlyConfig fly, List<string> warnings)
+    {
+        if (fly.Speed < 5f || fly.Speed > 80f)
+        {
+            fly.Speed = 25f;
+            warnings.Add($"fly.speed {Format(fly.Speed)} outside [5,80] — using 25");
         }
     }
 

@@ -26,6 +26,7 @@ public sealed class TimeStopService
     private readonly Queue<GameEntity> _pending = new();
     private readonly HashSet<int> _knownHandles = new();
     private long _lastSweepMs;
+    private bool _capNotified;
 
     public TimeStopService(
         IEntityRepository repo,
@@ -66,6 +67,7 @@ public sealed class TimeStopService
 
         IsActive = true;
         _lastSweepMs = 0;
+        _capNotified = false;
 
         if (_config.PauseClock) _clock.Pause();
         _log.Info($"TimeStop activated — {_pending.Count} entities queued");
@@ -131,7 +133,11 @@ public sealed class TimeStopService
 
         if (_frozen.Count >= _config.MaxFrozenEntities)
         {
-            _notifier.Show(UiStrings.TimeStopCapped);
+            if (!_capNotified)
+            {
+                _capNotified = true;
+                _notifier.Show(UiStrings.TimeStopCapped);
+            }
             _log.Warn("Freeze cap reached — skipping new entities");
             return;
         }
@@ -154,13 +160,17 @@ public sealed class TimeStopService
     {
         var config = new ChronoConfig { TimeStop = _config }; // reuse policy with same settings
         var result = new List<GameEntity>();
+        var center = _player.Position;
+        float radius = _config.FreezeRadius;
 
         foreach (var e in _repo.GetAllPeds())
-            if (FreezePolicy.CanFreeze(e.Kind, config) && e.Handle != _player.PlayerHandle) result.Add(e);
+            if (FreezePolicy.CanFreeze(e.Kind, config) && e.Handle != _player.PlayerHandle
+                && e.IsWithinRadius(center, radius)) result.Add(e);
         foreach (var e in _repo.GetAllVehicles())
-            if (FreezePolicy.CanFreeze(e.Kind, config) && e.Handle != _player.PlayerVehicleHandle) result.Add(e);
+            if (FreezePolicy.CanFreeze(e.Kind, config) && e.Handle != _player.PlayerVehicleHandle
+                && e.IsWithinRadius(center, radius)) result.Add(e);
         foreach (var e in _repo.GetAllProps())
-            if (FreezePolicy.CanFreeze(e.Kind, config)) result.Add(e);
+            if (FreezePolicy.CanFreeze(e.Kind, config) && e.IsWithinRadius(center, radius)) result.Add(e);
 
         return result;
     }

@@ -67,15 +67,28 @@ public sealed class FakePlayer : IPlayerContext
     public Vector3 Position { get; set; } = new(0, 0, 0);
     public float Heading { get; set; } = 0f;
     public bool IsAiming { get; set; }
+    public bool IsInVehicle { get; set; }
     public Vector3 AimDirection { get; set; } = Vector3.UnitX;
     public bool WaypointActive { get; set; }
     public Vector3 WaypointPosition { get; set; } = new(100, 100, 10);
     public List<Vector3> TeleportCalls { get; } = new();
+    public List<Vector3> VelocityCalls { get; } = new();
+    public List<bool> GravityCalls { get; } = new();
+    public List<bool> RagdollCalls { get; } = new();
+    public List<bool> InvincibleCalls { get; } = new();
+    public List<bool> VisibleCalls { get; } = new();
+    public int RefillCount { get; private set; }
 
     public Vector3 GetAimDirection() => AimDirection;
     public bool IsWaypointActive() => WaypointActive;
     public Vector3 GetWaypointPosition() => WaypointPosition;
     public void Teleport(Vector3 position) => TeleportCalls.Add(position);
+    public void SetVelocity(Vector3 velocity) => VelocityCalls.Add(velocity);
+    public void SetGravityEnabled(bool enabled) => GravityCalls.Add(enabled);
+    public void SetRagdollEnabled(bool enabled) => RagdollCalls.Add(enabled);
+    public void SetInvincible(bool enabled) => InvincibleCalls.Add(enabled);
+    public void RefillHealth() => RefillCount++;
+    public void SetVisible(bool visible) => VisibleCalls.Add(visible);
 }
 
 public sealed class FakeProbe : IWorldProbe
@@ -136,6 +149,21 @@ public sealed class FakeInput : IGameInput
     public bool IsMenuAcceptJustPressed => MenuAccept;
     public bool IsMenuCancelJustPressed => MenuCancel;
     public bool IsDashHotkeyPressed => DashHotkey;
+
+    // --- flight controls ---
+    public bool FlyForward { get; set; }
+    public bool FlyBack { get; set; }
+    public bool FlyLeft { get; set; }
+    public bool FlyRight { get; set; }
+    public bool FlyAscend { get; set; }
+    public bool FlyDescend { get; set; }
+
+    public bool IsFlyForward => FlyForward;
+    public bool IsFlyBack => FlyBack;
+    public bool IsFlyLeft => FlyLeft;
+    public bool IsFlyRight => FlyRight;
+    public bool IsFlyAscend => FlyAscend;
+    public bool IsFlyDescend => FlyDescend;
 }
 
 public sealed class FakeConfigStore : IConfigStore
@@ -149,6 +177,7 @@ public sealed class FakeConfigStore : IConfigStore
 public sealed class FakeVfx : IVfxBoundary
 {
     public List<string> Calls { get; } = new();
+    public void Tick() => Calls.Add("tick");
     public void SetTimecycleModifier(string name, float strength) => Calls.Add($"timecycle:{name}:{strength}");
     public void ClearTimecycleModifier() => Calls.Add("timecycle:clear");
     public void SpawnParticle(string asset, string effect, System.Numerics.Vector3 pos, float scale) => Calls.Add($"particle:{effect}");
@@ -156,6 +185,7 @@ public sealed class FakeVfx : IVfxBoundary
     public void StopCameraShake() => Calls.Add("shake:stop");
     public void ScreenFlash(int fadeInMs) => Calls.Add($"flash:{fadeInMs}");
     public void ScreenFadeOut(int fadeOutMs) => Calls.Add($"fadeout:{fadeOutMs}");
+    public void FlashColor(int r, int g, int b, int alpha, int frames) => Calls.Add($"flashcolor:{r},{g},{b},{alpha},{frames}");
     public void SetPlayerAlpha(int alpha) => Calls.Add($"alpha:{alpha}");
     public void ResetPlayerAlpha() => Calls.Add("alpha:reset");
 }

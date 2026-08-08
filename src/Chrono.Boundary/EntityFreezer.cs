@@ -2,6 +2,7 @@ using System.Numerics;
 using Chrono.Application.Ports;
 using Chrono.Domain;
 using GTA;
+using GTA.Native;
 
 namespace Chrono.Boundary;
 
@@ -29,6 +30,9 @@ public sealed class EntityFreezer : IEntityFreezer
         if (e == null || !e.Exists()) return;
         e.IsPositionFrozen = true;
         e.Velocity = ToGta(Vector3.Zero);
+        // Pin as mission entity — prevents the game streaming out frozen NPCs/vehicles
+        // (root cause of "entities missing after resume", v0.3.0)
+        Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, true, true);
     }
 
     public void Restore(GameEntity entity, FreezeSnapshot snapshot)
@@ -39,6 +43,8 @@ public sealed class EntityFreezer : IEntityFreezer
         e.Rotation = ToGta(snapshot.Rotation);
         e.Velocity = ToGta(snapshot.Velocity);
         e.IsPositionFrozen = snapshot.WasFrozen;
+        // Release the mission pin so entities can be streamed normally again
+        Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, false);
     }
 
     internal static Vector3 ToNumerics(GTA.Math.Vector3 v) => new(v.X, v.Y, v.Z);

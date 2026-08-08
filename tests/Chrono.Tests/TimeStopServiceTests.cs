@@ -201,6 +201,63 @@ public class TimeStopServiceTests
     }
 
     [Fact]
+    public void RadiusFilter_ExcludesDistantEntities()
+    {
+        var repo = new FakeRepository();
+        repo.Peds.Add(new GameEntity(10, EntityKind.Ped, new(0, 0, 0)));        // 0m — inside
+        repo.Peds.Add(new GameEntity(11, EntityKind.Ped, new(200, 0, 0)));      // 200m — outside
+
+        var freezer = new FakeFreezer(10, 11);
+        var player = new FakePlayer { PlayerHandle = 1 };   // at (0,0,0)
+        var cfg = new TimeStopConfig { MaintenanceIntervalMs = 2000, MaxFrozenEntities = 512, FreezeRadius = 100f };
+
+        var service = Create(repo, freezer, new FakeClock(), player, new FakeNotifier(), new FakeLog(), cfg);
+        service.Activate();
+        service.Tick(0);
+
+        Assert.Equal(1, service.FrozenCount);
+        Assert.True(freezer.FreezeFlags.ContainsKey(10));
+        Assert.False(freezer.FreezeFlags.ContainsKey(11));
+    }
+
+    [Fact]
+    public void RadiusZero_DisablesFilter()
+    {
+        var repo = new FakeRepository();
+        repo.Peds.Add(new GameEntity(10, EntityKind.Ped, new(500, 500, 0)));   // far away
+
+        var freezer = new FakeFreezer(10);
+        var cfg = new TimeStopConfig { MaintenanceIntervalMs = 2000, MaxFrozenEntities = 512, FreezeRadius = 0f };
+
+        var service = Create(repo, freezer, new FakeClock(), new FakePlayer(), new FakeNotifier(), new FakeLog(), cfg);
+        service.Activate();
+        service.Tick(0);
+
+        Assert.Equal(1, service.FrozenCount);
+    }
+
+    [Fact]
+    public void CapWarning_ShownOnlyOncePerActivation()
+    {
+        var repo = new FakeRepository();
+        repo.Peds.Add(new GameEntity(10, EntityKind.Ped));
+        var cfg = new TimeStopConfig { MaintenanceIntervalMs = 2000, MaxFrozenEntities = 1 };
+        var freezer = new FakeFreezer(10);
+        var notifier = new FakeNotifier();
+        var service = Create(repo, freezer, new FakeClock(), new FakePlayer(), notifier, new FakeLog(), cfg);
+
+        service.Activate();
+        service.Tick(0);
+
+        repo.Peds.Add(new GameEntity(20, EntityKind.Ped));
+        freezer.ExistsSet.Add(20);
+        service.Tick(2000);   // sweep 1 → cap → notify (first time)
+        service.Tick(4000);   // sweep 2 → cap → NOT notified again
+
+        Assert.Equal(1, notifier.Messages.Count(m => m == UiStrings.TimeStopCapped));
+    }
+
+    [Fact]
     public void Tick_WhileInactive_DoesNothing()
     {
         var repo = new FakeRepository();
