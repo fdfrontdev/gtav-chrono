@@ -99,6 +99,8 @@ public sealed class FakePlayer : IPlayerContext
     public void ClearCurrentAnimation() => ClearAnimCount++;
     public int PlaceOnGroundCount { get; private set; }
     public void PlaceOnGround() => PlaceOnGroundCount++;
+    public List<bool> AwarenessCalls { get; } = new();
+    public void SetNpcAwareness(bool enabled) => AwarenessCalls.Add(enabled);
 }
 
 public sealed class FakeProbe : IWorldProbe

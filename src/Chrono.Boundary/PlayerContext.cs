@@ -133,4 +133,12 @@ public sealed class PlayerContext : IPlayerContext
                 ped.Position = new GTA.Math.Vector3(pos.X, pos.Y, ground);
         }
     }
+
+    public void SetNpcAwareness(bool enabled)
+    {
+        // Realistic reactions: while disabled, NPCs/police cannot perceive or track
+        // the player (no instant "superpower instinct" tracking after a teleport).
+        Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Game.Player.Handle, !enabled);
+        Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, !enabled);
+    }
 }

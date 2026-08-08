@@ -24,6 +24,7 @@ public sealed class PowerMenuService
     private readonly GodModeService _godMode;
     private readonly InvisibilityService _invisible;
     private readonly FlyService _fly;
+    private readonly NpcReactionService _npcReaction;
 
     private MenuScreen? _rootScreen;
     private MenuItem? _timeStopItem;
@@ -44,7 +45,8 @@ public sealed class PowerMenuService
         IConfigStore configStore,
         GodModeService? godMode = null,
         InvisibilityService? invisible = null,
-        FlyService? fly = null)
+        FlyService? fly = null,
+        NpcReactionService? npcReaction = null)
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -59,6 +61,7 @@ public sealed class PowerMenuService
         _godMode = godMode ?? new GodModeService(player, log);
         _invisible = invisible ?? new InvisibilityService(player, log);
         _fly = fly ?? new FlyService(player, input, log, config.Fly);
+        _npcReaction = npcReaction ?? new NpcReactionService(player, log, config.Npc);
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -140,6 +143,7 @@ public sealed class PowerMenuService
                     // superhero chest-landing pose (verified anim, DurtyFree dump)
                     _player.PlaceOnGround();
                     _player.PlayAnimationOnce("anim@scripted@heist@ig20_chest_land@male@", "action_chest", 1200);
+                    _npcReaction.TriggerGracePeriod();   // arrival surprise → digest → search
                     _notifier.Show(UiStrings.WarpArrived);
                 }
                 else
@@ -181,6 +185,8 @@ public sealed class PowerMenuService
         // Persistent fly-controls hint while flying (user request v0.3.0: "no instructions on screen")
         if (_fly.IsEnabled && !_menu.IsOpen)
             _menu.DrawHint(UiStrings.FlyHint);
+
+        _npcReaction.Tick();
     }
 
     private void ToggleTimeStop()
@@ -191,6 +197,7 @@ public sealed class PowerMenuService
             {
                 _timeStop.Deactivate();
                 _vfx.SetTimeStopCue(false);
+                _npcReaction.TriggerGracePeriod();   // NPCs "digest" what happened before reacting
                 _notifier.Show(UiStrings.TimeStopOff);
             }
             else
@@ -218,9 +225,14 @@ public sealed class PowerMenuService
             _vfx.BeginInstantTransmission();
             var result = _teleport.TryDash();
             if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
+            {
                 _vfx.CompleteInstantTransmission(from, result.Point.Value);
+                _npcReaction.TriggerGracePeriod();   // no instant tracking after the blink
+            }
             else
+            {
                 _vfx.AbortInstantTransmission(); // blocked — never leave the player invisible
+            }
         }
         catch (Exception ex)
         {

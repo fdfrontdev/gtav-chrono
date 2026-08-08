@@ -10,23 +10,24 @@ namespace Chrono.Tests;
 /// </summary>
 public class PowerMenuServiceTests
 {
-    private static PowerMenuService BuildService(out FakeInput input, out FakeNotifier notifier, out FakeRepository repo)
+    private static PowerMenuService BuildService(out FakeInput input, out FakeNotifier notifier, out FakeRepository repo, out FakePlayer player)
     {
         repo = new FakeRepository();
         input = new FakeInput();
         notifier = new FakeNotifier();
         var config = new ChronoConfig();
+        player = new FakePlayer();
 
         var timeStop = new TimeStopService(
-            repo, new FakeFreezer(), new FakeClock(), new FakePlayer(),
+            repo, new FakeFreezer(), new FakeClock(), player,
             notifier, new FakeLog(), config.TimeStop);
         var teleport = new TeleportService(
-            new FakePlayer(), new FakeProbe(), notifier, new FakeLog(), config.Dash, config.Teleport);
+            player, new FakeProbe(), notifier, new FakeLog(), config.Dash, config.Teleport);
         var vfx = new VfxService(new FakeVfx(), new FakeLog(), config.Visual);
         var menu = new MenuFramework(new FakeRenderer());
 
         var service = new PowerMenuService(
-            menu, timeStop, teleport, vfx, input, new FakePlayer(),
+            menu, timeStop, teleport, vfx, input, player,
             notifier, new FakeLog(), config, new FakeConfigStore());
         service.BuildMenu();
         return service;
@@ -35,7 +36,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void F9Press_OpensMenu()
     {
-        var service = BuildService(out var input, out _, out _);
+        var service = BuildService(out var input, out _, out _, out _);
 
         input.MenuKeyPressed = true;
         service.Tick(0);   // edge detected
@@ -46,7 +47,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void F9Held_DoesNotCloseMenu()
     {
-        var service = BuildService(out var input, out _, out _);
+        var service = BuildService(out var input, out _, out _, out _);
 
         input.MenuKeyPressed = true;
         service.Tick(0);   // opens
@@ -59,7 +60,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void F9ReleaseThenPress_ClosesMenu()
     {
-        var service = BuildService(out var input, out _, out _);
+        var service = BuildService(out var input, out _, out _, out _);
 
         input.MenuKeyPressed = true;
         service.Tick(0);    // open
@@ -74,7 +75,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void TimeStopMenuItem_ActivatesPower()
     {
-        var service = BuildService(out var input, out var notifier, out _);
+        var service = BuildService(out var input, out var notifier, out _, out _);
 
         // Open menu, select Time Stop (index 0), accept
         input.MenuKeyPressed = true;
@@ -93,7 +94,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void Dash_FromMenu_TeleportsAndCloses()
     {
-        var service = BuildService(out var input, out _, out _);
+        var service = BuildService(out var input, out _, out _, out _);
 
         input.MenuKeyPressed = true;
         service.Tick(0);   // open
@@ -109,7 +110,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void ZHotkey_TogglesTimeStop()
     {
-        var service = BuildService(out var input, out var notifier, out _);
+        var service = BuildService(out var input, out var notifier, out _, out _);
 
         input.TimeStopHotkey = true;
         service.Tick(0);   // edge → time stop ON
@@ -129,7 +130,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void BHotkey_TogglesInvisibility()
     {
-        var service = BuildService(out var input, out _, out _);
+        var service = BuildService(out var input, out _, out _, out _);
 
         input.InvisibleHotkey = true;
         service.Tick(0);   // edge → invisible ON
@@ -147,7 +148,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void Hotkeys_Held_DoNotRepeat()
     {
-        var service = BuildService(out var input, out _, out _);
+        var service = BuildService(out var input, out _, out _, out _);
 
         input.TimeStopHotkey = true;
         service.Tick(0);   // ON
@@ -155,5 +156,37 @@ public class PowerMenuServiceTests
         service.Tick(32);  // held — must stay ON
 
         Assert.True(service.IsTimeStopActive);
+    }
+
+    [Fact]
+    public void DashSuccess_TriggersNpcGrace()
+    {
+        // Realistic reactions: after the blink, NPCs cannot instantly track the player
+        var service = BuildService(out var input, out _, out _, out var player);
+
+        input.MenuKeyPressed = true;
+        service.Tick(0);   // open
+        input.MenuDown = true;
+        service.Tick(16);  // select Dash
+        input.MenuDown = false;
+        input.MenuAccept = true;
+        service.Tick(32);  // execute dash
+
+        Assert.Contains(player.AwarenessCalls, a => a == false);   // grace ON
+    }
+
+    [Fact]
+    public void TimeStopOff_TriggersNpcGrace()
+    {
+        var service = BuildService(out var input, out _, out _, out var player);
+
+        input.TimeStopHotkey = true;
+        service.Tick(0);    // time stop ON
+        input.TimeStopHotkey = false;
+        service.Tick(16);
+        input.TimeStopHotkey = true;
+        service.Tick(32);   // time stop OFF → grace
+
+        Assert.Contains(player.AwarenessCalls, a => a == false);
     }
 }

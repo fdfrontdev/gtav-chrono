@@ -30,6 +30,7 @@ public static class ConfigValidator
         ValidateTimeStop(cfg.TimeStop, warnings);
         ValidateTeleport(cfg.Teleport, warnings);
         ValidateFly(cfg.Fly, warnings);
+        ValidateNpc(cfg.Npc, warnings);
         ValidateVisual(cfg.Visual, warnings);
         ValidateLogging(cfg.Logging, warnings);
 
@@ -84,6 +85,15 @@ public static class ConfigValidator
         {
             fly.Speed = 25f;
             warnings.Add($"fly.speed {Format(fly.Speed)} outside [5,80] — using 25");
+        }
+    }
+
+    private static void ValidateNpc(NpcConfig npc, List<string> warnings)
+    {
+        if (npc.ReactionDelayMs < 0 || npc.ReactionDelayMs > 10000)
+        {
+            npc.ReactionDelayMs = 2500;
+            warnings.Add("npc.reactionDelayMs outside [0,10000] — using 2500");
         }
     }
 
