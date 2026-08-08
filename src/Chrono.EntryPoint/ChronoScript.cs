@@ -83,6 +83,8 @@ public class ChronoScript : Script
             var stats = new JusticeStatsService(recordStore, identity, warrant, clock, config.Justice, reputation);
             _crowd = new CrowdReactionService(player, probe, identity, reputation, notifier, _log);
 
+            stats.AttachJusticeProbes(() => _justice?.IsOnBail ?? false, () => _justice?.ParoleDaysLeft ?? 0);
+
             _menu = new PowerMenuService(
                 menuFramework, _timeStop, teleport, vfxService,
                 input, player, notifier, _log, config, store,

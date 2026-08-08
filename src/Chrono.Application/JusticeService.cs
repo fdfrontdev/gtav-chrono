@@ -50,6 +50,8 @@ public sealed class JusticeService
                                          // star level (a later, higher crime still records)
     private bool _wasPrisonTerm;          // release teleports only for real prison terms
     private int _reportStreak;            // S12: each recognition escalates the response
+    private bool _onBail;                 // S15: out on bail — charges pending, court next arrest
+    private int _paroleUntilDay;          // S15: supervised release after a prison term (0 = none)
     private readonly Stopwatch _escapeClock = Stopwatch.StartNew();   // S13: choice window
     private readonly IPrisonOutfit? _outfit;                          // S13: prison look
     private readonly CriminalRecord _record;
@@ -122,8 +124,13 @@ public sealed class JusticeService
     /// <summary>Per-tick: star edges → crimes; capture/trial/prison flow.</summary>
     public void Tick()
     {
-        if (_input != null && _input.IsInteractKeyJustPressed && State == JusticeState.Prison)
-            TryOpenEscapeChoice();   // S13: G during confinement = escape-plan window
+        if (_input != null && _input.IsInteractKeyJustPressed)
+        {
+            if (State == JusticeState.Prison)
+                TryOpenEscapeChoice();   // S13: G during confinement = escape-plan window
+            else if (State == JusticeState.Captured)
+                PostBail();              // S15: G during custody = post bail
+        }
 
         int stars = _wanted.CurrentStars;
 
@@ -186,6 +193,7 @@ public sealed class JusticeService
             PrisonTick();
 
         UpdateManhunt();
+        UpdateParole();
         UpdateWarrantReports();
         _reputation?.Tick();
     }
@@ -244,6 +252,24 @@ public sealed class JusticeService
 
     private void OnStarsIncreased(int stars)
     {
+        // S15 realism: a new crime while out on bail revokes it (warrant + escalation);
+        // a new crime on parole is an instant 3★+ violation (the state is watching)
+        if (_onBail)
+        {
+            _onBail = false;
+            _warrant.Activate(DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"));
+            _media?.News("BAIL REVOKED — flight risk, warrant issued");
+            _notifier.Show("BAIL REVOKED — new crime while on bail. No bail next time.");
+            _log.Info("Bail revoked — new crime while out");
+        }
+        if (_paroleUntilDay > 0 && _clock.CurrentGameDay < _paroleUntilDay)
+        {
+            _wanted.SetStars(Math.Max(stars, 3));
+            _paroleUntilDay = 0;
+            _media?.News("PAROLE VIOLATION — warrant issued");
+            _notifier.Show("PAROLE VIOLATION — the state was watching");
+            _log.Info("Parole violated");
+        }
         var severity = SeverityFromStars(stars);
         _episodeSeverity ??= severity;   // sentence uses the ORIGINAL offense of the episode
         _reputation?.OnCrime(severity);  // S9: crimes build notoriety
@@ -285,7 +311,7 @@ public sealed class JusticeService
         _wanted.SetStars(0);              // handcuffed — the chase is OVER (S11: no re-arrest loop)
         _vfx?.ScreenFadeOut(300);
         _vfx?.ScreenFlash(300);
-        _notifier.Show("ARRESTED — the court date is set");
+        _notifier.Show($"ARRESTED — bail {BailCost():$#,##0} (press G) or face the court");
         _media?.News($"BREAKING: super-powered suspect taken into custody in {_player.GetDistrictName()}");
         _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
         _log.Info("Captured at 4★+ — custody started");
@@ -503,6 +529,8 @@ public sealed class JusticeService
 
     /// <summary>Testable seam — true when the escape-plan window is open.</summary>
     public bool IsEscapeChoiceOpen => _escapeChoiceOpen;
+    public bool IsOnBail => _onBail;                        // S15
+    public int ParoleDaysLeft => Math.Max(0, _paroleUntilDay - _clock.CurrentGameDay);   // S15
 
     public void TryOpenEscapeChoice()
     {
@@ -619,6 +647,49 @@ public sealed class JusticeService
         _log.Info($"Prison escape via {kind} — manhunt until game-day {_manhuntUntilDay}");
     }
 
+    /// <summary>Bail cost = fraction of the projected fine (all pending charges ×
+    /// recidivism), floored at BailMinCost.</summary>
+    public int BailCost()
+    {
+        var charges = _record.Events.Where(e => !e.Charged).ToList();
+        if (charges.Count == 0) return _config.BailMinCost;
+        double mult = Math.Min(3.0, 1 + 0.5 * Math.Max(0, _record.ConvictionCount));
+        int projected = (int)Math.Round(charges.Sum(c => SentencingPolicy.BaseSentence(c.Severity).Fine) * mult);
+        return Math.Max(_config.BailMinCost, (int)Math.Round(projected * _config.BailFraction));
+    }
+
+    /// <summary>S15: post bail during custody — released now, charges pending, court
+    /// at the next arrest. A new crime while on bail revokes it (warrant + escalation).</summary>
+    public void PostBail()
+    {
+        if (State != JusticeState.Captured || _onBail) return;
+        int cost = BailCost();
+        if (_player.GetMoney() < cost)
+        {
+            _notifier.Show($"Not enough cash for bail (${cost:#,##0}) — the court it is");
+            return;
+        }
+        _player.AddMoney(-cost);
+        _onBail = true;
+        _arrested = false;
+        State = JusticeState.Free;
+        _warrant.Clear();   // on bail = in the system's hands, not a fugitive
+        _episodeSeverity = null;
+        _notifier.Show($"Bail posted (${cost:#,##0}) — charges pending. Court at your next arrest.");
+        _log.Info($"Bail posted for ${cost} — out pending trial");
+    }
+
+    /// <summary>Parole check (S15): supervised release expires after ParoleDays game days.</summary>
+    private void UpdateParole()
+    {
+        if (_paroleUntilDay > 0 && _clock.CurrentGameDay >= _paroleUntilDay)
+        {
+            _paroleUntilDay = 0;
+            _notifier.Show("Parole complete — you're a free citizen again");
+            _log.Info("Parole period completed");
+        }
+    }
+
     private void UpdateManhunt()
     {
         if (_manhuntUntilDay > 0 && _clock.CurrentGameDay >= _manhuntUntilDay)
@@ -665,6 +736,7 @@ public sealed class JusticeService
         if (_wasPrisonTerm)
         {
             _player.Teleport(PrisonGate);
+            _paroleUntilDay = _clock.CurrentGameDay + _config.ParoleDays;   // S15: supervised release
             if (_cutscene != null)
                 _cutscene.Play(CutsceneKind.Release);   // release cinematic (S11)
         }

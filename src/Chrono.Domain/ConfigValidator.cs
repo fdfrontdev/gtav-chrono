@@ -158,6 +158,21 @@ public static class ConfigValidator
             justice.EscapeChoiceSeconds = 10;
             warnings.Add("justice.escapeChoiceSeconds outside [3,60] → 10");
         }
+        if (justice.BailFraction < 0.1 || justice.BailFraction > 1.0)
+        {
+            justice.BailFraction = 0.5;
+            warnings.Add("justice.bailFraction outside [0.1,1.0] → 0.5");
+        }
+        if (justice.BailMinCost < 100 || justice.BailMinCost > 100000)
+        {
+            justice.BailMinCost = 1000;
+            warnings.Add("justice.bailMinCost outside [100,100000] → 1000");
+        }
+        if (justice.ParoleDays < 0 || justice.ParoleDays > 30)
+        {
+            justice.ParoleDays = 3;
+            warnings.Add("justice.paroleDays outside [0,30] → 3");
+        }
     }
 
     private static void ValidateTeleport(TeleportConfig tp, List<string> warnings)
