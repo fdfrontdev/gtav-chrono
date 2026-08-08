@@ -24,7 +24,9 @@ public static class SentencingPolicy
     public static Sentence SentenceWith(CrimeSeverity severity, int convictions)
     {
         var baseSentence = BaseSentence(severity);
-        double multiplier = 1 + 0.5 * Math.Max(0, convictions);
+        // Real-world recidivism escalates (Bard Prison Initiative: ~50% reoffend) but
+        // stays bounded for gameplay: 1.0 → 1.5 → 2.0 → ... capped at 3.0
+        double multiplier = Math.Min(3.0, 1 + 0.5 * Math.Max(0, convictions));
         return new Sentence(
             (int)Math.Round(baseSentence.Fine * multiplier),
             (int)Math.Round(baseSentence.PrisonDays * multiplier));

@@ -202,6 +202,8 @@ public sealed class PowerMenuService
         var items = new List<MenuItem>
         {
             new() { Title = $"Public image: {stats.PublicImage} (N{stats.Notoriety} · F{stats.Fame})" },
+            new() { Title = stats.BailActive ? "Bail: OUT PENDING TRIAL — don't break the law" : "Bail: none" },
+            new() { Title = stats.ParoleDaysLeft > 0 ? $"Parole: {stats.ParoleDaysLeft} day(s) left — the state is watching" : "Parole: none" },
             new() { Title = $"Identity: {(stats.Identity == IdentityState.Burned ? "BURNED — face on file" : "Clean")}" },
             new() { Title = $"Warrant: {(stats.WarrantActive ? "ACTIVE — stay out of sight" : "None")}" },
             new() { Title = $"Record: {stats.Crimes.Count + (stats.Crimes.Count == 20 ? "+" : "")} crimes · {stats.ConvictionCount} convictions" },

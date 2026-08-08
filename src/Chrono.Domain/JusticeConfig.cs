@@ -40,6 +40,16 @@ public sealed class JusticeConfig
     public double EscapeChoiceSeconds { get; set; } = 10;
     public int SolitaryStealthDays { get; set; } = 3;
     public int SolitaryFightDays { get; set; } = 5;
+
+    /// <summary>Bail (S15 — realism): during custody, G posts bail = fraction of the
+    /// projected fine (min cost). Out on bail: warrant cleared, charges pending, court
+    /// at the next arrest; a NEW crime revokes bail (warrant + escalation).</summary>
+    public double BailFraction { get; set; } = 0.5;
+    public int BailMinCost { get; set; } = 1000;
+
+    /// <summary>Parole (S15 — realism): after a prison term, release is supervised for
+    /// N game days — a new crime during parole = instant 3★+ + PAROLE VIOLATION.</summary>
+    public int ParoleDays { get; set; } = 3;
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
 }

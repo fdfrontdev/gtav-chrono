@@ -156,7 +156,7 @@ public sealed class JusticeCutsceneService
                 {
                     0 => "ARRESTED",
                     1 => "POLICE CUSTODY — you have the right to remain silent",
-                    _ => "BOOKING — your face is now on file"
+                    _ => "BOOKING — face on file · personal effects confiscated"
                 };
             case CutsceneKind.Trial:
                 return index switch

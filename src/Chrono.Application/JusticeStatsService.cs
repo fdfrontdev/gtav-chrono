@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Chrono.Application.Ports;
@@ -19,7 +20,9 @@ public sealed record JusticeStats(
     bool HackReady,
     int Fame,                                // S9
     int Notoriety,
-    string PublicImage);
+    string PublicImage,
+    bool BailActive,                           // S15
+    int ParoleDaysLeft);                       // S15
 
 /// <summary>Builds the stats view from the store (menu display — never mutates).</summary>
 public sealed class JusticeStatsService
@@ -68,6 +71,22 @@ public sealed class JusticeStatsService
                 || status.LastHackDay + _config.HackCooldownDays <= _clock.CurrentGameDay,
             Fame: status.Fame,
             Notoriety: status.Notoriety,
-            PublicImage: _reputation?.PublicImage ?? "Unknown");
+            PublicImage: _reputation?.PublicImage ?? "Unknown",
+            BailActive: _justiceBailActive(),
+            ParoleDaysLeft: _justiceParoleDaysLeft());
     }
+
+    // S15: bail/parole are runtime JusticeService state — surfaced via a lightweight
+    // hook instead of a hard dependency (stats stay a read-only snapshot service)
+    private Func<bool>? _bailProbe;
+    private Func<int>? _paroleProbe;
+
+    public void AttachJusticeProbes(Func<bool> bailActive, Func<int> paroleDaysLeft)
+    {
+        _bailProbe = bailActive;
+        _paroleProbe = paroleDaysLeft;
+    }
+
+    private bool _justiceBailActive() => _bailProbe?.Invoke() ?? false;
+    private int _justiceParoleDaysLeft() => _paroleProbe?.Invoke() ?? 0;
 }
