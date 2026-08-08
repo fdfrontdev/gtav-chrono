@@ -4,4 +4,5 @@ namespace Chrono.Application.Ports;
 public interface IMenuRenderer
 {
     void Render(MenuScreen screen);
+    void DrawHint(string text);   // persistent top-center hint (e.g. fly controls)
 }

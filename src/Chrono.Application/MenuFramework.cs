@@ -71,6 +71,9 @@ public sealed class MenuFramework
         _renderer.Render(screen);
     }
 
+    /// <summary>Draw a persistent top-center hint (e.g. fly controls).</summary>
+    public void DrawHint(string text) => _renderer.DrawHint(text);
+
     private void MoveSelection(int delta)
     {
         var screen = CurrentScreen;

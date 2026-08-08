@@ -78,6 +78,10 @@ public sealed class FakePlayer : IPlayerContext
     public List<bool> InvincibleCalls { get; } = new();
     public List<bool> VisibleCalls { get; } = new();
     public int RefillCount { get; private set; }
+    public List<float> HeadingCalls { get; } = new();
+    public List<string> LoopedAnims { get; } = new();
+    public List<string> OneShotAnims { get; } = new();
+    public int ClearAnimCount { get; private set; }
 
     public Vector3 GetAimDirection() => AimDirection;
     public bool IsWaypointActive() => WaypointActive;
@@ -89,6 +93,10 @@ public sealed class FakePlayer : IPlayerContext
     public void SetInvincible(bool enabled) => InvincibleCalls.Add(enabled);
     public void RefillHealth() => RefillCount++;
     public void SetVisible(bool visible) => VisibleCalls.Add(visible);
+    public void SetHeading(float headingDegrees) => HeadingCalls.Add(headingDegrees);
+    public void PlayLoopedAnimation(string dict, string anim) => LoopedAnims.Add($"{dict}/{anim}");
+    public void PlayAnimationOnce(string dict, string anim, int durationMs) => OneShotAnims.Add($"{dict}/{anim}/{durationMs}");
+    public void ClearCurrentAnimation() => ClearAnimCount++;
 }
 
 public sealed class FakeProbe : IWorldProbe
@@ -120,7 +128,9 @@ public sealed class FakeLog : ILogSink
 public sealed class FakeRenderer : IMenuRenderer
 {
     public int RenderCount { get; private set; }
+    public List<string> Hints { get; } = new();
     public void Render(MenuScreen screen) => RenderCount++;
+    public void DrawHint(string text) => Hints.Add(text);
 }
 
 public sealed class FakeInput : IGameInput

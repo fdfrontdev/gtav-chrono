@@ -5,15 +5,24 @@ using Chrono.Domain;
 namespace Chrono.Application;
 
 /// <summary>
-/// Dragon Ball flight (user request v0.3.0). Camera-relative WASD + Space/Ctrl.
-/// Gravity and ragdoll disabled while flying; velocity driven per tick (hover works).
+/// Dragon Ball flight (v0.3.0) + superman pose (v0.4.0). Camera-relative WASD + Space/Ctrl.
+/// Gravity/ragdoll off; per-tick velocity; ped faces movement direction and plays
+/// skydive@freefall/free_forward (dive pose) while moving, free_idle while hovering
+/// (anim names verified against the DurtyFree GTA V anim dict dump).
 /// </summary>
 public sealed class FlyService
 {
+    // Verified anim dicts (DurtyFree gta-v-data-dumps, 2026-08-08)
+    private const string FlyDict = "skydive@freefall";
+    private const string FlyAnim = "free_forward";
+    private const string HoverDict = "skydive@base";
+    private const string HoverAnim = "free_idle";
+
     private readonly IPlayerContext _player;
     private readonly IGameInput _input;
     private readonly ILogSink _log;
     private readonly FlyConfig _config;
+    private string? _currentAnim;
 
     public FlyService(IPlayerContext player, IGameInput input, ILogSink log, FlyConfig config)
     {
@@ -32,7 +41,12 @@ public sealed class FlyService
 
         _player.SetGravityEnabled(!enabled);
         _player.SetRagdollEnabled(!enabled);
-        if (!enabled) _player.SetVelocity(Vector3.Zero);
+        _player.SetVelocity(Vector3.Zero);
+        if (!enabled)
+        {
+            _player.ClearCurrentAnimation();
+            _currentAnim = null;
+        }
 
         _log.Info(enabled ? "Flight enabled" : "Flight disabled");
     }
@@ -57,5 +71,26 @@ public sealed class FlyService
             _input.IsFlyAscend, _input.IsFlyDescend);
 
         _player.SetVelocity(velocity);
+
+        // Superman pose: dive pose for ANY movement (incl. pure vertical); hover when
+        // stationary. Face the horizontal movement direction when moving sideways.
+        var horizontal = new Vector3(velocity.X, velocity.Y, 0f);
+        if (velocity.LengthSquared() > 0.5f)
+        {
+            if (horizontal.LengthSquared() > 0.5f)
+                _player.SetHeading(TeleportMath.HeadingFromVelocity(velocity));
+            EnsureAnim(FlyDict, FlyAnim);
+        }
+        else
+        {
+            EnsureAnim(HoverDict, HoverAnim);
+        }
+    }
+
+    private void EnsureAnim(string dict, string anim)
+    {
+        if (_currentAnim == anim) return;
+        _player.PlayLoopedAnimation(dict, anim);
+        _currentAnim = anim;
     }
 }

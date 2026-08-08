@@ -130,6 +130,8 @@ public sealed class PowerMenuService
                 if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
                 {
                     _vfx.CompleteGokuTransmission(from, result.Point.Value);
+                    // Superhero landing pose (verified anim: skydive@parachute@/land_bend_knees)
+                    _player.PlayAnimationOnce("skydive@parachute@", "land_bend_knees", 1200);
                     _notifier.Show(UiStrings.WarpArrived);
                 }
                 else
@@ -161,6 +163,10 @@ public sealed class PowerMenuService
         _godMode.Tick();
         _invisible.Tick();
         _fly.Tick();
+
+        // Persistent fly-controls hint while flying (user request v0.3.0: "no instructions on screen")
+        if (_fly.IsEnabled && !_menu.IsOpen)
+            _menu.DrawHint(UiStrings.FlyHint);
     }
 
     private void ToggleTimeStop()

@@ -80,6 +80,30 @@ public class TeleportServiceTests
     }
 
     [Fact]
+    public void TryDash_OutsideWorldBounds_Refused()
+    {
+        // Player near the map edge dashing outward — must NOT leave the map
+        var player = new FakePlayer { Position = new(3880, 0, 10), Heading = 0f };
+        var probe = new FakeProbe { GroundHeight = 10f };
+        var notifier = new FakeNotifier();
+        var service = Create(player, probe, notifier, new FakeLog());
+
+        var result = service.TryDash();   // 12m north from x=3880 — still in bounds (3900 limit)
+
+        // x=3880 + north 12m → (3880, 12) is INSIDE bounds → success expected
+        Assert.Equal(TeleportOutcome.Success, result.Outcome);
+
+        // Now aim EAST (out of the map) at max range
+        player.Heading = 90f;
+        player.IsAiming = true;
+        player.AimDirection = new(1, 0, 0);
+        result = service.TryDash();       // 30m east → x=3910 → OUTSIDE
+
+        Assert.Equal(TeleportOutcome.NoClearPath, result.Outcome);
+        Assert.Contains(notifier.Messages, m => m == UiStrings.MapEdge);
+    }
+
+    [Fact]
     public void TryMapTeleport_NoWaypoint_Refuses()
     {
         var player = new FakePlayer { WaypointActive = false };

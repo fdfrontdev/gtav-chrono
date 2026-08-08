@@ -17,8 +17,14 @@ public sealed class VfxService
     private readonly ILogSink _log;
     private readonly VisualConfig _visual;
 
-    private const string TeleportAsset = "scr_trevor4_teleport";
-    private const string TeleportEffect = "scr_trevor4_teleport_blue";
+    // Particle effects verified against DurtyFree gta-v-data-dumps particleEffectsCompact.json
+    // (2026-08-08): scr_trevor4_teleport DOES NOT exist on this build — real ones below.
+    private const string TeleportAsset = "scr_rcbarry1";
+    private const string TeleportEffect = "scr_alien_teleport";     // actual alien teleport burst
+    private const string FlashAsset = "core";
+    private const string FlashEffect = "exp_arc_grd_flashbang";     // bright flash pop
+    private const string TrailAsset = "core";
+    private const string TrailEffect = "bullet_tracer";             // speed streak
     private const string DesatModifier = "hud_def_desat";
     private const long WarpWindupMs = 1200;
 
@@ -90,16 +96,17 @@ public sealed class VfxService
         {
             try
             {
-                // Origin burst + landing burst (scaled up for anime punch)
+                // Origin burst + landing burst (real particle effects)
                 _vfx.SpawnParticle(TeleportAsset, TeleportEffect, from, 2.0f);
                 _vfx.SpawnParticle(TeleportAsset, TeleportEffect, to, 2.4f);
+                _vfx.SpawnParticle(FlashAsset, FlashEffect, to, 0.8f);   // arrival flash pop
 
                 if (_visual.Dash.Trail)
                 {
                     for (int i = 1; i <= 7; i++)
                     {
                         var point = TeleportMath.Lerp(from, to, i / 8f);
-                        _vfx.SpawnParticle(TeleportAsset, TeleportEffect, point, 0.8f);
+                        _vfx.SpawnParticle(TrailAsset, TrailEffect, point, 0.5f);
                     }
                 }
             }
