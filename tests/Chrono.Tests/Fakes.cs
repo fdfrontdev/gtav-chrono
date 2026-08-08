@@ -97,6 +97,8 @@ public sealed class FakePlayer : IPlayerContext
     public void PlayLoopedAnimation(string dict, string anim) => LoopedAnims.Add($"{dict}/{anim}");
     public void PlayAnimationOnce(string dict, string anim, int durationMs) => OneShotAnims.Add($"{dict}/{anim}/{durationMs}");
     public void ClearCurrentAnimation() => ClearAnimCount++;
+    public int PlaceOnGroundCount { get; private set; }
+    public void PlaceOnGround() => PlaceOnGroundCount++;
 }
 
 public sealed class FakeProbe : IWorldProbe
@@ -150,6 +152,7 @@ public sealed class FakeInput : IGameInput
     {
         IsMenuKeyJustPressed = MenuKeyPressed && !_wasPressed;
         _wasPressed = MenuKeyPressed;
+        UpdateHotkeys();
     }
 
     public bool IsMenuKeyJustPressed { get; private set; }
@@ -159,6 +162,22 @@ public sealed class FakeInput : IGameInput
     public bool IsMenuAcceptJustPressed => MenuAccept;
     public bool IsMenuCancelJustPressed => MenuCancel;
     public bool IsDashHotkeyPressed => DashHotkey;
+
+    // --- hotkey edges (Z = time stop, B = invisible) ---
+    public bool TimeStopHotkey { get; set; }
+    public bool InvisibleHotkey { get; set; }
+    private bool _tsWasPressed, _invWasPressed;
+
+    public void UpdateHotkeys()
+    {
+        IsTimeStopHotkeyJustPressed = TimeStopHotkey && !_tsWasPressed;
+        _tsWasPressed = TimeStopHotkey;
+        IsInvisibleHotkeyJustPressed = InvisibleHotkey && !_invWasPressed;
+        _invWasPressed = InvisibleHotkey;
+    }
+
+    public bool IsTimeStopHotkeyJustPressed { get; private set; }
+    public bool IsInvisibleHotkeyJustPressed { get; private set; }
 
     // --- flight controls ---
     public bool FlyForward { get; set; }

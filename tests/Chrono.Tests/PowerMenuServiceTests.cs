@@ -105,4 +105,55 @@ public class PowerMenuServiceTests
 
         Assert.False(service.IsMenuOpen); // menu closed after execution
     }
+
+    [Fact]
+    public void ZHotkey_TogglesTimeStop()
+    {
+        var service = BuildService(out var input, out var notifier, out _);
+
+        input.TimeStopHotkey = true;
+        service.Tick(0);   // edge → time stop ON
+
+        Assert.True(service.IsTimeStopActive);
+        Assert.Contains(notifier.Messages, m => m == UiStrings.TimeStopOn);
+
+        input.TimeStopHotkey = false;
+        service.Tick(16);
+        input.TimeStopHotkey = true;
+        service.Tick(32);  // edge → OFF
+
+        Assert.False(service.IsTimeStopActive);
+        Assert.Contains(notifier.Messages, m => m == UiStrings.TimeStopOff);
+    }
+
+    [Fact]
+    public void BHotkey_TogglesInvisibility()
+    {
+        var service = BuildService(out var input, out _, out _);
+
+        input.InvisibleHotkey = true;
+        service.Tick(0);   // edge → invisible ON
+
+        Assert.True(service.IsInvisible);
+
+        input.InvisibleHotkey = false;
+        service.Tick(16);
+        input.InvisibleHotkey = true;
+        service.Tick(32);  // edge → OFF
+
+        Assert.False(service.IsInvisible);
+    }
+
+    [Fact]
+    public void Hotkeys_Held_DoNotRepeat()
+    {
+        var service = BuildService(out var input, out _, out _);
+
+        input.TimeStopHotkey = true;
+        service.Tick(0);   // ON
+        service.Tick(16);  // held — must stay ON
+        service.Tick(32);  // held — must stay ON
+
+        Assert.True(service.IsTimeStopActive);
+    }
 }

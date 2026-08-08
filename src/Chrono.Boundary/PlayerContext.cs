@@ -120,4 +120,17 @@ public sealed class PlayerContext : IPlayerContext
         if (ped == null || !ped.Exists()) return;
         ped.Task.ClearAllImmediately();
     }
+
+    public void PlaceOnGround()
+    {
+        var ped = Game.Player.Character;
+        if (ped == null || !ped.Exists()) return;
+        var pos = ped.Position;
+        if (World.GetGroundHeightAndNormal(pos, out float ground, out _))
+        {
+            // Snap down to terrain if hovering above it (kills the falling/parachute pose)
+            if (pos.Z > ground + 0.5f)
+                ped.Position = new GTA.Math.Vector3(pos.X, pos.Y, ground);
+        }
+    }
 }

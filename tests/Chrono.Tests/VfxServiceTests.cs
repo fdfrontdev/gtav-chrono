@@ -29,6 +29,21 @@ public class VfxServiceTests
     }
 
     [Fact]
+    public void SingleFlash_NotDouble()
+    {
+        // User report v0.4.0: "double light animation, expect only show once".
+        // Begin must NOT flash; Complete produces exactly ONE color flash.
+        var (service, vfx) = Build();
+
+        service.BeginInstantTransmission();
+        Assert.DoesNotContain(vfx.Calls, c => c.StartsWith("flashcolor:"));
+
+        vfx.Calls.Clear();
+        service.CompleteInstantTransmission(new(0, 0, 0), new(0, 12, 0));
+        Assert.Single(vfx.Calls, c => c.StartsWith("flashcolor:"));
+    }
+
+    [Fact]
     public void Complete_RematerializesWithBurstsAndFlash()
     {
         var (service, vfx) = Build();

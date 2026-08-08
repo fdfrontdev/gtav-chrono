@@ -27,6 +27,7 @@ public interface IPlayerContext
     // --- animation (v0.4.0, verified via DurtyFree anim dict dump) ---
     void SetHeading(float headingDegrees);       // face movement direction
     void PlayLoopedAnimation(string dict, string anim);   // e.g. skydive@freefall/free_forward
-    void PlayAnimationOnce(string dict, string anim, int durationMs); // e.g. land_bend_knees
+    void PlayAnimationOnce(string dict, string anim, int durationMs); // e.g. action_chest landing
     void ClearCurrentAnimation();
+    void PlaceOnGround();                        // settle ped on terrain after teleport (no falling pose)
 }

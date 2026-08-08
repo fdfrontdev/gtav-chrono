@@ -15,8 +15,6 @@ public sealed class FlyService
     // Verified anim dicts (DurtyFree gta-v-data-dumps, 2026-08-08)
     private const string FlyDict = "skydive@freefall";
     private const string FlyAnim = "free_forward";
-    private const string HoverDict = "skydive@base";
-    private const string HoverAnim = "free_idle";
 
     private readonly IPlayerContext _player;
     private readonly IGameInput _input;
@@ -53,7 +51,11 @@ public sealed class FlyService
 
     public void Toggle() => SetEnabled(!IsEnabled);
 
-    /// <summary>Per-tick flight control (only while enabled and on foot).</summary>
+    /// <summary>
+    /// Per-tick flight control. Pose spec (user report v0.4.0): standing while
+    /// hovering/ascending/descending (takeoff &amp; landing = stand animation),
+    /// superman dive pose ONLY while moving horizontally at speed.
+    /// </summary>
     public void Tick()
     {
         if (!IsEnabled) return;
@@ -72,18 +74,21 @@ public sealed class FlyService
 
         _player.SetVelocity(velocity);
 
-        // Superman pose: dive pose for ANY movement (incl. pure vertical); hover when
-        // stationary. Face the horizontal movement direction when moving sideways.
         var horizontal = new Vector3(velocity.X, velocity.Y, 0f);
-        if (velocity.LengthSquared() > 0.5f)
+        if (horizontal.LengthSquared() > 0.5f)
         {
-            if (horizontal.LengthSquared() > 0.5f)
-                _player.SetHeading(TeleportMath.HeadingFromVelocity(velocity));
+            // Flying forward/sideways → superman dive pose, facing the movement direction
+            _player.SetHeading(TeleportMath.HeadingFromVelocity(velocity));
             EnsureAnim(FlyDict, FlyAnim);
         }
         else
         {
-            EnsureAnim(HoverDict, HoverAnim);
+            // Hovering, ascending or descending → standing (anime takeoff/landing spec)
+            if (_currentAnim != null)
+            {
+                _player.ClearCurrentAnimation();
+                _currentAnim = null;
+            }
         }
     }
 
