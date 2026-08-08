@@ -135,7 +135,17 @@ public sealed class JusticeService
             else OnStarsIncreased(stars);   // ONE event per episode, at the new max star level
         }
 
+        int previousStars = _lastStars;
         _lastStars = stars;
+
+        // CHASE ESCAPE (S10): the episode ended WITHOUT capture → the police lost
+        // you. Media loves a vanishing suspect (viral). Guarded against death/capture.
+        if (stars == 0 && previousStars > 0 && !dead && !_arrested
+            && _episodeSeverity != null && State == JusticeState.Wanted)
+        {
+            _episodeSeverity = null;
+            OnChaseEscaped();
+        }
 
         if (stars == 0) _episodeSeverity = null;   // episode over — next chase re-seeds
 
@@ -160,6 +170,15 @@ public sealed class JusticeService
         UpdateManhunt();
         UpdateWarrantReports();
         _reputation?.Tick();
+    }
+
+    /// <summary>You lost the cops (S10): the chase ended without capture — viral news.</summary>
+    private void OnChaseEscaped()
+    {
+        var district = _player.GetDistrictName();
+        _media?.News($"POLICE LOSE SUPER-POWERED SUSPECT in {district}");
+        _media?.Viral($"WEBNET: {district} chase footage goes viral — suspect vanishes");
+        _log.Info($"Chase escaped in {district} — media frenzy");
     }
 
     /// <summary>Warrant enforcement (S9): burned + visible + near civilians → they

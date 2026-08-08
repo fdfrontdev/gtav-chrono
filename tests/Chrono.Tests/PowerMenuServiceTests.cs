@@ -67,6 +67,25 @@ public class PowerMenuServiceTests
     }
 
     [Fact]
+    public void EscAtRoot_ClosesAnd_ReEnablesControl_S10()
+    {
+        // S10 fix: Esc (FrontendCancel) at the root screen closes via NavigateBack —
+        // the character must NOT stay frozen
+        var service = BuildService(out var input, out _, out _, out var player);
+
+        input.MenuKeyPressed = true;
+        service.Tick(0);   // open → control off
+        input.MenuKeyPressed = false;
+        service.Tick(16);
+
+        input.MenuCancel = true;
+        service.Tick(32);  // Esc at root → close + re-enable
+
+        Assert.False(service.IsMenuOpen);
+        Assert.True(player.ControlCalls.LastOrDefault());
+    }
+
+    [Fact]
     public void F9Held_DoesNotCloseMenu()
     {
         var service = BuildService(out var input, out _, out _, out _);

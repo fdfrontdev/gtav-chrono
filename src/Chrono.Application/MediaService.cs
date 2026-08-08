@@ -60,7 +60,13 @@ public sealed class MediaService
     public void ReportCrime(CrimeEvent evt)
     {
         if (!_config.NewsEnabled) return;
-        if (evt.Severity == CrimeSeverity.Minor) return;   // FR-4.1: Moderate+ only
+
+        // Minor (1-2★): police-blotter feed post only — no TV news spam (S10)
+        if (evt.Severity == CrimeSeverity.Minor)
+        {
+            PushFeed($"Police blotter: {evt.District} — minor incident reported", false);
+            return;
+        }
 
         if (!TryTakeNewsSlot()) return;
 

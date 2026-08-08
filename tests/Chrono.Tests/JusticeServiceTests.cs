@@ -559,6 +559,61 @@ public class JusticeServiceTests
         Assert.Equal(JusticeState.Free, service.State);          // court time elapsed
     }
 
+    // --- S10: chase escape media (you lost the cops → viral) ---
+
+    private static (JusticeService service, FakeWantedMonitor wanted, FakeMediaNotifier media, FakePlayer player) BuildWithMedia()
+    {
+        var wanted = new FakeWantedMonitor();
+        var player = new FakePlayer { IsVisible = true, DistrictName = "Vinewood" };
+        var store = new FakeRecordStore();
+        var media = new FakeMediaNotifier();
+        var service = new JusticeService(
+            wanted, player, store,
+            new IdentityService(store, new FakeLog()),
+            new WarrantService(store, new FakeLog()),
+            new FakeNotifier(), new FakeLog(), new JusticeConfig(), new FakeClock(),
+            new MediaService(media, new FakeLog(), new JusticeConfig()));
+        return (service, wanted, media, player);
+    }
+
+    [Fact]
+    public void ChaseEscape_StarsDropWithoutCapture_ViralNews()
+    {
+        var (service, wanted, media, _) = BuildWithMedia();
+        wanted.CurrentStars = 3;
+        service.Tick();                    // Moderate crime
+        wanted.CurrentStars = 0;
+        service.Tick();                    // lost the cops
+
+        Assert.Contains(media.Headlines, h => h.Contains("POLICE LOSE"));
+        Assert.Contains(media.ViralMessages, v => v.Contains("vanishes"));
+    }
+
+    [Fact]
+    public void ChaseEscape_NotAfterArrest()
+    {
+        var (service, wanted, media, _) = BuildWithMedia();
+        wanted.CurrentStars = 4;
+        service.Tick();                    // arrest (capture)
+        wanted.CurrentStars = 0;
+        service.Tick();                    // stars cleared after capture
+
+        Assert.DoesNotContain(media.Headlines, h => h.Contains("POLICE LOSE"));
+    }
+
+    [Fact]
+    public void ChaseEscape_NotOnDeath()
+    {
+        var (service, wanted, media, player) = BuildWithMedia();
+        wanted.CurrentStars = 3;
+        service.Tick();                    // Moderate crime
+        player.IsDead = true;              // died in the chase
+        wanted.CurrentStars = 0;
+        service.Tick();                    // stars cleared at death — NO escape news
+
+        Assert.DoesNotContain(media.Headlines, h => h.Contains("POLICE LOSE"));
+    }
+
     // --- S9: warrant enforcement (civilians report a burned face) ---
 
     private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeProbe probe) BuildWithProbe(double? roll = null, bool burned = false)
