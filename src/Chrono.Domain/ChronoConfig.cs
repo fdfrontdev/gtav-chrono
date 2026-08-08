@@ -47,7 +47,7 @@ public sealed class NpcConfig
 {
     /// <summary>Grace period after a power use during which NPCs/police cannot
     /// instantly react to or track the player (realistic surprise → digest → search).</summary>
-    public int ReactionDelayMs { get; set; } = 2500;
+    public int ReactionDelayMs { get; set; } = 3000;
 }
 
 public sealed class TeleportConfig

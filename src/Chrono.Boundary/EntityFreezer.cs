@@ -55,9 +55,14 @@ public sealed class EntityFreezer : IEntityFreezer
         {
             // Resume the ORIGINAL task (move rate back to 1) — NO task clearing:
             // CLEAR_PED_TASKS left NPCs standing (v0.4.0/v0.5.0) and ejected vehicle
-            // drivers (v0.5.0 user report).
+            // drivers (v0.5.0 user report). Peds that were MOVING get an explicit
+            // wander re-task so they visibly resume walking (guaranteed resume,
+            // v0.7.0); animals (birds) go back to ambient — they re-task to flying
+            // on their own once unpinned.
             Function.Call(Hash.SET_PED_MOVE_RATE_OVERRIDE, entity.Handle, 1f);
             Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, entity.Handle, false, true);
+            if (snapshot.Velocity.LengthSquared() > 1f && !IsAnimalPed(entity.Handle))
+                Function.Call(Hash.TASK_WANDER_STANDARD, entity.Handle, 0f, 10f);
         }
         else if (entity.Kind == EntityKind.Vehicle)
         {
@@ -67,6 +72,13 @@ public sealed class EntityFreezer : IEntityFreezer
             if (driver != 0 && snapshot.Velocity.LengthSquared() > 25f)   // was moving (>5 m/s)
                 Function.Call(Hash.TASK_VEHICLE_DRIVE_WANDER, driver, entity.Handle, 20f, 786603);
         }
+    }
+
+    private static bool IsAnimalPed(int handle)
+    {
+        var e = Entity.FromHandle(handle);
+        var ped = e as Ped;
+        return ped != null && ped.Exists() && ped.Model.IsAnimalPed;
     }
 
     internal static Vector3 ToNumerics(GTA.Math.Vector3 v) => new(v.X, v.Y, v.Z);

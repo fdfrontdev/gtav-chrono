@@ -39,7 +39,8 @@ public sealed class NpcReactionService
         _log.Debug("NPC reaction grace started");
     }
 
-    /// <summary>Per-tick: end the grace period when the delay elapses.</summary>
+    /// <summary>Per-tick: keep reasserting the suppression while active (the game can
+    /// reset these flags), and end the grace period when the delay elapses.</summary>
     public void Tick()
     {
         if (!IsGraceActive) return;
@@ -48,6 +49,10 @@ public sealed class NpcReactionService
             _ignoreUntilMs = 0;
             _player.SetNpcAwareness(true);   // normal perception resumes
             _log.Debug("NPC reaction grace ended");
+        }
+        else
+        {
+            _player.SetNpcAwareness(false);  // reassert — flags can be reset by game systems
         }
     }
 }
