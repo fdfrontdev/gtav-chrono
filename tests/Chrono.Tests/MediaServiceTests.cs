@@ -117,7 +117,9 @@ public class MediaServiceTests
         wanted.CurrentStars = 5;
         service.Tick();
 
-        Assert.Single(media.Headlines);
+        // S14 coherence: the crime headline AND the custody headline (arrest is news)
+        Assert.Contains(media.Headlines, h => h.Contains("terrorizes"));
+        Assert.Contains(media.Headlines, h => h.Contains("taken into custody"));
         Assert.Single(media.ViralMessages);
     }
 

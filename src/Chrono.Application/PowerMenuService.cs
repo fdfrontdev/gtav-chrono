@@ -26,12 +26,15 @@ public sealed class PowerMenuService
     private readonly GodModeService _godMode;
     private readonly InvisibilityService _invisible;
     private readonly FlyService _fly;
+    private readonly Func<IReadOnlyList<NewsFeedItem>>? _feedProvider;
+    private MenuItem? _webnetItem;
     private bool _menuWasOpen;
     private readonly NpcReactionService _npcReaction;
     private readonly PoliceDbHackService? _hack;
     private readonly JusticeStatsService? _stats;
 
     private MenuScreen? _rootScreen;
+    private MenuScreen? _webnetScreen;   // S14: WEBNET lives INSIDE the menu now
     private MenuItem? _timeStopItem;
     private MenuItem? _godModeItem;
     private MenuItem? _invisibleItem;
@@ -57,7 +60,8 @@ public sealed class PowerMenuService
         FlyService? fly = null,
         NpcReactionService? npcReaction = null,
         PoliceDbHackService? hack = null,
-        JusticeStatsService? stats = null)
+        JusticeStatsService? stats = null,
+        Func<IReadOnlyList<NewsFeedItem>>? feedProvider = null)
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -75,6 +79,7 @@ public sealed class PowerMenuService
         _npcReaction = npcReaction ?? new NpcReactionService(player, log, config.Npc);
         _hack = hack;
         _stats = stats;
+        _feedProvider = feedProvider;
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -114,6 +119,7 @@ public sealed class PowerMenuService
                 _invisibleItem,
                 _flyItem,
                 new MenuItem { Title = UiStrings.ItemJustice, Submenu = BuildJusticeScreen() },
+                _webnetItem = new MenuItem { Title = UiStrings.ItemWebnet, Submenu = RebuildWebnetScreen() },
                 new MenuItem { Title = UiStrings.ItemSettings, Submenu = settings }
             }
         };
@@ -121,6 +127,40 @@ public sealed class PowerMenuService
         RefreshPowerLabels();
         RefreshTimeStopLabel();
     }
+
+    /// <summary>WEBNET feed screen (S14) — the news feed lives INSIDE the cheat
+    /// menu now (no more ↑ phone key). Newest first, capped at 14 with a footer.</summary>
+    private MenuScreen RebuildWebnetScreen()
+    {
+        if (_feedProvider == null)
+        {
+            _webnetScreen = new MenuScreen { Title = UiStrings.ItemWebnet, Items = new[] { new MenuItem { Title = "No feed available" } } };
+            return _webnetScreen;
+        }
+
+        var feed = _feedProvider();
+        var items = new List<MenuItem>();
+        int shown = 0;
+        for (int i = feed.Count - 1; i >= 0 && shown < 14; i--, shown++)
+        {
+            var post = feed[i];
+            items.Add(new MenuItem
+            {
+                Title = ClampTitle(post.Text),
+                Value = post.Viral ? "▲ VIRAL" : post.When
+            });
+        }
+        if (shown == 0)
+            items.Add(new MenuItem { Title = "No stories yet — go make some" });
+        else if (feed.Count > shown)
+            items.Add(new MenuItem { Title = $"…{feed.Count - shown} older posts — session feed" });
+
+        _webnetScreen = new MenuScreen { Title = UiStrings.ItemWebnet, Items = items };
+        return _webnetScreen;
+    }
+
+    private static string ClampTitle(string text)
+        => text.Length <= 52 ? text : text.Substring(0, 51) + "…";
 
     private MenuScreen BuildJusticeScreen()
     {
@@ -313,6 +353,12 @@ public sealed class PowerMenuService
         {
             RebuildRecordScreen();
             if (_recordItem != null) _recordItem.Submenu = _recordScreen;
+        }
+
+        // WEBNET feed refresh while its screen is open (S14 — the feed is session data)
+        if (_menu.IsOpen && _menu.CurrentScreen == _webnetScreen)
+        {
+            if (_webnetItem != null) _webnetItem.Submenu = RebuildWebnetScreen();
         }
 
         // Persistent fly-controls hint while flying (user request v0.3.0: "no instructions on screen")
