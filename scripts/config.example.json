@@ -23,7 +23,7 @@
     "speed": 25.0
   },
   "npc": {
-    "reactionDelayMs": 2500
+    "reactionDelayMs": 3000
   },
   "visual": {
     "timeStop": {

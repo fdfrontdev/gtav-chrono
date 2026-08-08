@@ -189,4 +189,33 @@ public class PowerMenuServiceTests
 
         Assert.Contains(player.AwarenessCalls, a => a == false);
     }
+
+    [Fact]
+    public void InvisibleOn_SuppressesAwarenessEveryTick()
+    {
+        // Persistent suppression while invisible — NPCs cannot perceive the player
+        var service = BuildService(out var input, out _, out _, out var player);
+
+        input.InvisibleHotkey = true;
+        service.Tick(0);   // invisible ON
+        service.Tick(16);  // still invisible — suppressed again
+        service.Tick(32);  // still invisible — suppressed again
+
+        Assert.True(player.AwarenessCalls.Count(a => a == false) >= 3);
+    }
+
+    [Fact]
+    public void InvisibleOff_TriggersNpcGrace()
+    {
+        var service = BuildService(out var input, out _, out _, out var player);
+
+        input.InvisibleHotkey = true;
+        service.Tick(0);    // invisible ON
+        input.InvisibleHotkey = false;
+        service.Tick(16);
+        input.InvisibleHotkey = true;
+        service.Tick(32);   // invisible OFF → grace for uncloaking
+
+        Assert.Contains(player.AwarenessCalls, a => a == false);
+    }
 }

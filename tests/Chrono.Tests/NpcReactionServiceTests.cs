@@ -61,4 +61,19 @@ public class NpcReactionServiceTests
 
         Assert.Empty(player.AwarenessCalls);
     }
+
+    [Fact]
+    public void Tick_DuringGrace_ReassertsSuppression()
+    {
+        // The game can reset the ignore flags — while the grace is active we must
+        // reassert the suppression every tick (v0.7.0 robustness fix).
+        var (service, player) = Build(delayMs: 500);
+
+        service.TriggerGracePeriod();
+        service.Tick();
+        service.Tick();
+
+        var falseCount = player.AwarenessCalls.Count(a => a == false);
+        Assert.True(falseCount >= 3, $"expected ≥3 suppression calls, got {falseCount}");
+    }
 }

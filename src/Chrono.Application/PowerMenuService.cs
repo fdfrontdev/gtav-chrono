@@ -81,7 +81,7 @@ public sealed class PowerMenuService
         _invisibleItem = new MenuItem
         {
             Title = $"{UiStrings.ItemInvisible} [{_config.Invisible.Hotkey}]",
-            OnActivate = () => { _invisible.Toggle(); RefreshPowerLabels(); }
+            OnActivate = ToggleInvisible
         };
         _flyItem = new MenuItem
         {
@@ -135,6 +135,8 @@ public sealed class PowerMenuService
             {
                 var from = _player.Position;
                 _vfx.BeginGokuTransmission();
+                // Grace BEFORE the warp: covers the wind-up + arrival + digestion
+                _npcReaction.TriggerGracePeriod();
                 var result = _teleport.TryMapTeleport();
                 if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
                 {
@@ -143,7 +145,6 @@ public sealed class PowerMenuService
                     // superhero chest-landing pose (verified anim, DurtyFree dump)
                     _player.PlaceOnGround();
                     _player.PlayAnimationOnce("anim@scripted@heist@ig20_chest_land@male@", "action_chest", 1200);
-                    _npcReaction.TriggerGracePeriod();   // arrival surprise → digest → search
                     _notifier.Show(UiStrings.WarpArrived);
                 }
                 else
@@ -169,11 +170,7 @@ public sealed class PowerMenuService
             if (_input.IsMenuKeyJustPressed) ToggleMenu();
             if (_input.IsDashHotkeyPressed) ExecuteDash();
             if (_input.IsTimeStopHotkeyJustPressed) ToggleTimeStop();       // Z
-            if (_input.IsInvisibleHotkeyJustPressed)                        // B
-            {
-                _invisible.Toggle();
-                RefreshPowerLabels();
-            }
+            if (_input.IsInvisibleHotkeyJustPressed) ToggleInvisible();     // B
         }
 
         _timeStop.Tick(nowMs);
@@ -186,7 +183,27 @@ public sealed class PowerMenuService
         if (_fly.IsEnabled && !_menu.IsOpen)
             _menu.DrawHint(UiStrings.FlyHint);
 
-        _npcReaction.Tick();
+        // Invisibility = PERSISTENT perception suppression (reasserted every tick —
+        // the game can reset the ignore flags). When not invisible, the timed
+        // reaction grace applies instead.
+        if (_invisible.IsEnabled)
+            _player.SetNpcAwareness(false);
+        else
+            _npcReaction.Tick();
+    }
+
+    private void ToggleInvisible()
+    {
+        bool wasOn = _invisible.IsEnabled;
+        _invisible.Toggle();
+        RefreshPowerLabels();
+
+        if (wasOn)
+        {
+            // Uncloaking near NPCs: give them the same surprise → digest window
+            // (they didn't see you appear — they must process your sudden presence).
+            _npcReaction.TriggerGracePeriod();
+        }
     }
 
     private void ToggleTimeStop()
@@ -195,9 +212,11 @@ public sealed class PowerMenuService
         {
             if (_timeStop.IsActive)
             {
+                // Grace BEFORE the unfreeze: NPCs wake up to a player they haven't
+                // processed yet (two-stage cognition: orient → comprehend → act).
+                _npcReaction.TriggerGracePeriod();
                 _timeStop.Deactivate();
                 _vfx.SetTimeStopCue(false);
-                _npcReaction.TriggerGracePeriod();   // NPCs "digest" what happened before reacting
                 _notifier.Show(UiStrings.TimeStopOff);
             }
             else
@@ -222,12 +241,12 @@ public sealed class PowerMenuService
             _menu.Close();
             var from = _player.Position;
 
+            _npcReaction.TriggerGracePeriod();   // BEFORE the blink — peds can't queue a startle reaction
             _vfx.BeginInstantTransmission();
             var result = _teleport.TryDash();
             if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
             {
                 _vfx.CompleteInstantTransmission(from, result.Point.Value);
-                _npcReaction.TriggerGracePeriod();   // no instant tracking after the blink
             }
             else
             {
