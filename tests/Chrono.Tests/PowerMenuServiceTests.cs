@@ -10,7 +10,7 @@ namespace Chrono.Tests;
 /// </summary>
 public class PowerMenuServiceTests
 {
-    private static PowerMenuService BuildService(out FakeInput input, out FakeNotifier notifier, out FakeRepository repo, out FakePlayer player)
+    private static (PowerMenuService service, MenuFramework menu, List<NewsFeedItem> feed) BuildWithFeed(out FakeInput input, out FakeNotifier notifier, out FakeRepository repo, out FakePlayer player)
     {
         repo = new FakeRepository();
         input = new FakeInput();
@@ -26,11 +26,42 @@ public class PowerMenuServiceTests
         var vfx = new VfxService(new FakeVfx(), new FakeLog(), config.Visual);
         var menu = new MenuFramework(new FakeRenderer());
 
+        var feed = new List<NewsFeedItem> { new("Minor fire downtown contained", "14:02", false) };
         var service = new PowerMenuService(
             menu, timeStop, teleport, vfx, input, player,
-            notifier, new FakeLog(), config, new FakeConfigStore());
+            notifier, new FakeLog(), config, new FakeConfigStore(),
+            feedProvider: () => feed);
         service.BuildMenu();
+        return (service, menu, feed);
+    }
+
+    private static PowerMenuService BuildService(out FakeInput input, out FakeNotifier notifier, out FakeRepository repo, out FakePlayer player)
+    {
+        var (service, _, _) = BuildWithFeed(out input, out notifier, out repo, out player);
         return service;
+    }
+
+    [Fact]
+    public void WebnetScreen_InsideMenu_Navigable()
+    {
+        // S14: WEBNET lives in the cheat menu (no more ↑ phone key) — navigate to it
+        var (service, menu, feed) = BuildWithFeed(out var input, out _, out _, out _);
+        feed.Add(new NewsFeedItem("A chase goes viral", "11:00", true));
+
+        input.MenuKeyPressed = true;
+        service.Tick(0);              // open the menu
+        Assert.True(menu.IsOpen);
+
+        for (int i = 0; i < 7; i++) menu.NavigateDown();   // root → WEBNET item (index 7)
+        menu.Accept();
+
+        service.Tick(100);   // the feed screen refreshes while open (S14) — re-enter to see it
+        menu.NavigateBack();
+        menu.Accept();
+
+        Assert.Equal("WEBNET News", menu.CurrentScreen?.Title);
+        Assert.Contains(menu.CurrentScreen!.Items, it => it.Title.Contains("chase goes viral"));
+        Assert.Contains(menu.CurrentScreen!.Items, it => it.Value == "▲ VIRAL");
     }
 
     [Fact]

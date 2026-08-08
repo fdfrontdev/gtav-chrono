@@ -6,6 +6,9 @@ using Chrono.Domain;
 
 namespace Chrono.Application;
 
+/// <summary>One WEBNET feed post (S7; moved here when the phone overlay was retired in S14).</summary>
+public sealed record NewsFeedItem(string Text, string When, bool Viral);
+
 /// <summary>
 /// Media coverage (FR-4): reports crimes — never causes them. Moderate+ crimes get a
 /// BREAKING news headline; Severe also goes viral on WEBNET; escapes trigger a MANHUNT.

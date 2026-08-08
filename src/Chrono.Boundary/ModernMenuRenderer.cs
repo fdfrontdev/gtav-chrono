@@ -43,7 +43,8 @@ public sealed class ModernMenuRenderer : IMenuRenderer
 
         // ── Header: accent bar + title ──
         DrawRect(left + 0.004f, top + 0.004f, PanelWidth - 0.008f, HeaderH, Accent.R, Accent.G, Accent.B, 255);  // accent strip
-        DrawText(screen.Title.ToUpperInvariant(), left + 0.02f, top + 0.012f, 0.42f, 14, 16, 24, 255, bold: true);
+        DrawText(screen.Title.ToUpperInvariant(), left + 0.02f,
+            CenterTextY(top + 0.004f + HeaderH / 2f, HeaderH, 0.40f), 0.40f, 14, 16, 24, 255, bold: true);
 
         // ── Items ──
         for (int i = 0; i < rows; i++)
@@ -67,25 +68,29 @@ public sealed class ModernMenuRenderer : IMenuRenderer
             string title = item.Title ?? "";
             bool hasSub = item.Submenu != null;
             var color = selected ? TextBright : TextDim;
-            DrawText(title + (hasSub ? "  ▸" : ""), left + 0.02f, rowY + 0.006f, 0.34f, color.R, color.G, color.B, 255);
+            float rowCenterY = rowY + (RowHeight - 0.005f) / 2f;
+            DrawText(title + (hasSub ? "  ▸" : ""), left + 0.022f,
+                CenterTextY(rowCenterY, RowHeight - 0.005f, 0.30f), 0.30f, color.R, color.G, color.B, 255);
 
             if (!string.IsNullOrEmpty(item.Value))
             {
                 float valW = 0.085f;
-                DrawText(item.Value!, PanelX + PanelWidth / 2f - 0.008f - valW, rowY + 0.006f, 0.32f,
+                DrawText(item.Value!, PanelX + PanelWidth / 2f - 0.010f - valW,
+                    CenterTextY(rowCenterY, RowHeight - 0.005f, 0.28f), 0.28f,
                     selected ? Accent.R : TextDim.R, selected ? Accent.G : TextDim.G, selected ? Accent.B : TextDim.B, 255);
             }
         }
 
         // ── Scroll indicator ──
         if (screen.Items.Count > MaxVisibleRows)
-            DrawText($"▾ {screen.Items.Count - MaxVisibleRows} more", left + 0.02f,
-                top + HeaderH + rows * RowHeight + 0.004f, 0.28f, TextDim.R, TextDim.G, TextDim.B, 255);
+            DrawText($"▾ {screen.Items.Count - MaxVisibleRows} more", left + 0.022f,
+                top + HeaderH + rows * RowHeight + 0.001f, 0.26f, TextDim.R, TextDim.G, TextDim.B, 255);
 
         // ── Key-hint footer ──
-        float footY = top + panelH - 0.032f;
-        DrawRect(left + 0.004f, footY - 0.002f, PanelWidth - 0.008f, 0.03f, 0, 0, 0, 120);
-        DrawText("▲▼ move  ·  ↵ select  ·  ⎋ back", left + 0.02f, footY + 0.004f, 0.26f, TextDim.R, TextDim.G, TextDim.B, 255);
+        float footY = top + panelH - 0.030f;
+        DrawRect(left + 0.004f, footY, PanelWidth - 0.008f, 0.026f, 0, 0, 0, 120);
+        DrawText("▲▼ move  ·  ↵ select  ·  ⎋ back", left + 0.022f,
+            CenterTextY(footY, 0.026f, 0.24f), 0.24f, TextDim.R, TextDim.G, TextDim.B, 255);
     }
 
     public void DrawHint(string text)
@@ -94,8 +99,14 @@ public sealed class ModernMenuRenderer : IMenuRenderer
         if (string.IsNullOrWhiteSpace(text)) return;
         float w = 0.30f;
         DrawRect(0.5f, 0.88f, w, 0.035f, 0, 0, 0, 160);
-        DrawText(text, 0.5f - w / 2f + 0.008f, 0.882f, 0.30f, 220, 220, 220, 255);
+        DrawText(text, 0.5f - w / 2f + 0.008f, CenterTextY(0.88f, 0.035f, 0.28f), 0.28f, 220, 220, 220, 255);
     }
+
+    /// S14 fix: GTA text y = TOP of the text box; a rect y = its CENTER. To center
+    /// text inside its container: textTop = rectCenterY - textHeight/2, with
+    /// textHeight ≈ scale * 0.08 (the rect height cancels out).
+    private static float CenterTextY(float rectCenterY, float rectH, float scale)
+        => rectCenterY - (scale * 0.08f) / 2f;
 
     private static void DrawRect(float x, float y, float w, float h, int r, int g, int b, int a)
         => Function.Call(Hash.DRAW_RECT, x, y, w, h, r, g, b, a);

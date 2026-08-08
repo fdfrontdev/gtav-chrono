@@ -228,9 +228,6 @@ public sealed class FakeInput : IGameInput
     public bool IsInvisibleHotkeyJustPressed { get; private set; }
     public bool IsInteractKeyJustPressed { get; private set; }
 
-    public bool IsPhoneKeyJustPressed => PhoneKey;
-    public bool PhoneKey { get; set; }
-
     // --- flight controls ---
     public bool FlyForward { get; set; }
     public bool FlyBack { get; set; }

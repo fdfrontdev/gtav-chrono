@@ -20,7 +20,6 @@ public class ChronoScript : Script
     private ClinicService? _clinic;
     private CrowdReactionService? _crowd;
     private JusticeCutsceneService? _cutscene;
-    private PhoneNewsService? _phoneNews;
     private TimeStopService? _timeStop;
     private ChronoLogger? _log;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -87,12 +86,9 @@ public class ChronoScript : Script
             _menu = new PowerMenuService(
                 menuFramework, _timeStop, teleport, vfxService,
                 input, player, notifier, _log, config, store,
-                hack: hack, stats: stats);
+                hack: hack, stats: stats, feedProvider: () => media.Feed);
             _menu.BuildMenu();
 
-            var phone = new PhoneNewsService(
-                input, () => media.Feed, new PhoneOverlay());
-            _phoneNews = phone;
             CreateClinicBlip();
 
             Tick += OnTick;
@@ -122,7 +118,6 @@ public class ChronoScript : Script
             _cutscene?.Tick(_clock.ElapsedMilliseconds);
             _clinic?.Tick();
             _crowd?.Tick(_clock.ElapsedMilliseconds);
-            _phoneNews?.Tick();
         }
         catch (Exception ex)
         {
