@@ -543,7 +543,7 @@ public sealed class JusticeService
 
     private void UpdateEscapeChoice()
     {
-        if (!_escapeChoiceOpen) return;
+        if (!_escapeChoiceOpen || _input == null) return;
 
         if (_escapeChoiceDeadlineMs == 0)
         {
