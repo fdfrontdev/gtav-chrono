@@ -93,9 +93,18 @@ public sealed class PowerMenuService
             if (_input.IsMenuKeyJustPressed) { _vfx.CancelWarp(); _notifier.Show(UiStrings.WarpCancelled); }
             else if (_vfx.TickWarp(nowMs))
             {
+                var from = _player.Position;
+                _vfx.BeginInstantTransmission();
                 var result = _teleport.TryMapTeleport();
-                if (result.Outcome == TeleportOutcome.Success)
+                if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
+                {
+                    _vfx.CompleteInstantTransmission(from, result.Point.Value);
                     _notifier.Show(UiStrings.WarpArrived);
+                }
+                else
+                {
+                    _vfx.AbortInstantTransmission();
+                }
             }
             return; // no menu while warping
         }
@@ -149,13 +158,18 @@ public sealed class PowerMenuService
         {
             _menu.Close();
             var from = _player.Position;
+
+            _vfx.BeginInstantTransmission();
             var result = _teleport.TryDash();
             if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
-                _vfx.PlayDashBlink(from, result.Point.Value);
+                _vfx.CompleteInstantTransmission(from, result.Point.Value);
+            else
+                _vfx.AbortInstantTransmission(); // blocked — never leave the player invisible
         }
         catch (Exception ex)
         {
             _log.Error($"Dash failed: {ex}");
+            _vfx.AbortInstantTransmission();
             _notifier.Show(UiStrings.BugError);
         }
     }
@@ -220,8 +234,8 @@ public sealed class PowerMenuService
 
     private void AdjustDashRange(int direction)
     {
-        float next = _config.Dash.Range + direction * 0.5f;
-        _config.Dash.Range = next < 3.0f ? 3.0f : (next > 15.0f ? 15.0f : next);
+        float next = _config.Dash.Range + direction * 1.0f;
+        _config.Dash.Range = next < 5.0f ? 5.0f : (next > 30.0f ? 30.0f : next);
         PersistConfig();
         RefreshSettingsValues();
     }

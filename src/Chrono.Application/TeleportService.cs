@@ -42,7 +42,7 @@ public sealed class TeleportService
         if (_player.IsAiming)
         {
             var camDir = GetAimDirection();
-            var clamped = TeleportMath.ClampToRange(origin, origin + camDir * _dashConfig.MaxRange, 3.0f, _dashConfig.MaxRange);
+            var clamped = TeleportMath.ClampToRange(origin, origin + camDir * _dashConfig.MaxRange, 5.0f, _dashConfig.MaxRange);
             if (clamped == null) return TeleportResult.NoClearPath();
             target = clamped.Value;
         }

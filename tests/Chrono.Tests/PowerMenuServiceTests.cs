@@ -93,9 +93,7 @@ public class PowerMenuServiceTests
     [Fact]
     public void Dash_FromMenu_TeleportsAndCloses()
     {
-        var service = BuildService(out var input, out _, out var repo);
-        var player = new FakePlayer { Position = new(0, 0, 10), Heading = 0f };
-        _ = player; // player context in service is separate fake; dash uses forward heading from it
+        var service = BuildService(out var input, out _, out _);
 
         input.MenuKeyPressed = true;
         service.Tick(0);   // open

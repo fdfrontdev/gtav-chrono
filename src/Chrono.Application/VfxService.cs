@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Chrono.Application.Ports;
 using Chrono.Domain;
@@ -5,8 +6,10 @@ using Chrono.Domain;
 namespace Chrono.Application;
 
 /// <summary>
-/// VFX orchestration (Animation &amp; VFX doc). Cosmetics only — every effect is
-/// toggleable via config and NEVER blocks a power (ADR-02 §2.4).
+/// VFX orchestration — Goku-style Instant Transmission (Animation &amp; VFX doc v2).
+/// Cosmetics only: every effect is toggleable via config and NEVER blocks a power.
+/// Phase model: Begin (flash-out + vanish) → [teleport] → Complete (bursts + rematerialize
+/// + flash-in + shake). Abort restores visibility if the teleport is refused.
 /// </summary>
 public sealed class VfxService
 {
@@ -17,11 +20,12 @@ public sealed class VfxService
     private const string TeleportAsset = "scr_trevor4_teleport";
     private const string TeleportEffect = "scr_trevor4_teleport_blue";
     private const string DesatModifier = "hud_def_desat";
+    private const long WarpWindupMs = 1200;
 
     private Vector3? _warpFrom;
     private Vector3? _warpTo;
     private long _warpStartedMs;
-    private const long WarpWindupMs = 1200;
+    private bool _hidden;   // player alpha currently 0
 
     public VfxService(IVfxBoundary vfx, ILogSink log, VisualConfig visual)
     {
@@ -35,38 +39,79 @@ public sealed class VfxService
     /// <summary>Time Stop cue: desaturation tint while active.</summary>
     public void SetTimeStopCue(bool active)
     {
-        if (active && _visual.TimeStop.TintStrength > 0f)
-            _vfx.SetTimecycleModifier(DesatModifier, _visual.TimeStop.TintStrength);
+        if (active)
+        {
+            if (_visual.TimeStop.TintStrength > 0f)
+                _vfx.SetTimecycleModifier(DesatModifier, _visual.TimeStop.TintStrength);
+            // strength 0 → deliberate no-op (user disabled the cue)
+        }
         else
+        {
             _vfx.ClearTimecycleModifier();
+        }
     }
 
-    /// <summary>Dash blink: origin burst + landing burst + optional trail (FR-3.5).</summary>
-    public void PlayDashBlink(Vector3 from, Vector3 to)
+    /// <summary>Phase 1 of Instant Transmission: flash out + vanish.</summary>
+    public void BeginInstantTransmission()
     {
-        if (!_visual.Dash.Enabled) return;
-
-        try
+        if (_visual.Dash.Enabled)
         {
-            _vfx.SpawnParticle(TeleportAsset, TeleportEffect, from, 1.0f);
-            _vfx.SpawnParticle(TeleportAsset, TeleportEffect, to, 1.2f);
+            _vfx.ScreenFadeOut(0);
+            _vfx.SetPlayerAlpha(0);
+            _hidden = true;
+        }
+    }
 
-            if (_visual.Dash.Trail)
+    /// <summary>Phase 2: bursts at both ends + afterimage trail + rematerialize + flash in + shake.</summary>
+    public void CompleteInstantTransmission(Vector3 from, Vector3 to)
+    {
+        if (_visual.Dash.Enabled)
+        {
+            try
             {
-                for (int i = 1; i <= 5; i++)
+                // Origin burst + landing burst (scaled up for anime punch)
+                _vfx.SpawnParticle(TeleportAsset, TeleportEffect, from, 2.0f);
+                _vfx.SpawnParticle(TeleportAsset, TeleportEffect, to, 2.4f);
+
+                if (_visual.Dash.Trail)
                 {
-                    var point = TeleportMath.Lerp(from, to, i / 6f);
-                    _vfx.SpawnParticle(TeleportAsset, TeleportEffect, point, 0.5f);
+                    for (int i = 1; i <= 7; i++)
+                    {
+                        var point = TeleportMath.Lerp(from, to, i / 8f);
+                        _vfx.SpawnParticle(TeleportAsset, TeleportEffect, point, 0.8f);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                _log.Warn($"Transmission VFX failed (power still works): {ex.Message}");
+            }
         }
-        catch (System.Exception ex)
+
+        if (_hidden)
         {
-            _log.Warn($"Dash VFX failed (power still works): {ex.Message}");
+            _vfx.ResetPlayerAlpha();
+            _hidden = false;
+        }
+        if (_visual.Dash.Enabled)
+        {
+            _vfx.ScreenFlash(180);
+            if (_visual.MapTeleport.Shake) _vfx.ShakeCamera(0.3f);
         }
     }
 
-    /// <summary>Begin map-teleport wind-up (cancel window — FR via UIUX §4.3).</summary>
+    /// <summary>Abort: teleport refused — restore visibility + flash in (never leave the player invisible).</summary>
+    public void AbortInstantTransmission()
+    {
+        if (_hidden)
+        {
+            _vfx.ResetPlayerAlpha();
+            _hidden = false;
+            if (_visual.Dash.Enabled) _vfx.ScreenFlash(150);
+        }
+    }
+
+    /// <summary>Begin map-teleport wind-up (cancel window — UIUX §4.3).</summary>
     public void StartWarp(Vector3 from, Vector3 to)
     {
         _warpFrom = from;
@@ -83,26 +128,23 @@ public sealed class VfxService
         if (_warpStartedMs == 0) _warpStartedMs = nowMs;
         if (nowMs - _warpStartedMs < WarpWindupMs) return false;
 
-        // wind-up complete — departure burst + arrival burst
-        var from = _warpFrom ?? _warpTo.Value;
         _vfx.ClearTimecycleModifier();
-        _vfx.SpawnParticle(TeleportAsset, TeleportEffect, from, 1.5f);
-        _vfx.SpawnParticle(TeleportAsset, TeleportEffect, _warpTo.Value, 1.5f);
-
-        if (_visual.MapTeleport.UseScreenFlash) _vfx.ScreenFlash(200);
-        if (_visual.MapTeleport.Shake) _vfx.ShakeCamera(0.2f);
-
         _warpFrom = null;
         _warpTo = null;
         return true;
     }
 
-    /// <summary>Cancel the wind-up (F9 pressed during warp).</summary>
+    /// <summary>Cancel the wind-up (F9 during warp) — restore everything.</summary>
     public void CancelWarp()
     {
         _warpFrom = null;
         _warpTo = null;
         _vfx.ClearTimecycleModifier();
+        if (_hidden)
+        {
+            _vfx.ResetPlayerAlpha();
+            _hidden = false;
+        }
         _vfx.StopCameraShake();
     }
 }

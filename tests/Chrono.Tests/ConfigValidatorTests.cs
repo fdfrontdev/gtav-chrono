@@ -30,21 +30,21 @@ public class ConfigValidatorTests
     }
 
     [Theory]
-    [InlineData(2.0f)]
-    [InlineData(16.0f)]
+    [InlineData(4.0f)]
+    [InlineData(31.0f)]
     [InlineData(0f)]
-    public void Validate_DashRangeOutOfBounds_DefaultsTo7(float range)
+    public void Validate_DashRangeOutOfBounds_DefaultsTo12(float range)
     {
         var cfg = new ChronoConfig();
         cfg.Dash.Range = range;
         var result = ConfigValidator.Validate(cfg);
-        Assert.Equal(7.0f, result.Config.Dash.Range);
+        Assert.Equal(12.0f, result.Config.Dash.Range);
     }
 
     [Theory]
-    [InlineData(3.0f)]
-    [InlineData(7.0f)]
-    [InlineData(15.0f)]
+    [InlineData(5.0f)]
+    [InlineData(12.0f)]
+    [InlineData(30.0f)]
     public void Validate_DashRangeInBounds_Kept(float range)
     {
         var cfg = new ChronoConfig();
@@ -57,8 +57,8 @@ public class ConfigValidatorTests
     public void Validate_MaxRangeBelowRange_Clamped()
     {
         var cfg = new ChronoConfig();
-        cfg.Dash.Range = 10f;
-        cfg.Dash.MaxRange = 5f;
+        cfg.Dash.Range = 20f;
+        cfg.Dash.MaxRange = 10f;
         var result = ConfigValidator.Validate(cfg);
         Assert.True(result.Config.Dash.MaxRange >= result.Config.Dash.Range);
     }
