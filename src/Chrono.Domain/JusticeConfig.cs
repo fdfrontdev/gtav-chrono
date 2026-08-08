@@ -32,6 +32,14 @@ public sealed class JusticeConfig
     /// <summary>Unpaid fine converts to prison days (S12 — debtor's prison):
     /// $<see cref="FineToPrisonRate"/> short = 1 day served.</summary>
     public int FineToPrisonRate { get; set; } = 1000;
+
+    /// <summary>S13 escape-by-choice: stealth/fight success chances, the decision
+    /// window length, and solitary-confinement penalties for failed attempts.</summary>
+    public double EscapeStealthChance { get; set; } = 0.5;
+    public double EscapeFightChance { get; set; } = 0.7;
+    public double EscapeChoiceSeconds { get; set; } = 10;
+    public int SolitaryStealthDays { get; set; } = 3;
+    public int SolitaryFightDays { get; set; } = 5;
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
 }

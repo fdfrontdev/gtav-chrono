@@ -7,4 +7,4 @@ public enum CrimeSeverity { Minor, Moderate, Severe }
 public enum IdentityState { Clean, Burned }
 
 /// <summary>Superpower used to escape prison (FR-10.1).</summary>
-public enum EscapeKind { Dash, Fly, Invisible, TimeStop }
+public enum EscapeKind { Dash, Fly, Invisible, TimeStop, Stealth, Fight }   // S13: player-chosen methods

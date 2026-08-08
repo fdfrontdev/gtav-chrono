@@ -148,6 +148,14 @@ public sealed class FakeCutsceneRenderer : ICutsceneRenderer
     public void PlayAnim(string dict, string anim, bool loop) => Anims.Add($"{dict}/{anim}");
 }
 
+public sealed class FakePrisonOutfit : IPrisonOutfit
+{
+    public int ApplyCount { get; private set; }
+    public int RestoreCount { get; private set; }
+    public void ApplyPrison() => ApplyCount++;
+    public void Restore() => RestoreCount++;
+}
+
 public sealed class FakeNotifier : INotifier
 {
     public List<string> Messages { get; } = new();
@@ -198,6 +206,7 @@ public sealed class FakeInput : IGameInput
     public bool IsMenuAcceptJustPressed => MenuAccept;
     public bool IsMenuCancelJustPressed => MenuCancel;
     public bool IsDashHotkeyPressed => DashHotkey;
+    public bool IsDashKeyJustPressed { get; set; }   // S13: escape-plan picker (X)
 
     // --- hotkey edges (Z = time stop, B = invisible, G = interact) ---
     public bool TimeStopHotkey { get; set; }

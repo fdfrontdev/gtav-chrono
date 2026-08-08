@@ -54,7 +54,7 @@ public class ChronoScript : Script
             INotifier notifier = new Notifier();
             IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey, config.Justice.InteractKey);
             IVfxBoundary vfx = new VfxBoundary();
-            IMenuRenderer renderer = new NativeMenuRenderer();
+            IMenuRenderer renderer = new ModernMenuRenderer();   // S13: custom-drawn UI
 
             // Application services
             _timeStop = new TimeStopService(repo, freezer, clock, player, notifier, _log, config.TimeStop);
@@ -71,10 +71,11 @@ public class ChronoScript : Script
             var wantedMonitor = new WantedMonitor();
             var cutscene = new JusticeCutsceneService(new CutsceneRenderer(), player, _log);
             _cutscene = cutscene;
+            var prisonOutfit = new PrisonOutfit(msg => _log.Info(msg));
             _justice = new JusticeService(
                 wantedMonitor, player, recordStore,
                 identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input,
-                reputation, probe, null, cutscene);
+                reputation, probe, null, cutscene, prisonOutfit);
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(
