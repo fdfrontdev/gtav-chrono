@@ -178,17 +178,32 @@ public class JusticeServiceTests
         Assert.Single(notifier.Messages, m => m.Contains("ARRESTED"));
     }
 
+
+    /// S12: warrant-report escalation — 4 recognitions raise stars 1★→4★ and the
+    /// capture fires with NO new crimes recorded (the original event is the only charge).
+    private static void EscalateToCapture(JusticeService service, FakeWantedMonitor wanted)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            service.Tick();              // report → stars rise
+            wanted.CurrentStars = 0;     // escape
+            service.Tick();
+        }
+        service.Tick();                  // report #4 → 4★
+        service.Tick();                  // capture check
+    }
+
     [Fact]
     public void TrialDayArrives_FineOnlySentence_ReleasesAndDeductsMoney()
     {
-        // 2★ theft (Minor: fine 2000) that ESCALATED to a 4★ chase → still sentenced
-        // for the original offense → fine only, released (FR-8.3 realism ruling)
-        var (service, wanted, player, store, notifier, clock, _) = Build();
-        player.IsVisible = true;
+        // S12: a Minor offense + report escalation → captured with ONE charge →
+        // fine-only release, warrant cleared (justice served)
+        var (service, wanted, player, store, notifier, _) = BuildWithProbe(0.0, burned: true);
         wanted.CurrentStars = 2;
-        service.Tick();
-        wanted.CurrentStars = 4;
-        service.Tick();                  // arrest, trial due day 101
+        service.Tick();                  // Minor event recorded
+        wanted.CurrentStars = 0;
+        service.Tick();                  // escape
+        EscalateToCapture(service, wanted);
         Assert.Equal(JusticeState.Captured, service.State);
 
         service.AdvanceTrialTime(45.0);
@@ -222,24 +237,26 @@ public class JusticeServiceTests
     [Fact]
     public void Recidivism_SecondVerdict_HarsherFine()
     {
-        var (service, wanted, player, store, _, clock, _) = Build();
-        player.IsVisible = true;
+        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
 
-        // First conviction: 2★ theft (Minor fine 2000) → 4★ chase → fine-only release
+        // First conviction: Minor offense → fine 2000 (multiplier 1.0) → release
         wanted.CurrentStars = 2;
         service.Tick();
-        wanted.CurrentStars = 4;
+        wanted.CurrentStars = 0;
         service.Tick();
+        EscalateToCapture(service, wanted);
         service.AdvanceTrialTime(45.0);
         service.Tick();
         Assert.Equal(JusticeState.Free, service.State);
         Assert.Single(store.Record.Convictions);
+        Assert.Contains(player.MoneyCalls, m => m == -2000);
 
-        // Second offense: same 2★ → recidivism multiplier 1.5 → 3000
+        // Second offense: same Minor → recidivism multiplier 1.5 → 3000
         wanted.CurrentStars = 2;
         service.Tick();
-        wanted.CurrentStars = 4;
+        wanted.CurrentStars = 0;
         service.Tick();
+        EscalateToCapture(service, wanted);
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -542,13 +559,13 @@ public class JusticeServiceTests
     [Fact]
     public void Trial_FiresAfterDelaySeconds_NotBefore()
     {
-        // 2★ theft escalated to 4★ → arrested; Minor sentence → fine-only release
-        var (service, wanted, player, _, _, _, _) = Build();
-        player.IsVisible = true;
+        // Minor offense + report escalation → arrested; fine-only release (S12)
+        var (service, wanted, _, _, _, _) = BuildWithProbe(0.0, burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime
-        wanted.CurrentStars = 4;
-        service.Tick();                    // arrested
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);
 
         service.AdvanceTrialTime(44.9);    // 45s default delay
         service.Tick();
@@ -612,6 +629,95 @@ public class JusticeServiceTests
         service.Tick();                    // stars cleared at death — NO escape news
 
         Assert.DoesNotContain(media.Headlines, h => h.Contains("POLICE LOSE"));
+    }
+
+    // --- S12: warrant escalation + total-crimes sentencing ---
+
+    [Fact]
+    public void WarrantReports_Escalate_UntilCapture()
+    {
+        // Each recognition raises the response: 1★ → 2★ → 3★ → 4★ → captured
+        var (service, wanted, _, store, _, _) = BuildWithProbe(0.0, burned: true);
+
+        service.Tick();
+        Assert.Equal(1, wanted.CurrentStars);
+        wanted.CurrentStars = 0;
+        service.Tick();
+        service.Tick();
+        Assert.Equal(2, wanted.CurrentStars);
+        wanted.CurrentStars = 0;
+        service.Tick();
+        service.Tick();
+        Assert.Equal(3, wanted.CurrentStars);
+        wanted.CurrentStars = 0;
+        service.Tick();
+        service.Tick();                  // 4th report → 4★
+        service.Tick();                  // capture check
+
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.Equal(0, wanted.CurrentStars);
+    }
+
+    [Fact]
+    public void Verdict_ChargesAllUnchargedCrimes_TotalFine()
+    {
+        // Two episodes → two charges at the next court date: 2000 + 2000 = 4000
+        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
+        wanted.CurrentStars = 2;
+        service.Tick();                  // Minor #1
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);
+        service.AdvanceTrialTime(45.0);
+        service.Tick();
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.Contains(player.MoneyCalls, m => m == -2000);
+        Assert.All(store.Record.Events, e => Assert.True(e.Charged, "all events charged"));
+        Assert.Equal(0, store.Record.Events.Count(e => !e.Charged));
+    }
+
+    [Fact]
+    public void Verdict_TotalsAcrossEpisodes()
+    {
+        // Minor (2000) + Moderate (8000) episodes → 10000 fine + 7 days
+        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
+        wanted.CurrentStars = 2;
+        service.Tick();                  // Minor
+        wanted.CurrentStars = 0;
+        service.Tick();
+        wanted.CurrentStars = 3;
+        service.Tick();                  // Moderate
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);
+        service.AdvanceTrialTime(45.0);
+        service.Tick();
+
+        Assert.True(store.Record.Events.Count >= 2, $"expected 2 events, got {store.Record.Events.Count}: [{string.Join(", ", store.Record.Events.Select(e => e.Severity))}]");
+        Assert.Equal(JusticeState.Prison, service.State);
+        Assert.Equal(7, service.SentenceDays);
+        Assert.Contains(player.MoneyCalls, m => m == -10000);
+        Assert.Single(store.Record.Convictions);
+    }
+
+    [Fact]
+    public void UnpaidFine_ConvertsToPrisonDays()
+    {
+        // Moderate charge (8000) with only 3000 cash → pay 3000, $5,000 short →
+        // +5 days at the $1,000/day rate → prison
+        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
+        player.Money = 3000;
+        wanted.CurrentStars = 3;
+        service.Tick();                  // Moderate
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);
+        service.AdvanceTrialTime(45.0);
+        service.Tick();
+
+        Assert.Equal(JusticeState.Prison, service.State);
+        Assert.Equal(12, service.SentenceDays);   // 7 base + 5 from the $5,000 shortfall
+        Assert.Contains(player.MoneyCalls, m => m == -3000);
     }
 
     // --- S9: warrant enforcement (civilians report a burned face) ---

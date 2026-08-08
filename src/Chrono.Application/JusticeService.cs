@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using Chrono.Application.Ports;
 using Chrono.Domain;
@@ -44,8 +46,10 @@ public sealed class JusticeService
     private readonly JusticeCutsceneService? _cutscene;
     private readonly Func<double> _random;
     private readonly Stopwatch _reportClock = Stopwatch.StartNew();
-    private bool _suppressCrimeEdge;      // warrant reports raise stars WITHOUT a crime
+    private int _suppressStars;           // S12: suppress ONLY the edge at the report's
+                                         // star level (a later, higher crime still records)
     private bool _wasPrisonTerm;          // release teleports only for real prison terms
+    private int _reportStreak;            // S12: each recognition escalates the response
     private readonly CriminalRecord _record;
     private readonly Stopwatch _prisonRealClock = Stopwatch.StartNew();
     private readonly PrisonCalendar _prisonCalendar;
@@ -135,7 +139,7 @@ public sealed class JusticeService
 
         if (stars > _lastStars && _config.RecordFromWanted)
         {
-            if (_suppressCrimeEdge) _suppressCrimeEdge = false;   // warrant report, not a crime
+            if (_suppressStars == stars) _suppressStars = 0;   // warrant report, not a crime
             else OnStarsIncreased(stars);   // ONE event per episode, at the new max star level
         }
 
@@ -203,10 +207,14 @@ public sealed class JusticeService
         double chance = _config.WarrantReportChance * (_reputation?.ReportChanceModifier ?? 1.0);
         if (_random() >= chance) return;
 
-        _suppressCrimeEdge = true;
-        _wanted.SetStars(Math.Max(1, _wanted.CurrentStars));
-        _notifier.Show("A civilian recognized you — police called!");
-        _log.Info("Warrant report: civilian tipped the police");
+        // S12 escalation: recognition #1 → 1★, #2 → 2★ ... capped at 5★. A wanted
+        // felon on the street draws a heavier response each time — capture (4★+) is
+        // REACHABLE from reports alone, so the loop ends in a trial, not in limbo.
+        int escalate = Math.Min(5, 1 + _reportStreak++);
+        _suppressStars = escalate;
+        _wanted.SetStars(escalate);
+        _notifier.Show($"A civilian recognized you — police dispatched ({escalate}★)");
+        _log.Info($"Warrant report #{_reportStreak}: police dispatched ({escalate}★)");
     }
 
     /// <summary>Death while wanted → you wake up in POLICE CUSTODY (S7). GTA's $5k
@@ -266,6 +274,7 @@ public sealed class JusticeService
         State = JusticeState.Captured;
         _trialElapsedMs = 0;
         _trialClock.Restart();
+        _reportStreak = 0;                // justice pipeline takes over (S12)
         _wanted.SetStars(0);              // handcuffed — the chase is OVER (S11: no re-arrest loop)
         _vfx?.ScreenFadeOut(300);
         _vfx?.ScreenFlash(300);
@@ -279,35 +288,69 @@ public sealed class JusticeService
 
     private void OnTrialVerdict()
     {
-        // Sentenced for the ORIGINAL offense of the episode (a 2★ theft that escalated
-        // to a 4★ chase is still a minor crime — FR-8.3, realism ruling)
-        var severity = _episodeSeverity
-            ?? (_record.Events.Count > 0 ? _record.Events[_record.Events.Count - 1].Severity : CrimeSeverity.Minor);
-        var sentence = SentencingPolicy.SentenceWith(severity, _record.ConvictionCount);
+        // S12: EVERY uncharged crime in the record becomes a charge — real-world
+        // style ("each crime will be charged; the fine + sentence total all of them").
+        // Recidivism (repeat-offender multiplier) applies once to the totals.
+        var charges = _record.Events.Where(e => !e.Charged).ToList();
+        if (charges.Count == 0)
+        {
+            // no events on file (config edge) — fall back to the episode offense
+            var severity = _episodeSeverity ?? CrimeSeverity.Minor;
+            charges = new List<CrimeEvent>
+            {
+                new CrimeEvent("episode", severity, severity.ToString().ToLowerInvariant(),
+                    DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"), _player.GetDistrictName(), true)
+            };
+        }
+
+        double multiplier = 1 + 0.5 * Math.Max(0, _record.ConvictionCount);
+        int totalFine = (int)Math.Round(charges.Sum(c => SentencingPolicy.BaseSentence(c.Severity).Fine) * multiplier);
+        int totalDays = (int)Math.Round(charges.Sum(c => SentencingPolicy.BaseSentence(c.Severity).PrisonDays) * multiplier);
+        var sentence = new Sentence(totalFine, totalDays);
+
+        // Mark every charge as sentenced (they stay visible in the record, flagged)
+        for (int i = 0; i < _record.Events.Count; i++)
+        {
+            if (!_record.Events[i].Charged)
+                _record.Events[i] = _record.Events[i] with { Charged = true };
+        }
+        _store.SaveAtomic(_record);
 
         // Court cinematic first (S11): the sentence applies when the gavel falls
+        string chargeLine = $"{charges.Count} CHARGE{(charges.Count > 1 ? "S" : "")} — {ChargeSummary(charges)}";
+        string verdictLine = $"GUILTY — ${sentence.Fine} fine · {sentence.PrisonDays} day{(sentence.PrisonDays == 1 ? "" : "s")}";
         if (_cutscene != null)
         {
-            string charge = severity.ToString();
-            string verdict = $"THE VERDICT: GUILTY — ${sentence.Fine} fine · {sentence.PrisonDays} days";
-            _cutscene.Play(CutsceneKind.Trial, () => ApplySentence(sentence), charge, verdict);
+            _cutscene.Play(CutsceneKind.Trial, () => ApplySentence(sentence), chargeLine, verdictLine);
         }
         else
         {
             ApplySentence(sentence);
         }
 
-        _log.Info($"Verdict: fine ${sentence.Fine}, prison {sentence.PrisonDays}d (convictions={_record.ConvictionCount})");
+        _log.Info($"Verdict: {charges.Count} charges → ${sentence.Fine} fine, {sentence.PrisonDays}d (convictions={_record.ConvictionCount})");
+    }
+
+    private static string ChargeSummary(List<CrimeEvent> charges)
+    {
+        var parts = charges.GroupBy(c => c.Severity)
+            .Select(g => $"{g.Count()}×{g.Key}")
+            .OrderByDescending(p => p);
+        return string.Join(", ", parts);
     }
 
     private void ApplySentence(Sentence sentence)
     {
-        // Fine: seize cash (assets confiscated if short — never go negative)
+        // Fine: seize what the player has; the SHORTFALL converts to prison time
+        // (S12 — debtor's prison: $FineToPrisonRate short = 1 day served)
         int money = _player.GetMoney();
-        int fine = Math.Min(sentence.Fine, money);
-        _player.AddMoney(-fine);
+        int paid = Math.Min(sentence.Fine, money);
+        _player.AddMoney(-paid);
+        int shortfall = sentence.Fine - paid;
+        int days = sentence.PrisonDays
+            + (int)Math.Ceiling(shortfall / (double)Math.Max(1, _config.FineToPrisonRate));
 
-        _record.AddConviction(new Conviction(fine, sentence.PrisonDays,
+        _record.AddConviction(new Conviction(paid, days,
             DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss")));
         _store.SaveAtomic(_record);
         _reputation?.OnConviction();   // S9: debt paid
@@ -315,13 +358,14 @@ public sealed class JusticeService
         _vfx?.ScreenFadeOut(300);
         _vfx?.ScreenFlash(300);
 
-        if (sentence.PrisonDays > 0)
+        if (days > 0)
         {
-            _sentenceDays = sentence.PrisonDays;
+            _sentenceDays = days;
             _servedDays = 0;
             State = JusticeState.Prison;
             _wasPrisonTerm = true;
-            _notifier.Show($"SENTENCED: ${fine} fine + {sentence.PrisonDays} days");
+            string shortfallNote = shortfall > 0 ? $" (${shortfall} unpaid → {days - sentence.PrisonDays}d served)" : "";
+            _notifier.Show($"SENTENCED: ${paid} fine + {days} days{shortfallNote}");
             if (_cutscene != null)
                 _cutscene.Play(CutsceneKind.Intake, BeginConfinement);   // intake cinematic (S11)
             else
@@ -330,7 +374,7 @@ public sealed class JusticeService
         else
         {
             _wasPrisonTerm = false;
-            _notifier.Show($"SENTENCED: ${fine} fine — released");
+            _notifier.Show($"SENTENCED: ${paid} fine — released");
             OnReleased();
         }
     }

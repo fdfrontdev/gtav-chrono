@@ -3,14 +3,17 @@ using System.Linq;
 
 namespace Chrono.Domain;
 
-/// <summary>One recorded offense (SRS FR-1). Never auto-clears; only police-DB hack purges it.</summary>
+/// <summary>One recorded offense (SRS FR-1). Never auto-clears; only police-DB hack purges it.
+/// <see cref="Charged"/> = already sentenced in a court session (S12 — every crime gets
+/// charged at the next bust, real-world style).</summary>
 public sealed record CrimeEvent(
     string Id,
     CrimeSeverity Severity,
     string Kind,          // e.g. "assault", "murder", "property_damage"
     string GameTime,      // ISO-ish stamp at record time
     string District,      // for media flavor
-    bool Burned);         // face seen? (FR-1.4)
+    bool Burned,          // face seen? (FR-1.4)
+    bool Charged = false); // S12: charged in a past court session?
 
 /// <summary>A court judgment (FR-8.4).</summary>
 public sealed record Conviction(int Fine, int PrisonDays, string GameTime);

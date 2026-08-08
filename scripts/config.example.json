@@ -38,6 +38,7 @@
     "warrantReportEnabled": true,
     "warrantReportSeconds": 10,
     "warrantReportChance": 0.35,
+    "fineToPrisonRate": 1000,
     "interactKey": "G",
     "newsEnabled": true,
     "viralEnabled": true

@@ -78,22 +78,42 @@ public class JusticeCutsceneServiceTests
 /// (no re-arrest loop); fine-only release no longer teleports to the prison.</summary>
 public class JusticeCutsceneIntegrationTests
 {
-    private static (JusticeService service, JusticeCutsceneService cutscene, FakeCutsceneRenderer renderer, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeClock clock) Build()
+    private static (JusticeService service, JusticeCutsceneService cutscene, FakeCutsceneRenderer renderer, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeClock clock) Build(bool burned = false)
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true, Money = 100000 };
         var store = new FakeRecordStore();
+        if (burned)
+        {
+            store.Status.Identity = IdentityState.Burned;   // seed BEFORE ctor — services cache
+            store.Status.WarrantActive = true;
+        }
         var clock = new FakeClock();
         var notifier = new FakeNotifier();
         var renderer = new FakeCutsceneRenderer();
         var cutscene = new JusticeCutsceneService(renderer, player, new FakeLog());
+        var probe = new FakeProbe { NearbyCivilians = 5 };
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
-            notifier, new FakeLog(), new JusticeConfig(), clock,
-            cutscene: cutscene);
+            notifier, new FakeLog(),
+            new JusticeConfig { WarrantReportSeconds = 0 }, clock,
+            cutscene: cutscene, probe: probe, random: () => 0.0);
         return (service, cutscene, renderer, wanted, player, store, clock);
+    }
+
+    /// S12: 4 warrant recognitions escalate 1★→4★ → capture with NO new crimes
+    private static void EscalateToCapture(JusticeService service, FakeWantedMonitor wanted)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            service.Tick();
+            wanted.CurrentStars = 0;
+            service.Tick();
+        }
+        service.Tick();
+        service.Tick();
     }
 
     [Fact]
@@ -120,11 +140,12 @@ public class JusticeCutsceneIntegrationTests
     [Fact]
     public void Verdict_PlaysCourt_AndSentenceAppliesAtGavel()
     {
-        var (service, cutscene, renderer, wanted, player, store, _) = Build();
+        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime
-        wanted.CurrentStars = 4;
-        service.Tick();                    // arrested
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);   // reports → 4★ → arrested
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court session starts
@@ -175,11 +196,12 @@ public class JusticeCutsceneIntegrationTests
     public void FineOnlyRelease_DoesNotTeleport()
     {
         // S11 fix: paying a downtown fine must NOT wake you at the prison gate
-        var (service, cutscene, renderer, wanted, player, store, _) = Build();
+        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
         wanted.CurrentStars = 2;
         service.Tick();
-        wanted.CurrentStars = 4;
-        service.Tick();                    // arrested (Minor original → fine-only)
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);   // Minor-only charge → fine-only
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court
@@ -196,11 +218,12 @@ public class JusticeCutsceneIntegrationTests
     public void ArrestedStarsCleared_NoImmediateRearrest()
     {
         // S11 fix: stars cleared at capture → after release the wanted level stays 0
-        var (service, cutscene, renderer, wanted, player, store, _) = Build();
+        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime
-        wanted.CurrentStars = 4;
-        service.Tick();                    // arrest (stars → 0)
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);   // arrest (stars → 0)
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court

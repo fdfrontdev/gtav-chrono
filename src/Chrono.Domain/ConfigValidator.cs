@@ -132,10 +132,16 @@ public static class ConfigValidator
             justice.WarrantReportSeconds = 10;
             warnings.Add("justice.warrantReportSeconds outside [1,120] — using 10");
         }
-        if (justice.WarrantReportChance <= 0 || justice.WarrantReportChance > 1)
+        if (justice.WarrantReportChance < 0.05 || justice.WarrantReportChance > 1.0)
         {
             justice.WarrantReportChance = 0.35;
-            warnings.Add("justice.warrantReportChance outside (0,1] — using 0.35");
+            warnings.Add("justice.warrantReportChance outside [0.05,1.0] → 0.35");
+        }
+
+        if (justice.FineToPrisonRate < 100 || justice.FineToPrisonRate > 100000)
+        {
+            justice.FineToPrisonRate = 1000;
+            warnings.Add("justice.fineToPrisonRate outside [100,100000] → 1000");
         }
     }
 
