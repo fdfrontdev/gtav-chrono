@@ -35,6 +35,9 @@
     "prisonDayRealSeconds": 30,
     "prisonYardSeconds": 10,
     "trialDelaySeconds": 45,
+    "warrantReportEnabled": true,
+    "warrantReportSeconds": 10,
+    "warrantReportChance": 0.35,
     "interactKey": "G",
     "newsEnabled": true,
     "viralEnabled": true

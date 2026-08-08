@@ -32,6 +32,25 @@ public sealed class MediaService
     /// <summary>Session social feed (WEBNET phone, S7) — newest last, cap 20.</summary>
     public IReadOnlyList<NewsFeedItem> Feed => _feed;
 
+    /// <summary>Direct news push (S9 — reputation milestones, hacks). Rare events —
+    /// NOT throttled (the 30s slot is for street-crime chatter only).</summary>
+    public void News(string headline)
+    {
+        if (!_config.NewsEnabled) return;
+        _media.News(headline);
+        PushFeed(headline, false);
+        _log.Info($"Media: news — {headline}");
+    }
+
+    /// <summary>Direct viral push (S9).</summary>
+    public void Viral(string message)
+    {
+        if (!_config.NewsEnabled || !_config.ViralEnabled) return;
+        _media.Viral(message);
+        PushFeed(message, true);
+        _log.Info($"Media: viral — {message}");
+    }
+
     private void PushFeed(string text, bool viral)
     {
         _feed.Add(new NewsFeedItem(text, DateTime.Now.ToString("HH:mm"), viral));

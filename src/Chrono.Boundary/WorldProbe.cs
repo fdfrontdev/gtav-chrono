@@ -3,6 +3,7 @@ using System.Numerics;
 using Chrono.Application.Ports;
 using Chrono.Domain;
 using GTA;
+using GTA.Native;
 
 namespace Chrono.Boundary;
 
@@ -31,5 +32,43 @@ public sealed class WorldProbe : IWorldProbe
         return World.GetGroundHeightAndNormal(gtaPos, out float height, out _)
             ? height
             : null;
+    }
+
+    public int CountNearbyCivilians(Vector3 position, float radius)
+    {
+        try
+        {
+            var peds = World.GetNearbyPeds(EntityFreezer.ToGta(position), radius, Array.Empty<Model>());
+            int playerHandle = Game.Player.Character.Handle;
+            int count = 0;
+            foreach (var ped in peds)
+            {
+                if (ped == null || !ped.Exists() || ped.Handle == playerHandle) continue;
+                count++;
+            }
+            return count;
+        }
+        catch
+        {
+            return 0;   // probing is flavor — never a crash vector
+        }
+    }
+
+    public void MakeNearbyCiviliansFlee(Vector3 position, float radius)
+    {
+        try
+        {
+            var peds = World.GetNearbyPeds(EntityFreezer.ToGta(position), radius, Array.Empty<Model>());
+            int playerHandle = Game.Player.Character.Handle;
+            foreach (var ped in peds)
+            {
+                if (ped == null || !ped.Exists() || ped.Handle == playerHandle) continue;
+                Function.Call(GTA.Native.Hash.TASK_SMART_FLEE_PED, ped, Game.Player.Character, 100f, -1, false, false);
+            }
+        }
+        catch
+        {
+            // crowd reactions are flavor — never a crash vector
+        }
     }
 }

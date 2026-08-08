@@ -16,7 +16,10 @@ public sealed record JusticeStats(
     int AgeDays,
     int Surgeries,
     bool ClinicReady,
-    bool HackReady);
+    bool HackReady,
+    int Fame,                                // S9
+    int Notoriety,
+    string PublicImage);
 
 /// <summary>Builds the stats view from the store (menu display — never mutates).</summary>
 public sealed class JusticeStatsService
@@ -26,14 +29,16 @@ public sealed class JusticeStatsService
     private readonly WarrantService _warrant;
     private readonly IGameClock _clock;
     private readonly JusticeConfig _config;
+    private readonly ReputationService? _reputation;
 
-    public JusticeStatsService(IRecordStore store, IdentityService identity, WarrantService warrant, IGameClock clock, JusticeConfig config)
+    public JusticeStatsService(IRecordStore store, IdentityService identity, WarrantService warrant, IGameClock clock, JusticeConfig config, ReputationService? reputation = null)
     {
         _store = store;
         _identity = identity;
         _warrant = warrant;
         _clock = clock;
         _config = config;
+        _reputation = reputation;
     }
 
     public JusticeStats GetStats()
@@ -60,6 +65,9 @@ public sealed class JusticeStatsService
             ClinicReady: status.LastSurgeryDay == 0
                 || status.LastSurgeryDay + _config.SurgeryCooldownDays <= _clock.CurrentGameDay,
             HackReady: status.LastHackDay == 0
-                || status.LastHackDay + _config.HackCooldownDays <= _clock.CurrentGameDay);
+                || status.LastHackDay + _config.HackCooldownDays <= _clock.CurrentGameDay,
+            Fame: status.Fame,
+            Notoriety: status.Notoriety,
+            PublicImage: _reputation?.PublicImage ?? "Unknown");
     }
 }

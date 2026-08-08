@@ -127,6 +127,10 @@ public sealed class FakeProbe : IWorldProbe
         => RaycastResult ?? new RaycastSample(origin, origin + direction * maxDistance, false, Vector3.Zero);
 
     public float? GetGroundHeight(Vector3 position) => GroundHeight;
+    public int NearbyCivilians { get; set; }
+    public int CountNearbyCivilians(Vector3 position, float radius) => NearbyCivilians;
+    public int FleeCalls { get; private set; }
+    public void MakeNearbyCiviliansFlee(Vector3 position, float radius) => FleeCalls++;
 }
 
 public sealed class FakeNotifier : INotifier

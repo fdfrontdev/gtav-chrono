@@ -558,6 +558,104 @@ public class JusticeServiceTests
         service.Tick();
         Assert.Equal(JusticeState.Free, service.State);          // court time elapsed
     }
+
+    // --- S9: warrant enforcement (civilians report a burned face) ---
+
+    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeProbe probe) BuildWithProbe(double? roll = null, bool burned = false)
+    {
+        var wanted = new FakeWantedMonitor();
+        var player = new FakePlayer { IsVisible = true };
+        var store = new FakeRecordStore();
+        if (burned)
+        {
+            store.Status.Identity = IdentityState.Burned;   // seed BEFORE ctor — services cache at construction
+            store.Status.WarrantActive = true;
+        }
+        var notifier = new FakeNotifier();
+        var clock = new FakeClock();
+        var probe = new FakeProbe { NearbyCivilians = 5 };
+        var config = new JusticeConfig { WarrantReportSeconds = 0 };   // no cooldown in tests
+        var identity = new IdentityService(store, new FakeLog());
+        var warrant = new WarrantService(store, new FakeLog());
+        var service = new JusticeService(
+            wanted, player, store, identity, warrant, notifier, new FakeLog(),
+            config, clock, null, null, null, null, probe,
+            roll.HasValue ? () => roll.Value : null);
+        return (service, wanted, player, store, notifier, probe);
+    }
+
+    [Fact]
+    public void WarrantReport_BurnedVisibleNearCivilians_StarsRise()
+    {
+        var (service, wanted, _, _, notifier, _) = BuildWithProbe(0.0, burned: true);   // always reports
+
+        service.Tick();
+        service.Tick();   // next tick: stars 0 → 1 edge (suppressed crime)
+
+        Assert.Equal(1, wanted.CurrentStars);
+        Assert.Contains(notifier.Messages, m => m.Contains("recognized you"));
+    }
+
+    [Fact]
+    public void WarrantReport_DoesNotRecordNewCrime()
+    {
+        var (service, wanted, _, store, _, _) = BuildWithProbe(0.0, burned: true);
+
+        service.Tick();   // report raises stars to 1
+        service.Tick();   // edge processed — must NOT create a crime event
+
+        Assert.Empty(store.Record.Events);
+    }
+
+    [Fact]
+    public void WarrantReport_NotWhenCleanIdentity()
+    {
+        var (service, wanted, _, _, notifier, _) = BuildWithProbe(0.0);   // identity stays Clean
+
+        service.Tick();
+        service.Tick();
+
+        Assert.Equal(0, wanted.CurrentStars);
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("recognized you"));
+    }
+
+    [Fact]
+    public void WarrantReport_NotWhenInvisible()
+    {
+        var (service, wanted, player, _, notifier, _) = BuildWithProbe(0.0, burned: true);
+        player.IsVisible = false;
+
+        service.Tick();
+        service.Tick();
+
+        Assert.Equal(0, wanted.CurrentStars);
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("recognized you"));
+    }
+
+    [Fact]
+    public void WarrantReport_NotWithoutCivilians()
+    {
+        var (service, wanted, _, _, notifier, probe) = BuildWithProbe(0.0, burned: true);
+        probe.NearbyCivilians = 0;
+
+        service.Tick();
+        service.Tick();
+
+        Assert.Equal(0, wanted.CurrentStars);
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("recognized you"));
+    }
+
+    [Fact]
+    public void WarrantReport_ChanceMiss_NoReport()
+    {
+        var (service, wanted, _, _, notifier, _) = BuildWithProbe(0.99);   // roll misses
+
+        service.Tick();
+        service.Tick();
+
+        Assert.Equal(0, wanted.CurrentStars);
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("recognized you"));
+    }
 }
 
 public class IdentityServiceTests

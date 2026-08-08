@@ -127,6 +127,16 @@ public static class ConfigValidator
             justice.TrialDelaySeconds = 45;
             warnings.Add("justice.trialDelaySeconds outside [5,600] — using 45");
         }
+        if (justice.WarrantReportSeconds < 1 || justice.WarrantReportSeconds > 120)
+        {
+            justice.WarrantReportSeconds = 10;
+            warnings.Add("justice.warrantReportSeconds outside [1,120] — using 10");
+        }
+        if (justice.WarrantReportChance <= 0 || justice.WarrantReportChance > 1)
+        {
+            justice.WarrantReportChance = 0.35;
+            warnings.Add("justice.warrantReportChance outside (0,1] — using 0.35");
+        }
     }
 
     private static void ValidateTeleport(TeleportConfig tp, List<string> warnings)
