@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 
 namespace Chrono.Domain;
@@ -25,5 +26,31 @@ public static class FlyMath
             horizontal = Vector3.Normalize(horizontal);
 
         return horizontal * speed + Vector3.UnitZ * (v * speed);
+    }
+
+    /// <summary>Exponential approach toward a target velocity (natural inertia, v0.8.0).
+    /// dt=0 returns the current velocity unchanged; higher accel = snappier.</summary>
+    public static Vector3 SmoothVelocity(Vector3 current, Vector3 target, float dtSeconds, float acceleration)
+    {
+        if (dtSeconds <= 0f || acceleration <= 0f) return current;
+        float t = 1f - (float)Math.Exp(-acceleration * dtSeconds);
+        return current + (target - current) * t;
+    }
+
+    /// <summary>Smooth heading rotation toward a target, taking the short way around
+    /// (350° → 10° goes through 0°, not 180°).</summary>
+    public static float SmoothHeading(float currentDeg, float targetDeg, float dtSeconds, float rate)
+    {
+        if (dtSeconds <= 0f || rate <= 0f) return currentDeg;
+        float delta = NormalizeAngle(targetDeg - currentDeg);
+        float t = 1f - (float)Math.Exp(-rate * dtSeconds);
+        return NormalizeAngle(currentDeg + delta * t);
+    }
+
+    private static float NormalizeAngle(float deg)
+    {
+        while (deg > 180f) deg -= 360f;
+        while (deg < -180f) deg += 360f;
+        return deg;
     }
 }

@@ -79,6 +79,20 @@ public sealed class VfxService
     public void CompleteGokuTransmission(Vector3 from, Vector3 to)
         => CompleteTransmission(GokuR, GokuG, GokuB, from, to);
 
+    /// <summary>Dash aim reticle (v0.8.0): draw a green cone at the blink destination.</summary>
+    public void DrawDashTarget(Vector3 pos)
+    {
+        if (!_visual.Dash.Enabled) return;
+        try
+        {
+            _vfx.DrawMarker(pos, 0.7f, 0, 255, 120, 220);
+        }
+        catch (Exception ex)
+        {
+            _log.Error("DrawDashTarget failed: " + ex.Message);
+        }
+    }
+
     private void BeginTransmission(int r, int g, int b)
     {
         if (_visual.Dash.Enabled)

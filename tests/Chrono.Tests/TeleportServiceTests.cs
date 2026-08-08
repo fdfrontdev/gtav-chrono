@@ -1,5 +1,6 @@
 using Chrono.Application;
 using Chrono.Domain;
+using System.Numerics;
 
 namespace Chrono.Tests;
 
@@ -76,7 +77,67 @@ public class TeleportServiceTests
         var result = service.TryDash();
 
         Assert.Equal(TeleportOutcome.Success, result.Outcome);
-        Assert.Single(player.TeleportCalls);
+        Assert.Equal(10f, result.Point!.Value.Z, 2);   // fallback = origin Z (no ground snap)
+    }
+
+    [Fact]
+    public void TryDash_AimHitOnRoof_LandsOnHitPoint()
+    {
+        // User report v0.8.0: "can't blink to the top of a building" — a roof hit
+        // must land ON the roof, NOT ground-snap down to street level.
+        var player = new FakePlayer { Position = new(0, 0, 0), IsAiming = true };
+        player.AimDirection = new Vector3(0, 1, 0.5f);   // looking up at a roof
+        var probe = new FakeProbe
+        {
+            RaycastResult = new RaycastSample(new(0, 0, 0), new(0, 30, 15), true, new(0, 30, 15))
+        };
+        var service = Create(player, probe, new FakeNotifier(), new FakeLog());
+
+        var result = service.TryDash();
+
+        Assert.Equal(TeleportOutcome.Success, result.Outcome);
+        Assert.True(result.Point!.Value.Z > 14.5f && result.Point!.Value.Z < 15.0f,
+            $"expected ~15 (roof, minus 0.27 pull-back), got {result.Point.Value.Z}");
+    }
+
+    [Fact]
+    public void TryDash_AimHitOnWall_PulledBackNotEmbedded()
+    {
+        var player = new FakePlayer { Position = new(0, 0, 0), IsAiming = true };
+        player.AimDirection = new Vector3(1, 0, 0);      // aiming east at a wall
+        var probe = new FakeProbe
+        {
+            RaycastResult = new RaycastSample(new(0, 0, 0), new(20, 0, 0), true, new(20, 0, 0))
+        };
+        var service = Create(player, probe, new FakeNotifier(), new FakeLog());
+
+        var result = service.TryDash();
+
+        Assert.Equal(TeleportOutcome.Success, result.Outcome);
+        Assert.Equal(19.4f, result.Point!.Value.X, 1);   // 20 - 0.6 pull-back
+    }
+
+    [Fact]
+    public void GetAimTarget_ReticleVisibleWhileAiming()
+    {
+        var player = new FakePlayer { Position = new(0, 0, 0), IsAiming = true };
+        player.AimDirection = new Vector3(0, 1, 0);
+        var probe = new FakeProbe();                      // no hit
+        var service = Create(player, probe, new FakeNotifier(), new FakeLog());
+
+        var target = service.GetAimTarget();
+
+        Assert.NotNull(target);
+        Assert.True(target!.Value.Y > 0f);
+    }
+
+    [Fact]
+    public void GetAimTarget_NullWhenNotAiming()
+    {
+        var player = new FakePlayer { Position = new(0, 0, 0), IsAiming = false };
+        var service = Create(player, new FakeProbe(), new FakeNotifier(), new FakeLog());
+
+        Assert.Null(service.GetAimTarget());
     }
 
     [Fact]

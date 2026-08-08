@@ -89,6 +89,10 @@ public sealed class PlayerContext : IPlayerContext
         ped.IsVisible = visible;
         if (visible) Function.Call(Hash.RESET_ENTITY_ALPHA, ped.Handle);
         else Function.Call(Hash.SET_ENTITY_ALPHA, ped.Handle, 0, false);
+
+        // NPCs cannot target/lock an invisible player without direct line of sight
+        // (v0.8.0 — stronger than alpha+ignore; SHVDN has no SET_PED_CAN_BE_TARGETED)
+        Function.Call(Hash.SET_PED_CAN_BE_TARGETED_WITHOUT_LOS, ped.Handle, visible);
     }
 
     // --- animation (v0.4.0) ---

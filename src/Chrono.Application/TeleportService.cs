@@ -16,6 +16,7 @@ public sealed class TeleportService
     private readonly ILogSink _log;
     private readonly DashConfig _dashConfig;
     private readonly TeleportConfig _teleportConfig;
+    private Vector3? _lastAimTarget;   // reticle cache (v0.8.0)
 
     public TeleportService(
         IPlayerContext player,
@@ -33,7 +34,7 @@ public sealed class TeleportService
         _teleportConfig = teleportConfig;
     }
 
-    /// <summary>Dash: aimed point (clamped to range) or forward-facing blink. Wall-safe.</summary>
+    /// <summary>Dash: aimed point (roof/wall-aware, v0.8.0) or forward-facing blink. Wall-safe.</summary>
     public TeleportResult TryDash()
     {
         Vector3 origin = _player.Position;
@@ -42,6 +43,31 @@ public sealed class TeleportService
         if (_player.IsAiming)
         {
             var camDir = GetAimDirection();
+
+            // Aim raycast FIRST: if the crosshair hits a roof or wall within range,
+            // blink TO the hit point (pulled back 0.6 m so we don't embed in it) —
+            // this is what enables blinking onto building rooftops (user report
+            // v0.8.0: "can't blink to the top of a building").
+            var aimRay = _probe.Raycast(origin, Vector3.Normalize(camDir), _dashConfig.MaxRange);
+            if (aimRay.Hit && Vector3.Distance(origin, aimRay.HitPosition) >= 2.0f)
+            {
+                var back = Vector3.Normalize(camDir) * 0.6f;
+                var hitLanding = aimRay.HitPosition - back;
+                _lastAimTarget = hitLanding;
+
+                if (!TeleportMath.IsInsideWorldBounds(hitLanding))
+                {
+                    _log.Info("Dash blocked — outside world bounds");
+                    _notifier.Show(UiStrings.MapEdge);
+                    return TeleportResult.NoClearPath();
+                }
+
+                ExecuteTeleport(hitLanding);
+                _notifier.Show(UiStrings.DashSuccess);
+                return TeleportResult.Success(hitLanding);
+            }
+
+            // Nothing hit: clamp to max range along the aim, ground-snap below.
             var clamped = TeleportMath.ClampToRange(origin, origin + camDir * _dashConfig.MaxRange, 5.0f, _dashConfig.MaxRange);
             if (clamped == null) return TeleportResult.NoClearPath();
             target = clamped.Value;
@@ -74,9 +100,22 @@ public sealed class TeleportService
             return TeleportResult.NoClearPath();
         }
 
+        _lastAimTarget = null;
         ExecuteTeleport(landing);
         _notifier.Show(UiStrings.DashSuccess);
         return TeleportResult.Success(landing);
+    }
+
+    /// <summary>Last computed aim-blink landing point (for the targeting reticle); null when not aiming.</summary>
+    public Vector3? GetAimTarget()
+    {
+        if (!_player.IsAiming) return null;
+        if (_lastAimTarget.HasValue) return _lastAimTarget.Value;
+
+        // No cached raycast this tick — compute the no-hit fallback landing for display
+        var camDir = GetAimDirection();
+        var clamped = TeleportMath.ClampToRange(_player.Position, _player.Position + camDir * _dashConfig.MaxRange, 5.0f, _dashConfig.MaxRange);
+        return clamped;
     }
 
     /// <summary>Map teleport: waypoint required; ground-snapped landing.</summary>

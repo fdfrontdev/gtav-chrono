@@ -41,6 +41,9 @@ public sealed class InvisibleConfig
 public sealed class FlyConfig
 {
     public float Speed { get; set; } = 25.0f;
+
+    /// <summary>Velocity/heading smoothing rate (v0.8.0 natural flight feel). Higher = snappier.</summary>
+    public float Acceleration { get; set; } = 6.0f;
 }
 
 public sealed class NpcConfig
