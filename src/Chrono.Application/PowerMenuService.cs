@@ -25,12 +25,15 @@ public sealed class PowerMenuService
     private readonly InvisibilityService _invisible;
     private readonly FlyService _fly;
     private readonly NpcReactionService _npcReaction;
+    private readonly PoliceDbHackService? _hack;
 
     private MenuScreen? _rootScreen;
     private MenuItem? _timeStopItem;
     private MenuItem? _godModeItem;
     private MenuItem? _invisibleItem;
     private MenuItem? _flyItem;
+    private MenuItem? _hackItem;
+    private MenuScreen? _justiceScreen;
 
     public PowerMenuService(
         MenuFramework menu,
@@ -46,7 +49,8 @@ public sealed class PowerMenuService
         GodModeService? godMode = null,
         InvisibilityService? invisible = null,
         FlyService? fly = null,
-        NpcReactionService? npcReaction = null)
+        NpcReactionService? npcReaction = null,
+        PoliceDbHackService? hack = null)
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -62,6 +66,7 @@ public sealed class PowerMenuService
         _invisible = invisible ?? new InvisibilityService(player, log);
         _fly = fly ?? new FlyService(player, input, log, config.Fly);
         _npcReaction = npcReaction ?? new NpcReactionService(player, log, config.Npc);
+        _hack = hack;
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -100,12 +105,40 @@ public sealed class PowerMenuService
                 _godModeItem,
                 _invisibleItem,
                 _flyItem,
+                new MenuItem { Title = UiStrings.ItemJustice, Submenu = BuildJusticeScreen() },
                 new MenuItem { Title = UiStrings.ItemSettings, Submenu = settings }
             }
         };
 
         RefreshPowerLabels();
         RefreshTimeStopLabel();
+    }
+
+    private MenuScreen BuildJusticeScreen()
+    {
+        _hackItem = new MenuItem
+        {
+            Title = UiStrings.ItemHackPoliceDb,
+            OnActivate = ExecuteHack
+        };
+        _justiceScreen = new MenuScreen
+        {
+            Title = UiStrings.ItemJustice,
+            Items = _hack != null
+                ? new[] { _hackItem }
+                : Array.Empty<MenuItem>()
+        };
+        return _justiceScreen;
+    }
+
+    private void ExecuteHack()
+    {
+        if (_hack == null)
+        {
+            _notifier.Show("No police DB access");
+            return;
+        }
+        _hack.TryHack();
     }
 
     public void ToggleMenu()

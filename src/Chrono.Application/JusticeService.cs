@@ -357,6 +357,14 @@ public sealed class JusticeService
         }
     }
 
+    /// <summary>Purge the record in place (police-DB hack, FR-6.1) — cached copy stays valid.</summary>
+    public void PurgeRecord()
+    {
+        _record.Purge();
+        _store.SaveAtomic(_record);
+        _log.Info("Criminal record purged");
+    }
+
     /// <summary>Release: aging (FR-7.2), warrant cleared (justice served, FR-8.4).</summary>
     public void OnReleased()
     {

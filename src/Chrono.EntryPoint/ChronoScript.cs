@@ -58,21 +58,26 @@ public class ChronoScript : Script
             var teleport = new TeleportService(player, probe, notifier, _log, config.Dash, config.Teleport);
             var vfxService = new VfxService(vfx, _log, config.Visual);
             var menuFramework = new MenuFramework(renderer);
-            _menu = new PowerMenuService(
-                menuFramework, _timeStop, teleport, vfxService,
-                input, player, notifier, _log, config, store);
-            _menu.BuildMenu();
 
-            // Justice layer (v0.9.0) — S1 core + S2 media + S5 clinic
+            // Justice layer (v0.9.0) — S1 core + S2 media + S5 clinic + S6 hack
             var recordStore = new JsonRecordStore(BaseDirectory, _log);
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
             var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice);
+            var wantedMonitor = new WantedMonitor();
             _justice = new JusticeService(
-                new WantedMonitor(), player, recordStore,
+                wantedMonitor, player, recordStore,
                 identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input);
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
+            var hack = new PoliceDbHackService(
+                wantedMonitor, recordStore, identity, warrant, _justice,
+                notifier, _log, config.Justice, clock, vfxService);
+
+            _menu = new PowerMenuService(
+                menuFramework, _timeStop, teleport, vfxService,
+                input, player, notifier, _log, config, store, hack: hack);
+            _menu.BuildMenu();
             CreateClinicBlip();
 
             Tick += OnTick;
