@@ -39,6 +39,11 @@ public sealed class JusticeService
     private readonly MediaService? _media;
     private readonly VfxService? _vfx;
     private readonly IGameInput? _input;
+    private readonly ReputationService? _reputation;
+    private readonly IWorldProbe? _probe;
+    private readonly Func<double> _random;
+    private readonly Stopwatch _reportClock = Stopwatch.StartNew();
+    private bool _suppressCrimeEdge;      // warrant reports raise stars WITHOUT a crime
     private readonly CriminalRecord _record;
     private readonly Stopwatch _prisonRealClock = Stopwatch.StartNew();
     private readonly PrisonCalendar _prisonCalendar;
@@ -70,7 +75,10 @@ public sealed class JusticeService
         IGameClock clock,
         MediaService? media = null,
         VfxService? vfx = null,
-        IGameInput? input = null)
+        IGameInput? input = null,
+        ReputationService? reputation = null,
+        IWorldProbe? probe = null,
+        Func<double>? random = null)
     {
         _wanted = wanted;
         _player = player;
@@ -85,6 +93,9 @@ public sealed class JusticeService
         _media = media;
         _vfx = vfx;
         _input = input;
+        _reputation = reputation;
+        _probe = probe;
+        _random = random ?? (() => new Random().NextDouble());
         _prisonCalendar = new PrisonCalendar(config.PrisonDayRealSeconds);
         _lastStars = wanted.CurrentStars;
     }
@@ -119,7 +130,10 @@ public sealed class JusticeService
         _wasDead = dead;
 
         if (stars > _lastStars && _config.RecordFromWanted)
-            OnStarsIncreased(stars);   // ONE event per episode, at the new max star level
+        {
+            if (_suppressCrimeEdge) _suppressCrimeEdge = false;   // warrant report, not a crime
+            else OnStarsIncreased(stars);   // ONE event per episode, at the new max star level
+        }
 
         _lastStars = stars;
 
@@ -144,6 +158,29 @@ public sealed class JusticeService
             PrisonTick();
 
         UpdateManhunt();
+        UpdateWarrantReports();
+        _reputation?.Tick();
+    }
+
+    /// <summary>Warrant enforcement (S9): burned + visible + near civilians → they
+    /// call the police. Stars rise WITHOUT recording a new crime (the warrant IS
+    /// the crime). Fame lowers the chance; notoriety raises it.</summary>
+    private void UpdateWarrantReports()
+    {
+        if (!_config.WarrantReportEnabled) return;
+        if (State != JusticeState.Free || !_warrant.IsActive || !_identity.IsBurned) return;
+        if (!_player.IsVisible || _player.IsDead) return;             // unseen = unreported
+        if (_probe == null || _probe.CountNearbyCivilians(_player.Position, 30f) == 0) return;
+        if (_reportClock.ElapsedMilliseconds < _config.WarrantReportSeconds * 1000) return;
+        _reportClock.Restart();
+
+        double chance = _config.WarrantReportChance * (_reputation?.ReportChanceModifier ?? 1.0);
+        if (_random() >= chance) return;
+
+        _suppressCrimeEdge = true;
+        _wanted.SetStars(Math.Max(1, _wanted.CurrentStars));
+        _notifier.Show("A civilian recognized you — police called!");
+        _log.Info("Warrant report: civilian tipped the police");
     }
 
     /// <summary>Death while wanted → you wake up in POLICE CUSTODY (S7). GTA's $5k
@@ -166,6 +203,7 @@ public sealed class JusticeService
     {
         var severity = SeverityFromStars(stars);
         _episodeSeverity ??= severity;   // sentence uses the ORIGINAL offense of the episode
+        _reputation?.OnCrime(severity);  // S9: crimes build notoriety
         bool burned = _player.IsVisible;   // face seen? (invisible → no burn, FR-2.4)
         var evt = new CrimeEvent(
             Guid.NewGuid().ToString("N"),
@@ -225,6 +263,7 @@ public sealed class JusticeService
         _record.AddConviction(new Conviction(fine, sentence.PrisonDays,
             DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss")));
         _store.SaveAtomic(_record);
+        _reputation?.OnConviction();   // S9: debt paid
 
         _vfx?.ScreenFadeOut(300);
         _vfx?.ScreenFlash(300);
@@ -377,6 +416,7 @@ public sealed class JusticeService
         _manhuntUntilDay = _clock.CurrentGameDay + 1;
         _wanted.SetStars(ManhuntStars);
         _media?.ReportEscape("Bolingbroke");
+        _reputation?.OnEscape();                     // S9
 
         State = JusticeState.Free;
         _arrested = false;
@@ -431,6 +471,7 @@ public sealed class JusticeService
         _arrested = false;
         _sentenceDays = 0;
         _servedDays = 0;
+        _reputation?.OnRelease();   // S9: rehabilitation builds fame
         _warrant.Clear();   // justice served
         _player.Teleport(PrisonGate);
         _vfx?.ScreenFadeIn(300);

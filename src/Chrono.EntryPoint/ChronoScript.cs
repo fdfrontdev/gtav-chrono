@@ -18,6 +18,7 @@ public class ChronoScript : Script
     private PowerMenuService? _menu;
     private JusticeService? _justice;
     private ClinicService? _clinic;
+    private CrowdReactionService? _crowd;
     private PhoneNewsService? _phoneNews;
     private TimeStopService? _timeStop;
     private ChronoLogger? _log;
@@ -60,21 +61,24 @@ public class ChronoScript : Script
             var vfxService = new VfxService(vfx, _log, config.Visual);
             var menuFramework = new MenuFramework(renderer);
 
-            // Justice layer (v0.9.0) — S1 core + S2 media + S5 clinic + S6 hack
+            // Justice layer (v0.9.0) — S1..S8 + S9 reputation
             var recordStore = new JsonRecordStore(BaseDirectory, _log);
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
             var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice);
+            var reputation = new ReputationService(recordStore, clock, media, config.Justice);
             var wantedMonitor = new WantedMonitor();
             _justice = new JusticeService(
                 wantedMonitor, player, recordStore,
-                identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input);
+                identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input,
+                reputation, probe);
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(
                 wantedMonitor, recordStore, identity, warrant, _justice,
-                notifier, _log, config.Justice, clock, vfxService);
-            var stats = new JusticeStatsService(recordStore, identity, warrant, clock, config.Justice);
+                notifier, _log, config.Justice, clock, vfxService, reputation, media);
+            var stats = new JusticeStatsService(recordStore, identity, warrant, clock, config.Justice, reputation);
+            _crowd = new CrowdReactionService(player, probe, identity, reputation, notifier, _log);
 
             _menu = new PowerMenuService(
                 menuFramework, _timeStop, teleport, vfxService,
@@ -112,6 +116,7 @@ public class ChronoScript : Script
             _menu?.Tick(_clock.ElapsedMilliseconds);
             _justice?.Tick();
             _clinic?.Tick();
+            _crowd?.Tick(_clock.ElapsedMilliseconds);
             _phoneNews?.Tick();
         }
         catch (Exception ex)

@@ -88,7 +88,17 @@ public sealed class GameInput : IGameInput
     public bool IsFlyDescend => Game.IsControlPressed(GTA.Control.Duck);
 
     private static Keys ParseKey(string name, Keys fallback)
-        => Enum.TryParse(name, true, out Keys key) ? key : fallback;
+        => ParseKeyName(name) ?? fallback;
+
+    /// <summary>Map a key name to Keys, handling digits ("0"–"9" → D0–D9 — plain
+    /// digits do NOT exist in the Keys enum, which silently broke 'Shift+0').</summary>
+    private static Keys? ParseKeyName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return null;
+        if (name.Length == 1 && name[0] >= '0' && name[0] <= '9')
+            return Keys.D0 + (name[0] - '0');
+        return Enum.TryParse(name, true, out Keys key) && key != Keys.None ? key : null;
+    }
 
     /// <summary>Parse "Shift+0" style combos — the only supported modifier is Shift.</summary>
     private static (Keys key, bool shift) ParseComboKey(string name, Keys fallback)
@@ -100,18 +110,14 @@ public sealed class GameInput : IGameInput
         int plus = trimmed.IndexOf('+');
         if (plus > 0 && trimmed.Substring(0, plus).Trim().Equals("Shift", StringComparison.OrdinalIgnoreCase))
         {
-            string rest = trimmed.Substring(plus + 1).Trim();
-            return Enum.TryParse(rest, true, out Keys key) && key != Keys.None
-                ? (key, true)
-                : (fallback, false);
+            var combo = ParseKeyName(trimmed.Substring(plus + 1).Trim());
+            return combo.HasValue ? (combo.Value, true) : (fallback, false);
         }
 
-        return Enum.TryParse(trimmed, true, out Keys plain) ? (plain, false) : (fallback, false);
+        var plain = ParseKeyName(trimmed);
+        return plain.HasValue ? (plain.Value, false) : (fallback, false);
     }
 
     private static Keys? ParseOptionalKey(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return null;
-        return Enum.TryParse(name, true, out Keys key) && key != Keys.None ? key : null;
-    }
+        => ParseKeyName(name);
 }

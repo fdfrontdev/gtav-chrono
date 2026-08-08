@@ -18,4 +18,9 @@ public sealed class JusticeStatus
 
     /// <summary>Game-day of the last police-DB hack (cooldown, FR-6.4); 0 = never.</summary>
     public int LastHackDay { get; set; }
+
+    /// <summary>Reputation (S9): crimes/escapes/hacks build Notoriety; clean days,
+    /// fines and rehabilitation build Fame. Persisted so the street never forgets.</summary>
+    public int Notoriety { get; set; }
+    public int Fame { get; set; }
 }

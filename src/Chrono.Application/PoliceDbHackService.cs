@@ -21,6 +21,8 @@ public sealed class PoliceDbHackService
     private readonly JusticeConfig _config;
     private readonly IGameClock _clock;
     private readonly VfxService? _vfx;
+    private readonly ReputationService? _reputation;
+    private readonly MediaService? _media;
 
     public PoliceDbHackService(
         IWantedMonitor wanted,
@@ -32,7 +34,9 @@ public sealed class PoliceDbHackService
         ILogSink log,
         JusticeConfig config,
         IGameClock clock,
-        VfxService? vfx = null)
+        VfxService? vfx = null,
+        ReputationService? reputation = null,
+        MediaService? media = null)
     {
         _wanted = wanted;
         _store = store;
@@ -44,6 +48,8 @@ public sealed class PoliceDbHackService
         _config = config;
         _clock = clock;
         _vfx = vfx;
+        _reputation = reputation;
+        _media = media;
     }
 
     /// <summary>Attempt the hack. Returns true when the record was purged.</summary>
@@ -69,6 +75,12 @@ public sealed class PoliceDbHackService
         _store.SaveStatusAtomic(status);
         _identity.SetClean();                          // no face on file
         _warrant.Clear();                              // nothing to warrant
+        _reputation?.OnHack();                         // S9: ghost-hacker notoriety
+        if (_media != null)
+        {
+            _media.News("POLICE DATABASE BREACHED — investigators baffled");
+            _media.Viral("WEBNET: police records erased overnight — who is the ghost?");
+        }
 
         _vfx?.ScreenFlash(200);
         _notifier.Show("POLICE DB PURGED — you don't exist anymore");

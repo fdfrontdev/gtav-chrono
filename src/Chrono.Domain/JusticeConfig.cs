@@ -21,6 +21,12 @@ public sealed class JusticeConfig
 
     /// <summary>World interaction key (clinic door, FR-5.2).</summary>
     public string InteractKey { get; set; } = "G";
+
+    /// <summary>Warrant enforcement (S9): burned + visible + near civilians can tip
+    /// the police (stars rise WITHOUT a new crime — the warrant IS the crime).</summary>
+    public bool WarrantReportEnabled { get; set; } = true;
+    public double WarrantReportSeconds { get; set; } = 10;
+    public double WarrantReportChance { get; set; } = 0.35;
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
 }

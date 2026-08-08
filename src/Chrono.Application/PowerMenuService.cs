@@ -159,6 +159,7 @@ public sealed class PowerMenuService
         var stats = _stats.GetStats();
         var items = new List<MenuItem>
         {
+            new() { Title = $"Public image: {stats.PublicImage} (N{stats.Notoriety} · F{stats.Fame})" },
             new() { Title = $"Identity: {(stats.Identity == IdentityState.Burned ? "BURNED — face on file" : "Clean")}" },
             new() { Title = $"Warrant: {(stats.WarrantActive ? "ACTIVE — stay out of sight" : "None")}" },
             new() { Title = $"Record: {stats.Crimes.Count + (stats.Crimes.Count == 20 ? "+" : "")} crimes · {stats.ConvictionCount} convictions" },
