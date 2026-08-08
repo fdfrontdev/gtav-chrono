@@ -12,4 +12,7 @@ public sealed class JusticeStatus
     public IdentityState Identity { get; set; } = IdentityState.Clean;
     public bool WarrantActive { get; set; }
     public string? WarrantSinceGameTime { get; set; }
+
+    /// <summary>Game-day of the last plastic surgery (clinic cooldown, FR-5.5); 0 = never.</summary>
+    public int LastSurgeryDay { get; set; }
 }

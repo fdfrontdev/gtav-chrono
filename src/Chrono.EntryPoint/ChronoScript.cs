@@ -17,6 +17,7 @@ public class ChronoScript : Script
 {
     private PowerMenuService? _menu;
     private JusticeService? _justice;
+    private ClinicService? _clinic;
     private TimeStopService? _timeStop;
     private ChronoLogger? _log;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -48,7 +49,7 @@ public class ChronoScript : Script
             IPlayerContext player = new PlayerContext();
             IWorldProbe probe = new WorldProbe();
             INotifier notifier = new Notifier();
-            IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey);
+            IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey, config.Justice.InteractKey);
             IVfxBoundary vfx = new VfxBoundary();
             IMenuRenderer renderer = new NativeMenuRenderer();
 
@@ -62,7 +63,7 @@ public class ChronoScript : Script
                 input, player, notifier, _log, config, store);
             _menu.BuildMenu();
 
-            // Justice layer (v0.9.0) — S1 core + S2 media
+            // Justice layer (v0.9.0) — S1 core + S2 media + S5 clinic
             var recordStore = new JsonRecordStore(BaseDirectory, _log);
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
@@ -70,6 +71,9 @@ public class ChronoScript : Script
             _justice = new JusticeService(
                 new WantedMonitor(), player, recordStore,
                 identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input);
+            _clinic = new ClinicService(
+                player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
+            CreateClinicBlip();
 
             Tick += OnTick;
             _log.Info($"Chrono initialized — menu key {config.MenuKey}");
@@ -95,11 +99,27 @@ public class ChronoScript : Script
         {
             _menu?.Tick(_clock.ElapsedMilliseconds);
             _justice?.Tick();
+            _clinic?.Tick();
         }
         catch (Exception ex)
         {
             _log?.Error($"Tick error: {ex}");
             GTA.UI.Notification.PostTicker(UiStrings.BugError, false, false);
+        }
+    }
+
+    private static void CreateClinicBlip()
+    {
+        try
+        {
+            var door = ClinicService.ClinicDoor;
+            var blip = World.CreateBlip(new GTA.Math.Vector3(door.X, door.Y, door.Z), 1f);
+            blip.Color = GTA.BlipColor.Pink;   // clinic pink
+            blip.Name = "Chrono Clinic";
+        }
+        catch
+        {
+            // blip is flavor — never a crash vector
         }
     }
 }

@@ -177,10 +177,11 @@ public sealed class FakeInput : IGameInput
     public bool IsMenuCancelJustPressed => MenuCancel;
     public bool IsDashHotkeyPressed => DashHotkey;
 
-    // --- hotkey edges (Z = time stop, B = invisible) ---
+    // --- hotkey edges (Z = time stop, B = invisible, G = interact) ---
     public bool TimeStopHotkey { get; set; }
     public bool InvisibleHotkey { get; set; }
-    private bool _tsWasPressed, _invWasPressed;
+    public bool InteractHotkey { get; set; }
+    private bool _tsWasPressed, _invWasPressed, _interactWasPressed;
 
     public void UpdateHotkeys()
     {
@@ -188,10 +189,13 @@ public sealed class FakeInput : IGameInput
         _tsWasPressed = TimeStopHotkey;
         IsInvisibleHotkeyJustPressed = InvisibleHotkey && !_invWasPressed;
         _invWasPressed = InvisibleHotkey;
+        IsInteractKeyJustPressed = InteractHotkey && !_interactWasPressed;
+        _interactWasPressed = InteractHotkey;
     }
 
     public bool IsTimeStopHotkeyJustPressed { get; private set; }
     public bool IsInvisibleHotkeyJustPressed { get; private set; }
+    public bool IsInteractKeyJustPressed { get; private set; }
 
     // --- flight controls ---
     public bool FlyForward { get; set; }

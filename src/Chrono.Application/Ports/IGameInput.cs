@@ -14,6 +14,7 @@ public interface IGameInput
     bool IsDashHotkeyPressed { get; }    // optional dash hotkey ("" = disabled)
     bool IsTimeStopHotkeyJustPressed { get; }   // Z — edge
     bool IsInvisibleHotkeyJustPressed { get; }  // B — edge
+    bool IsInteractKeyJustPressed { get; }      // G — world interaction (clinic, S5) — edge
 
     // --- flight controls (held, camera-relative) ---
     bool IsFlyForward { get; }

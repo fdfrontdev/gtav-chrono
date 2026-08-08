@@ -14,6 +14,9 @@ public sealed class JusticeConfig
 
     /// <summary>Yard-time window per in-game day (escape window, FR-10.1). Must be &lt; PrisonDayRealSeconds.</summary>
     public double PrisonYardSeconds { get; set; } = 10;
+
+    /// <summary>World interaction key (clinic door, FR-5.2).</summary>
+    public string InteractKey { get; set; } = "G";
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
 }

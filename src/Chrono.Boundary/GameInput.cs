@@ -16,17 +16,20 @@ public sealed class GameInput : IGameInput
     private readonly Keys? _dashKey;
     private readonly Keys? _timeStopKey;
     private readonly Keys? _invisibleKey;
+    private readonly Keys? _interactKey;
 
     private bool _menuKeyDown, _menuKeyWasDown;
     private bool _timeStopDown, _timeStopWasDown;
     private bool _invisibleDown, _invisibleWasDown;
+    private bool _interactDown, _interactWasDown;
 
-    public GameInput(string menuKeyName, string dashHotkeyName, string timeStopHotkeyName, string invisibleHotkeyName)
+    public GameInput(string menuKeyName, string dashHotkeyName, string timeStopHotkeyName, string invisibleHotkeyName, string? interactKeyName = null)
     {
         _menuKey = ParseKey(menuKeyName, Keys.F9);
         _dashKey = ParseOptionalKey(dashHotkeyName);
         _timeStopKey = ParseOptionalKey(timeStopHotkeyName);
         _invisibleKey = ParseOptionalKey(invisibleHotkeyName);
+        _interactKey = ParseOptionalKey(interactKeyName ?? "");
     }
 
     public void Update()
@@ -45,6 +48,12 @@ public sealed class GameInput : IGameInput
             _invisibleWasDown = _invisibleDown;
             _invisibleDown = Game.IsKeyPressed(_invisibleKey.Value);
         }
+
+        if (_interactKey.HasValue)
+        {
+            _interactWasDown = _interactDown;
+            _interactDown = Game.IsKeyPressed(_interactKey.Value);
+        }
     }
 
     public bool IsMenuKeyPressed => _menuKeyDown;
@@ -56,6 +65,7 @@ public sealed class GameInput : IGameInput
     public bool IsDashHotkeyPressed => _dashKey.HasValue && Game.IsKeyPressed(_dashKey.Value);
     public bool IsTimeStopHotkeyJustPressed => _timeStopKey.HasValue && _timeStopDown && !_timeStopWasDown;
     public bool IsInvisibleHotkeyJustPressed => _invisibleKey.HasValue && _invisibleDown && !_invisibleWasDown;
+    public bool IsInteractKeyJustPressed => _interactKey.HasValue && _interactDown && !_interactWasDown;
 
     // --- flight controls (camera-relative movement, controller-friendly) ---
     public bool IsFlyForward => Game.IsControlPressed(GTA.Control.MoveUpOnly);
