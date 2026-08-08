@@ -41,9 +41,11 @@ public sealed class JusticeService
     private readonly IGameInput? _input;
     private readonly ReputationService? _reputation;
     private readonly IWorldProbe? _probe;
+    private readonly JusticeCutsceneService? _cutscene;
     private readonly Func<double> _random;
     private readonly Stopwatch _reportClock = Stopwatch.StartNew();
     private bool _suppressCrimeEdge;      // warrant reports raise stars WITHOUT a crime
+    private bool _wasPrisonTerm;          // release teleports only for real prison terms
     private readonly CriminalRecord _record;
     private readonly Stopwatch _prisonRealClock = Stopwatch.StartNew();
     private readonly PrisonCalendar _prisonCalendar;
@@ -78,7 +80,8 @@ public sealed class JusticeService
         IGameInput? input = null,
         ReputationService? reputation = null,
         IWorldProbe? probe = null,
-        Func<double>? random = null)
+        Func<double>? random = null,
+        JusticeCutsceneService? cutscene = null)
     {
         _wanted = wanted;
         _player = player;
@@ -96,6 +99,7 @@ public sealed class JusticeService
         _reputation = reputation;
         _probe = probe;
         _random = random ?? (() => new Random().NextDouble());
+        _cutscene = cutscene;
         _prisonCalendar = new PrisonCalendar(config.PrisonDayRealSeconds);
         _lastStars = wanted.CurrentStars;
     }
@@ -147,7 +151,10 @@ public sealed class JusticeService
             OnChaseEscaped();
         }
 
-        if (stars == 0) _episodeSeverity = null;   // episode over — next chase re-seeds
+        // Keep the episode severity through custody — the verdict sentences the
+        // ORIGINAL offense (S11: stars are cleared at capture, so the episode must
+        // survive until the court session; it clears on release)
+        if (stars == 0 && !_arrested) _episodeSeverity = null;
 
         if (State == JusticeState.Free && stars > 0) State = JusticeState.Wanted;
         else if (State == JusticeState.Wanted && stars == 0) State = JusticeState.Free;
@@ -156,7 +163,7 @@ public sealed class JusticeService
         if (State == JusticeState.Wanted && stars >= ArrestStars && !_arrested)
             OnCaptured();
 
-        if (State == JusticeState.Captured)
+        if (State == JusticeState.Captured && (_cutscene == null || !_cutscene.IsActive))
         {
             _trialElapsedMs += _trialClock.Elapsed.TotalMilliseconds;
             _trialClock.Restart();
@@ -214,7 +221,9 @@ public sealed class JusticeService
         _arrested = true;
         _trialElapsedMs = 0;
         _trialClock.Restart();
+        _wanted.SetStars(0);              // custody — no wanted chase (S11)
         _notifier.Show("You wake up in POLICE CUSTODY — the court date is set");
+        _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
         _log.Info("Death-capture: custody started, hospital fee refunded");
     }
 
@@ -257,9 +266,11 @@ public sealed class JusticeService
         State = JusticeState.Captured;
         _trialElapsedMs = 0;
         _trialClock.Restart();
+        _wanted.SetStars(0);              // handcuffed — the chase is OVER (S11: no re-arrest loop)
         _vfx?.ScreenFadeOut(300);
         _vfx?.ScreenFlash(300);
         _notifier.Show("ARRESTED — the court date is set");
+        _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
         _log.Info("Captured at 4★+ — custody started");
     }
 
@@ -274,6 +285,23 @@ public sealed class JusticeService
             ?? (_record.Events.Count > 0 ? _record.Events[_record.Events.Count - 1].Severity : CrimeSeverity.Minor);
         var sentence = SentencingPolicy.SentenceWith(severity, _record.ConvictionCount);
 
+        // Court cinematic first (S11): the sentence applies when the gavel falls
+        if (_cutscene != null)
+        {
+            string charge = severity.ToString();
+            string verdict = $"THE VERDICT: GUILTY — ${sentence.Fine} fine · {sentence.PrisonDays} days";
+            _cutscene.Play(CutsceneKind.Trial, () => ApplySentence(sentence), charge, verdict);
+        }
+        else
+        {
+            ApplySentence(sentence);
+        }
+
+        _log.Info($"Verdict: fine ${sentence.Fine}, prison {sentence.PrisonDays}d (convictions={_record.ConvictionCount})");
+    }
+
+    private void ApplySentence(Sentence sentence)
+    {
         // Fine: seize cash (assets confiscated if short — never go negative)
         int money = _player.GetMoney();
         int fine = Math.Min(sentence.Fine, money);
@@ -292,16 +320,19 @@ public sealed class JusticeService
             _sentenceDays = sentence.PrisonDays;
             _servedDays = 0;
             State = JusticeState.Prison;
+            _wasPrisonTerm = true;
             _notifier.Show($"SENTENCED: ${fine} fine + {sentence.PrisonDays} days");
-            BeginConfinement();
+            if (_cutscene != null)
+                _cutscene.Play(CutsceneKind.Intake, BeginConfinement);   // intake cinematic (S11)
+            else
+                BeginConfinement();
         }
         else
         {
+            _wasPrisonTerm = false;
             _notifier.Show($"SENTENCED: ${fine} fine — released");
             OnReleased();
         }
-
-        _log.Info($"Verdict: fine ${fine}, prison {sentence.PrisonDays}d (convictions={_record.ConvictionCount})");
     }
 
     // --- S4: confinement with phases, animations, escape (FR-9/FR-10) ---
@@ -492,7 +523,20 @@ public sealed class JusticeService
         _servedDays = 0;
         _reputation?.OnRelease();   // S9: rehabilitation builds fame
         _warrant.Clear();   // justice served
-        _player.Teleport(PrisonGate);
+
+        // S11: only REAL prison terms end at the prison gate — a fine-only release
+        // is in place (no jarring teleport to Bolingbroke for a downtown fine)
+        if (_wasPrisonTerm)
+        {
+            _player.Teleport(PrisonGate);
+            if (_cutscene != null)
+                _cutscene.Play(CutsceneKind.Release);   // release cinematic (S11)
+        }
+        else if (_cutscene != null)
+        {
+            _cutscene.Play(CutsceneKind.Release);
+        }
+
         _vfx?.ScreenFadeIn(300);
         _notifier.Show("RELEASED — justice served");
         _log.Info("Released from prison");

@@ -133,6 +133,21 @@ public sealed class FakeProbe : IWorldProbe
     public void MakeNearbyCiviliansFlee(Vector3 position, float radius) => FleeCalls++;
 }
 
+public sealed class FakeCutsceneRenderer : ICutsceneRenderer
+{
+    public int BeginCount { get; private set; }
+    public int EndCount { get; private set; }
+    public List<string> Banners { get; } = new();
+    public List<string> Anims { get; } = new();
+    public List<string> Cameras { get; } = new();
+
+    public void Begin() => BeginCount++;
+    public void End() => EndCount++;
+    public void SetCamera(Vector3 position, Vector3 lookAt, float fov) => Cameras.Add($"{position.X:F0},{position.Y:F0},{position.Z:F0}→{fov:F0}");
+    public void ShowBanner(string text) => Banners.Add(text);
+    public void PlayAnim(string dict, string anim, bool loop) => Anims.Add($"{dict}/{anim}");
+}
+
 public sealed class FakeNotifier : INotifier
 {
     public List<string> Messages { get; } = new();
