@@ -55,7 +55,8 @@ public class ChronoScript : Script
             IWorldProbe probe = new WorldProbe();
             _crimeProbe = new CrimeProbe();            // S20: act sampling + hold-fire
             ICrimeProbe crimeProbe = _crimeProbe;
-            INotifier notifier = new Notifier();
+            var hudFeed = new HudFeedBuffer();         // S21 v2: shared widget feed (notifier + WEBNET)
+            INotifier notifier = new Notifier(hudFeed);
             IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey, config.Justice.InteractKey);
             IVfxBoundary vfx = new VfxBoundary();
             IMenuRenderer renderer = new MaterialMenuRenderer();   // S21: Vuetify-style (was ModernMenuRenderer)
@@ -71,7 +72,7 @@ public class ChronoScript : Script
             var recordStore = new JsonRecordStore(BaseDirectory, _log);
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
-            var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice);
+            var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice, hudFeed);
             var reputation = new ReputationService(recordStore, clock, media, config.Justice);
             var wantedMonitor = new WantedMonitor();
             var cutscene = new JusticeCutsceneService(new CutsceneRenderer(), player, _log);
@@ -83,7 +84,7 @@ public class ChronoScript : Script
                 reputation, probe, null, cutscene, prisonOutfit, crimeProbe);
             _crimeDetection = new CrimeDetectionService(
                 crimeProbe, probe, player, _justice, _log, config.Justice);
-            _hud = new JusticeHudWidget(_justice, hudRenderer, config.Justice);   // S21
+            _hud = new JusticeHudWidget(_justice, hudRenderer, config.Justice, hudFeed);   // S21 v2: live feed
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(

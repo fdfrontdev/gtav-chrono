@@ -5,27 +5,33 @@ using Chrono.Domain;
 namespace Chrono.Application;
 
 /// <summary>
-/// S21 — persistent justice HUD widget (user UAT r15: "there's a lack of feedback
-/// on the screen. I expect a custom widget for our mods — e.g. how many days
-/// before I have to go to court"). Builds the game-neutral snapshot from the
-/// JusticeService probes and pushes it to the boundary renderer every tick.
-/// Toggleable via config + the menu (Settings → Show HUD).
+/// S21 v2 — persistent justice HUD widget (user UAT r15 + screenshot follow-up):
+/// on-screen feedback bottom-right. Shows status, court/prison countdown,
+/// identity/warrant line, AND the live message feed (notifier messages + WEBNET
+/// headlines — user: "all the messages on the left should move inside the widget;
+/// WEBNET should live-stream into it"). Toggleable via Settings → Show HUD.
 /// </summary>
 public sealed class JusticeHudWidget
 {
     private readonly JusticeService _justice;
     private readonly IHudRenderer _renderer;
     private readonly JusticeConfig _config;
+    private readonly HudFeedBuffer _feed;
 
     public bool Enabled { get; set; }   // menu toggle — Settings → Show HUD
 
-    public JusticeHudWidget(JusticeService justice, IHudRenderer renderer, JusticeConfig config)
+    public JusticeHudWidget(JusticeService justice, IHudRenderer renderer, JusticeConfig config,
+        HudFeedBuffer? feed = null)
     {
         _justice = justice;
         _renderer = renderer;
         _config = config;
+        _feed = feed ?? new HudFeedBuffer();
         Enabled = config.HudEnabled;
     }
+
+    /// <summary>The live feed (shared with the notifier + media service).</summary>
+    public HudFeedBuffer Feed => _feed;
 
     /// <summary>Per-tick: rebuild + draw the widget (cheap — a few text draws).</summary>
     public void Tick()
@@ -80,7 +86,8 @@ public sealed class JusticeHudWidget
             CountdownLine: countdown,
             SecondLine: second,
             CourtCountdown: court,
-            PrisonCountdown: prison));
+            PrisonCountdown: prison,
+            Feed: _feed.Items));
     }
 
     private static string FormatClock(double seconds)

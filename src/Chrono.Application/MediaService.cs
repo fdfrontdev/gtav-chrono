@@ -23,13 +23,16 @@ public sealed class MediaService
     private readonly JusticeConfig _config;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private readonly List<NewsFeedItem> _feed = new();
+    private readonly HudFeedBuffer? _hudFeed;   // S21 v2
     private long _lastNewsMs = -NewsCooldownMs;   // first event always passes (no overflow)
 
-    public MediaService(IMediaNotifier media, ILogSink log, JusticeConfig config)
+    public MediaService(IMediaNotifier media, ILogSink log, JusticeConfig config,
+        HudFeedBuffer? hudFeed = null)   // S21 v2: live-stream headlines into the widget feed
     {
         _media = media;
         _log = log;
         _config = config;
+        _hudFeed = hudFeed;
     }
 
     /// <summary>Session social feed (WEBNET phone, S7) — newest last, cap 20.</summary>
@@ -58,6 +61,8 @@ public sealed class MediaService
     {
         _feed.Add(new NewsFeedItem(text, DateTime.Now.ToString("HH:mm"), viral));
         if (_feed.Count > 20) _feed.RemoveAt(0);
+        // S21 v2: WEBNET headlines live-stream into the HUD widget feed
+        _hudFeed?.Push(text, viral ? FeedKind.Viral : FeedKind.Webnet);
     }
 
     public void ReportCrime(CrimeEvent evt)
