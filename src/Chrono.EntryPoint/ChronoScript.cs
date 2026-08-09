@@ -22,6 +22,8 @@ public class ChronoScript : Script
     private JusticeCutsceneService? _cutscene;
     private TimeStopService? _timeStop;
     private ChronoLogger? _log;
+    private CrimeDetectionService? _crimeDetection;   // S20: act-based crime detection
+    private CrimeProbe? _crimeProbe;                  // S20: concrete — Poll() runs from OnTick
     private readonly Stopwatch _clock = Stopwatch.StartNew();
 
     public ChronoScript()
@@ -50,6 +52,8 @@ public class ChronoScript : Script
             IEntityFreezer freezer = new EntityFreezer();
             IPlayerContext player = new PlayerContext();
             IWorldProbe probe = new WorldProbe();
+            _crimeProbe = new CrimeProbe();            // S20: act sampling + hold-fire
+            ICrimeProbe crimeProbe = _crimeProbe;
             INotifier notifier = new Notifier();
             IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey, config.Justice.InteractKey);
             IVfxBoundary vfx = new VfxBoundary();
@@ -74,7 +78,9 @@ public class ChronoScript : Script
             _justice = new JusticeService(
                 wantedMonitor, player, recordStore,
                 identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input,
-                reputation, probe, null, cutscene, prisonOutfit);
+                reputation, probe, null, cutscene, prisonOutfit, crimeProbe);
+            _crimeDetection = new CrimeDetectionService(
+                crimeProbe, probe, player, _justice, _log, config.Justice);
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(
@@ -117,6 +123,8 @@ public class ChronoScript : Script
         try
         {
             _menu?.Tick(_clock.ElapsedMilliseconds);
+            _crimeProbe?.Poll();                 // S20: 200ms world snapshots
+            _crimeDetection?.Tick(_clock.ElapsedMilliseconds);
             _justice?.Tick();
             _cutscene?.Tick(_clock.ElapsedMilliseconds);
             _clinic?.Tick();

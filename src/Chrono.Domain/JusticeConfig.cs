@@ -64,4 +64,40 @@ public sealed class JusticeConfig
     public double ComplianceSeconds { get; set; } = 3;
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
+
+    // --- S20 — act-based crime detection (ADR-04 D1) ---
+
+    /// <summary>Master switch for the act-detection layer. The vanilla star-proxy
+    /// (RecordFromWanted) remains the fallback when disabled.</summary>
+    public bool CrimeDetectionEnabled { get; set; } = true;
+
+    /// <summary>Witness radius (m) — crimes record only when this many NPCs are near
+    /// (witness gating, FR-1.4 user ruling r14).</summary>
+    public float CrimeWitnessRadiusM { get; set; } = 30f;
+
+    /// <summary>Poll radius (m) for ped death/damage and vehicle damage sampling.</summary>
+    public float CrimePollRadiusM { get; set; } = 40f;
+
+    /// <summary>Per-kind dedupe window (s) — the same act class records once per
+    /// episode within this window (no spam on repeated punches/kills).</summary>
+    public double CrimeKindCooldownSeconds { get; set; } = 20;
+
+    /// <summary>Distance (m) for crosshair-hit robbery detection (ADR-04 D1).</summary>
+    public float RobberyRangeM { get; set; } = 6f;
+
+    /// <summary>Minimum vehicle speed (m/s) for a vehicle kill to be classified as
+    /// vehicular manslaughter (slow roll-over = assault-level, not manslaughter).</summary>
+    public float VehicularManslaughterSpeedMps { get; set; } = 15f;
+
+    // --- S20 — use of force (ADR-04 D2) ---
+
+    /// <summary>Master switch: police hold fire on a stationary unarmed suspect.</summary>
+    public bool UseOfForceEnabled { get; set; } = true;
+
+    /// <summary>Minimum wanted stars for the hold-fire stand-down (S19 was 3★+;
+    /// S20 lowers to 2★+ per user UAT r14: cops must not shoot at 2★ either).</summary>
+    public int UseOfForceMinStars { get; set; } = 2;
+
+    /// <summary>Radius (m) within which nearby police peds are put on hold-fire.</summary>
+    public float PoliceHoldRadiusM { get; set; } = 60f;
 }
