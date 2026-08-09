@@ -291,7 +291,11 @@ public sealed class JusticeService
             _warrant.Activate(evt.GameTime);
         }
 
-        State = JusticeState.Wanted;
+        // S17: while in custody (busted → court) the suspect is not "wanted on the
+        // street" — new crimes are ADDED to the case instead; civilians must not
+        // resume reporting during the countdown (user UAT round 11).
+        if (State != JusticeState.Captured)
+            State = JusticeState.Wanted;
         _log.Info($"Crime recorded: {severity} (burned={burned}) in {evt.District}");
         _notifier.Show(burned
             ? $"CRIME RECORDED ({severity}) — they saw your face"
