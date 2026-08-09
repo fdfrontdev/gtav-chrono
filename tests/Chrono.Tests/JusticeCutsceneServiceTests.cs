@@ -53,6 +53,41 @@ public class JusticeCutsceneServiceTests
         Assert.Contains(renderer.Banners, b => b.Contains("GUILTY"));
     }
 
+    // ── S21 v3 regression: "FREE but still handcuffed, can't move" ──
+    // The cuffed idle plays as a LOOP at cutscene start. The release cutscene
+    // must STOP it when it ends — the player walks out free. Other cutscenes
+    // (arrest/trial/intake) keep the cuffed pose through custody.
+
+    [Fact]
+    public void Release_End_ClearsCuffedAnimation()
+    {
+        var (service, renderer, player) = Build();
+
+        service.Play(CutsceneKind.Release);
+        service.Tick(0);            // enter
+        Assert.Contains(renderer.Anims, a => a.StartsWith("anim@move_m@prisoner_cuffed"));
+        Assert.Equal(0, player.ClearAnimCount);  // int
+
+        service.Tick(4000);         // end
+        Assert.False(service.IsActive);
+        Assert.True(player.ClearAnimCount == 1, "release must drop the cuffed loop so the player can move");
+    }
+
+    [Fact]
+    public void Arrest_End_KeepsCuffedAnimation()
+    {
+        var (service, renderer, player) = Build();
+
+        service.Play(CutsceneKind.Arrest);
+        service.Tick(0);            // enter
+        service.Tick(2500);         // phase 2
+        service.Tick(5500);         // phase 3
+        service.Tick(8500);         // end
+
+        Assert.False(service.IsActive);
+        Assert.True(player.ClearAnimCount == 0, "arrest keeps the cuffed pose — the suspect is in custody");
+    }
+
     [Fact]
     public void Intake_AndRelease_RunTheirBeats()
     {

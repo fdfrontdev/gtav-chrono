@@ -125,14 +125,20 @@ public sealed class JusticeCutsceneService
 
     private void End()
     {
+        CutsceneKind finished = _kind;
         _kind = CutsceneKind.None;
         _renderer.End();
         var complete = _onComplete;
         _onComplete = null;
         _log.Info("Cutscene finished");
         complete?.Invoke();
+        // S21 v3 fix (user UAT: "FREE but still handcuffed, can't move"): the
+        // cuffed idle is played as a LOOP at cutscene start; the release cutscene
+        // must STOP it or the player stays in the cuffed pose with no movement
+        // control (End() restores the camera, not the animation task).
+        if (finished == CutsceneKind.Release)
+            _player.ClearCurrentAnimation();
     }
-
     private int PhaseCount(CutsceneKind kind) => kind switch
     {
         CutsceneKind.Confrontation => 1,

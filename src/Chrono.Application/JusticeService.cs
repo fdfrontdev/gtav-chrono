@@ -781,6 +781,7 @@ public sealed class JusticeService
         _reportStreak = 0;   // S16: fresh start — the escalation ladder resets
         _arrested = false;
         State = JusticeState.Free;
+        _player.ClearCurrentAnimation();   // S21 v3: bail = released — drop the cuffed loop
         _warrant.Clear();   // on bail = in the system's hands, not a fugitive
         _episodeSeverity = null;
         _media?.News($"COURT: suspect released on ${cost:#,##0} bail — charges pending");
