@@ -67,7 +67,8 @@ public sealed class HudLayoutEngine
         IReadOnlyList<HudFeedItem> feed,
         JusticeStatusKind kind, float progress, int stars,
         Func<string, float, int, float> measure,
-        bool hasCountdown = true, bool hasIdentity = true)
+        bool hasCountdown = true, bool hasIdentity = true,
+        bool countdownUrgent = false)   // S21 v3: yard-escape prompt → amber
     {
         int feedRows = Math.Min(feed.Count, MaxFeedRows);
         // feed block: label pad + label + rows + bottom pad. The last row's text
@@ -103,8 +104,8 @@ public sealed class HudLayoutEngine
 
         float countdownY = statusY + RowH;
         var countdownRow = new Row(
-            new TextSpan(Truncate(countdown, maxW, measure, 0.24f), textX, countdownY, 0.24f, false),
-            (170, 170, 170));
+            new TextSpan(Truncate(countdown, maxW, measure, 0.24f), textX, countdownY, 0.24f, countdownUrgent),
+            countdownUrgent ? (255, 179, 64) : (170, 170, 170));   // amber = action prompt
 
         float identityY = countdownY + RowH;
         var identityRow = new Row(

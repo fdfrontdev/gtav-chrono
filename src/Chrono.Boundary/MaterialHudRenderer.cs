@@ -26,7 +26,8 @@ public sealed class MaterialHudRenderer : IHudRenderer
             state.Feed ?? Array.Empty<HudFeedItem>(),
             state.Kind, state.Progress, state.Stars, Measure,
             hasCountdown: !string.IsNullOrEmpty(state.CountdownLine),
-            hasIdentity: !string.IsNullOrEmpty(state.SecondLine));
+            hasIdentity: !string.IsNullOrEmpty(state.SecondLine),
+            countdownUrgent: state.CountdownLine.Contains("YARD OPEN"));
 
         // ── Elevation: shadow → surface ──
         var s = layout.Shadow;
