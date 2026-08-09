@@ -144,7 +144,7 @@ public sealed class PowerMenuService
         var feed = _feedProvider();
         var items = new List<MenuItem>();
         int shown = 0;
-        for (int i = feed.Count - 1; i >= 0 && shown < 14; i--, shown++)
+        for (int i = feed.Count - 1; i >= 0 && shown < 100; i--, shown++)   // S17: viewport scrolls; sanity cap only
         {
             var post = feed[i];
             items.Add(new MenuItem
@@ -220,15 +220,15 @@ public sealed class PowerMenuService
         if (stats.Identity == IdentityState.Burned && stats.WarrantActive)
             items.Add(new MenuItem { Title = "Tip: the clinic or a DB hack clears your warrant" });
 
-        // Long-list handling (S10): cap the screen at 14 crimes — the menu draws
-        // every item (no scrolling), so a 100-event record would overflow the HUD
+        // S17: the renderer's viewport scrolls — the record can list everything
+        // (sanity cap 100 protects the per-tick rebuild cost)
         int shown = 0;
         int uncharged = stats.Crimes.Count(c => !c.Charged);
         if (uncharged > 0)
             items.Add(new MenuItem { Title = $"⚠ {uncharged} uncharged crime{(uncharged > 1 ? "s" : "")} — will be sentenced at your next court date" });
         foreach (var crime in stats.Crimes)
         {
-            if (shown >= 14) break;
+            if (shown >= 100) break;
             string time = crime.GameTime.Length >= 16 ? crime.GameTime.Substring(11, 5) : crime.GameTime;
             string charged = crime.Charged ? " ✓" : "";
             items.Add(new MenuItem
