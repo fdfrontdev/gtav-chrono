@@ -215,6 +215,27 @@ public class JusticeCutsceneIntegrationTests
     }
 
     [Fact]
+    public void Bail_RefusedWhileTrialCutscenePlays()
+    {
+        // S16 audit: posting bail during the court session would double-bill
+        // (bail AND the fine) — the court refuses once the gavel is near
+        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
+        wanted.CurrentStars = 2;
+        service.Tick();
+        wanted.CurrentStars = 0;
+        service.Tick();
+        EscalateToCapture(service, wanted);
+        FinishArrest(cutscene);
+        service.AdvanceTrialTime(45.0);
+        service.Tick();                  // court session starts (cutscene active)
+
+        service.PostBail();
+
+        Assert.Equal(JusticeState.Captured, service.State);   // still in custody
+        Assert.Empty(player.MoneyCalls);                       // no double bill
+    }
+
+    [Fact]
     public void ArrestedStarsCleared_NoImmediateRearrest()
     {
         // S11 fix: stars cleared at capture → after release the wanted level stays 0

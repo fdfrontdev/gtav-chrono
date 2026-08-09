@@ -633,6 +633,7 @@ public sealed class JusticeService
         _servedDays = 0;
 
         _outfit?.Restore();   // S13: out of prison → your own clothes back
+        _player.ClearCurrentAnimation();   // S16: stop the cell-idle loop before the escape hop
 
         string flavor = kind switch
         {
@@ -663,6 +664,11 @@ public sealed class JusticeService
     public void PostBail()
     {
         if (State != JusticeState.Captured || _onBail) return;
+        if (_cutscene != null && _cutscene.IsActive)
+        {
+            _notifier.Show("The court is in session — it's too late for bail");
+            return;
+        }
         int cost = BailCost();
         if (_player.GetMoney() < cost)
         {
@@ -671,10 +677,12 @@ public sealed class JusticeService
         }
         _player.AddMoney(-cost);
         _onBail = true;
+        _reportStreak = 0;   // S16: fresh start — the escalation ladder resets
         _arrested = false;
         State = JusticeState.Free;
         _warrant.Clear();   // on bail = in the system's hands, not a fugitive
         _episodeSeverity = null;
+        _media?.News($"COURT: suspect released on ${cost:#,##0} bail — charges pending");
         _notifier.Show($"Bail posted (${cost:#,##0}) — charges pending. Court at your next arrest.");
         _log.Info($"Bail posted for ${cost} — out pending trial");
     }
@@ -729,6 +737,7 @@ public sealed class JusticeService
         _servedDays = 0;
         _reputation?.OnRelease();   // S9: rehabilitation builds fame
         _outfit?.Restore();   // S13: your own clothes back
+        _player.ClearCurrentAnimation();   // S16: the cell-idle loop must not follow you out
         _warrant.Clear();   // justice served
 
         // S11: only REAL prison terms end at the prison gate — a fine-only release

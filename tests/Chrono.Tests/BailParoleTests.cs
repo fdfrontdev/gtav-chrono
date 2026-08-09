@@ -17,13 +17,14 @@ public class BailParoleTests
         var notifier = new FakeNotifier();
         var clock = new FakeClock();
         var media = new FakeMediaNotifier();
+        var input = new FakeInput();
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
             notifier, new FakeLog(), new JusticeConfig(), clock,
             new MediaService(media, new FakeLog(), new JusticeConfig()),
-            random: () => roll);
+            input: input, random: () => roll);
         return (service, wanted, player, notifier, store, clock, media);
     }
 
@@ -149,6 +150,93 @@ public class BailParoleTests
 
         Assert.Equal(0, service.ParoleDaysLeft);
         Assert.Contains(notifier.Messages, m => m.Contains("Parole complete"));
+    }
+
+    // ── S16 coherence audit fixes ──
+
+    [Fact]
+    public void Bail_MediaBeat_ReleasedOnBail()
+    {
+        var (service, wanted, player, _, _, _, media) = Build();
+        Capture(service, wanted);
+        service.Tick();
+
+        service.PostBail();
+
+        Assert.Contains(media.Headlines, h => h.Contains("bail"));
+    }
+
+    [Fact]
+    public void Bail_ResetsReportStreak()
+    {
+        // Two reports (streak 2) → capture → bail (streak reset) → revoked →
+        // the next report starts back at 1★, not a jumped 3★
+        var (service, wanted, player, _, store, _, _) = Build();
+        var identity = new IdentityService(store, new FakeLog());
+        var warrant = new WarrantService(store, new FakeLog());
+        var probe = new FakeProbe { NearbyCivilians = 5 };
+        var cfg = new JusticeConfig { WarrantReportSeconds = 0 };
+        store.Status.Identity = IdentityState.Burned;
+        store.Status.WarrantActive = true;
+        var input = new FakeInput();
+        var s2 = new JusticeService(wanted, player, store, identity, warrant, new FakeNotifier(),
+            new FakeLog(), cfg, new FakeClock(), input: input, probe: probe, random: () => 0.0);
+
+        s2.Tick();                  // report #1 → 1★
+        wanted.CurrentStars = 0;
+        s2.Tick();
+        s2.Tick();                  // report #2 → 2★
+        wanted.CurrentStars = 0;
+        s2.Tick();
+        s2.Tick();                  // report #3 → 3★
+        wanted.CurrentStars = 0;
+        s2.Tick();
+        s2.Tick();                  // report #4 → 4★
+        s2.Tick();                  // captured
+
+        s2.PostBail();              // streak reset
+        wanted.CurrentStars = 2;    // new crime → revoked
+        s2.Tick();
+        wanted.CurrentStars = 0;
+        s2.Tick();
+        s2.Tick();                  // report after revocation → streak restarted
+
+        Assert.Equal(1, wanted.CurrentStars);   // NOT a jumped escalation
+    }
+
+    [Fact]
+    public void Release_ClearsCellAnimation()
+    {
+        var (service, wanted, player, _, _, _, _) = Build();
+        wanted.CurrentStars = 5;
+        service.Tick();
+        service.AdvanceTrialTime(45.0);
+        service.Tick();
+        for (int i = 0; i < 40 && service.State == JusticeState.Prison; i++)
+        {
+            service.AdvancePrisonTime(30.0);
+            service.Tick();
+        }
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.True(player.ClearAnimCount >= 1, "cell-idle loop must be cleared on release");
+    }
+
+    [Fact]
+    public void Escape_ClearsCellAnimation()
+    {
+        var (service, wanted, player, _, _, _, _) = Build(roll: 0.0);
+        wanted.CurrentStars = 5;
+        service.Tick();
+        service.AdvanceTrialTime(45.0);
+        service.Tick();
+        service.AdvancePrisonTime(25.0);
+        service.Tick();
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.Dash);
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.True(player.ClearAnimCount >= 1, "cell-idle loop must be cleared on escape");
     }
 
     [Fact]

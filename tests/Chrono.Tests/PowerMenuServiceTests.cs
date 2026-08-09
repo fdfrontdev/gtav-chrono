@@ -65,6 +65,33 @@ public class PowerMenuServiceTests
     }
 
     [Fact]
+    public void Menu_RefusedDuringCutscene()
+    {
+        // S16 audit: the menu must not open mid-cutscene (its control-freeze would
+        // fight the cutscene's own freeze)
+        var repo = new FakeRepository();
+        var input = new FakeInput();
+        var notifier = new FakeNotifier();
+        var config = new ChronoConfig();
+        var player = new FakePlayer();
+        var menu = new MenuFramework(new FakeRenderer());
+        var timeStop = new TimeStopService(repo, new FakeFreezer(), new FakeClock(), player,
+            notifier, new FakeLog(), config.TimeStop);
+        var teleport = new TeleportService(player, new FakeProbe(), notifier, new FakeLog(), config.Dash, config.Teleport);
+        var vfx = new VfxService(new FakeVfx(), new FakeLog(), config.Visual);
+        var service = new PowerMenuService(
+            menu, timeStop, teleport, vfx, input, player,
+            notifier, new FakeLog(), config, new FakeConfigStore(),
+            cutsceneActive: () => true);
+        service.BuildMenu();
+
+        input.MenuKeyPressed = true;
+        service.Tick(0);
+
+        Assert.False(service.IsMenuOpen);
+    }
+
+    [Fact]
     public void F9Press_OpensMenu()
     {
         var service = BuildService(out var input, out _, out _, out _);
