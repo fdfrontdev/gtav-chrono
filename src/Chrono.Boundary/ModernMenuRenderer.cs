@@ -12,8 +12,9 @@ namespace Chrono.Boundary;
 /// rode above its own text, the navy bar was half-clipped and the footer covered the
 /// last row — the "text off from container" that survived S14 and S17. Every rect y
 /// here is now an explicit center: rectCenterY = top + height/2.
-/// Also: footer labels are ASCII (font 4 lacks ▲▼↵⎋ glyphs — they rendered as tofu
-/// boxes), and the selected row is a crisp tint + rail instead of a pink slab.
+/// Also: footer labels are ASCII (font 4 lacks the arrow/enter/back glyphs — they
+/// rendered as tofu boxes), and the selected row is a crisp tint + rail instead of
+/// a pink slab.
 /// </summary>
 public sealed class ModernMenuRenderer : IMenuRenderer
 {
