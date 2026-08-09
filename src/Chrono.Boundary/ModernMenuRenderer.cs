@@ -115,7 +115,7 @@ public sealed class ModernMenuRenderer : IMenuRenderer
             Text($"{below} DOWN", right - 0.012f - 0.10f, CenterY(rowsEnd + 0.006f, 0.22f, 4), 0.22f, Red.R, Red.G, Red.B, 255, font: 4);
         }
 
-        // ── Footer (ASCII — font 4 has no ▲▼↵⎋ glyphs) ──
+        // ── Footer (ASCII only — font 4 has no arrow/enter/back glyphs) ──
         float footCenter = rowsEnd + 0.010f + 0.013f;
         Rect(left + 0.004f, footCenter, PanelWidth - 0.008f, 0.026f, Navy.R, Navy.G, Navy.B, 235);
         Text("UP/DOWN MOVE  -  ENTER OPEN  -  BACK", left + 0.020f, CenterY(footCenter, 0.21f, 4), 0.21f,
