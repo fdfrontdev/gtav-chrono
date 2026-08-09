@@ -121,11 +121,10 @@ public class CustodyAndViewportTests
             feedProvider: () => feed);
         service.BuildMenu();
 
-        // navigate: root (0 TimeStop, 1 Dash, 2 Teleport, 3 God, 4 Invisible, 5 Fly,
-        // 6 Justice, 7 WEBNET, 8 Settings) → WEBNET at index 7
+        // S21 v3: root (0 Superpowers, 1 Justice, 2 WEBNET, 3 Settings) → WEBNET at index 2
         input.MenuKeyPressed = true;
         service.Tick(0);
-        for (int i = 0; i < 7; i++) menu.NavigateDown();
+        for (int i = 0; i < 2; i++) menu.NavigateDown();   // root → WEBNET (index 2)
         menu.Accept();
 
         Assert.Equal("WEBNET News", menu.CurrentScreen?.Title);

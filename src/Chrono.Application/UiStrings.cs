@@ -11,6 +11,7 @@ public static class UiStrings
     public const string ItemGodMode = "God Mode";
     public const string ItemInvisible = "Invisible";
     public const string ItemFly = "Fly";
+    public const string ItemSuperpowers = "Superpowers";   // S21 v3: one category for all powers
     public const string ItemJustice = "Justice";
     public const string ItemHackPoliceDb = "Hack Police DB";
     public const string ItemCriminalRecord = "Criminal Record";

@@ -19,6 +19,22 @@ public static class TeleportMath
         return origin + dir * range;
     }
 
+    /// <summary>
+    /// S21 v3 — dash along the CAMERA direction (user UAT: "dash randomly goes
+    /// back/side; hard to control"). The player expects the blink to go where
+    /// the EYES look, not where the character's body was last moving. Vertical
+    /// component is flattened so the blink stays on the ground plane; a camera
+    /// looking straight down falls back to the character heading.
+    /// </summary>
+    public static Vector3 CalculateCameraTarget(Vector3 origin, Vector3 cameraDirection, float headingDegrees, float range)
+    {
+        var flat = new Vector3(cameraDirection.X, cameraDirection.Y, 0f);
+        if (flat.LengthSquared() < 0.0001f)
+            return CalculateForwardTarget(origin, headingDegrees, range);   // looking straight down
+        flat = Vector3.Normalize(flat);
+        return origin + flat * range;
+    }
+
     /// <summary>Clamp an arbitrary aim point to the allowed range band.</summary>
     public static Vector3? ClampToRange(Vector3 origin, Vector3 aimPoint, float minRange, float maxRange)
     {

@@ -15,9 +15,12 @@ public class TeleportServiceTests
     }
 
     [Fact]
-    public void TryDash_NotAiming_TeleportsForward()
+    public void TryDash_NotAiming_TeleportsAlongCamera()
     {
-        var player = new FakePlayer { Position = new(0, 0, 10), Heading = 0f, IsAiming = false };
+        // S21 v3 (user UAT): the blink goes where the CAMERA looks, not the
+        // character body heading — camera east (UnitX) → dash east even though
+        // the body faces north (Heading 0).
+        var player = new FakePlayer { Position = new(0, 0, 10), Heading = 0f, IsAiming = false, AimDirection = Vector3.UnitX };
         var probe = new FakeProbe { GroundHeight = 10f };
         var service = Create(player, probe, new FakeNotifier(), new FakeLog());
 
@@ -25,8 +28,22 @@ public class TeleportServiceTests
 
         Assert.Equal(TeleportOutcome.Success, result.Outcome);
         Assert.Single(player.TeleportCalls);
-        Assert.Equal(12f, player.TeleportCalls[0].Y, 2); // default range 12m north
+        Assert.Equal(12f, player.TeleportCalls[0].X, 2); // camera east, default range 12m
         Assert.Equal(10f, player.TeleportCalls[0].Z, 2); // ground-snapped
+    }
+
+    [Fact]
+    public void TryDash_CameraLookingDown_FallsBackToHeading()
+    {
+        // Camera straight down (no horizontal component) → use the body heading
+        var player = new FakePlayer { Position = new(0, 0, 10), Heading = 0f, IsAiming = false, AimDirection = new Vector3(0, 0, -1) };
+        var probe = new FakeProbe { GroundHeight = 10f };
+        var service = Create(player, probe, new FakeNotifier(), new FakeLog());
+
+        var result = service.TryDash();
+
+        Assert.Equal(TeleportOutcome.Success, result.Outcome);
+        Assert.Equal(12f, player.TeleportCalls[0].Y, 2); // heading 0 = north
     }
 
     [Fact]
