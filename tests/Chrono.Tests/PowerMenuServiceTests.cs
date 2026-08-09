@@ -52,7 +52,7 @@ public class PowerMenuServiceTests
         service.Tick(0);              // open the menu
         Assert.True(menu.IsOpen);
 
-        for (int i = 0; i < 7; i++) menu.NavigateDown();   // root → WEBNET item (index 7)
+        for (int i = 0; i < 2; i++) menu.NavigateDown();   // root → WEBNET (index 2)   // S21 v3: root → WEBNET (index 1, after Superpowers)
         menu.Accept();
 
         service.Tick(100);   // the feed screen refreshes while open (S14) — re-enter to see it
@@ -176,17 +176,21 @@ public class PowerMenuServiceTests
     {
         var service = BuildService(out var input, out var notifier, out _, out _);
 
-        // Open menu, select Time Stop (index 0), accept
+        // S21 v3: powers are grouped under Superpowers — root → Superpowers → Time Stop
         input.MenuKeyPressed = true;
-        service.Tick(0);
+        service.Tick(0);         // open
         input.MenuAccept = true;
-        service.Tick(16);
+        service.Tick(16);        // enter Superpowers (index 0)
+        for (int i = 0; i < 5; i++) { input.MenuDown = true; service.Tick(32 + i * 16); }
+        input.MenuDown = false;  // 5 downs → Time Stop (last of 6 powers)
+        input.MenuAccept = true;
+        service.Tick(128);       // activate Time Stop
 
         Assert.Contains(notifier.Messages, m => m == UiStrings.TimeStopOn);
 
         // Accept again → off
         input.MenuAccept = true;
-        service.Tick(32);
+        service.Tick(64);
         Assert.Contains(notifier.Messages, m => m == UiStrings.TimeStopOff);
     }
 
@@ -195,13 +199,13 @@ public class PowerMenuServiceTests
     {
         var service = BuildService(out var input, out _, out _, out _);
 
+        // S21 v3: root → Superpowers → Dash (first power)
         input.MenuKeyPressed = true;
         service.Tick(0);   // open
-        input.MenuDown = true;
-        service.Tick(16);  // select Dash
-        input.MenuDown = false;
         input.MenuAccept = true;
-        service.Tick(32);  // execute
+        service.Tick(16);  // enter Superpowers
+        input.MenuAccept = true;
+        service.Tick(32);  // execute Dash (index 0 in the powers screen)
 
         Assert.False(service.IsMenuOpen); // menu closed after execution
     }
@@ -263,13 +267,13 @@ public class PowerMenuServiceTests
         // Realistic reactions: after the blink, NPCs cannot instantly track the player
         var service = BuildService(out var input, out _, out _, out var player);
 
+        // S21 v3: root → Superpowers → Dash
         input.MenuKeyPressed = true;
         service.Tick(0);   // open
-        input.MenuDown = true;
-        service.Tick(16);  // select Dash
-        input.MenuDown = false;
         input.MenuAccept = true;
-        service.Tick(32);  // execute dash
+        service.Tick(16);  // enter Superpowers
+        input.MenuAccept = true;
+        service.Tick(32);  // execute Dash
 
         Assert.Contains(player.AwarenessCalls, a => a == false);   // grace ON
     }

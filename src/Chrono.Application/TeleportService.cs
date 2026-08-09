@@ -74,7 +74,11 @@ public sealed class TeleportService
         }
         else
         {
-            target = TeleportMath.CalculateForwardTarget(origin, _player.Heading, _dashConfig.Range);
+            // S21 v3 (user UAT: "dash randomly goes back/side, hard to control"):
+            // blink toward the CAMERA — where the eyes look — not the character
+            // body heading (which is the last MOVEMENT direction and reads as
+            // sideways/backward relative to the view).
+            target = TeleportMath.CalculateCameraTarget(origin, GetAimDirection(), _player.Heading, _dashConfig.Range);
         }
 
         // Wall check: raycast from player toward target — blocked if something solid is in the way

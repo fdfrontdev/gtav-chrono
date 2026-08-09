@@ -41,6 +41,8 @@ public sealed class PowerMenuService
     private MenuItem? _godModeItem;
     private MenuItem? _invisibleItem;
     private MenuItem? _flyItem;
+    private MenuItem? _dashItem;         // S21 v3: powers grouped under SUPER
+    private MenuItem? _mapTeleportItem;  // S21 v3
     private MenuItem? _hackItem;
     private MenuItem? _recordItem;
     private MenuScreen? _justiceScreen;
@@ -112,18 +114,39 @@ public sealed class PowerMenuService
             Title = UiStrings.ItemFly,
             OnActivate = () => { _fly.Toggle(); RefreshPowerLabels(); }
         };
+        _dashItem = new MenuItem
+        {
+            Title = $"{UiStrings.ItemDash} [{_config.Dash.Hotkey}]",
+            OnActivate = ExecuteDash
+        };
+        _mapTeleportItem = new MenuItem
+        {
+            Title = UiStrings.ItemMapTeleport,
+            OnActivate = ExecuteMapTeleport
+        };
+
+        // S21 v3 (user UAT): ALL superpowers live under one "SUPERPOWERS"
+        // category — dash / map teleport / fly / invisible / god mode.
+        var powers = new MenuScreen
+        {
+            Title = UiStrings.ItemSuperpowers,
+            Items = new[]
+            {
+                _dashItem,
+                _mapTeleportItem,
+                _flyItem,
+                _invisibleItem,
+                _godModeItem,
+                _timeStopItem
+            }
+        };
 
         _rootScreen = new MenuScreen
         {
             Title = UiStrings.MenuTitle,
             Items = new[]
             {
-                _timeStopItem,
-                new MenuItem { Title = $"{UiStrings.ItemDash} [{_config.Dash.Hotkey}]", OnActivate = ExecuteDash },
-                new MenuItem { Title = UiStrings.ItemMapTeleport, OnActivate = ExecuteMapTeleport },
-                _godModeItem,
-                _invisibleItem,
-                _flyItem,
+                new MenuItem { Title = UiStrings.ItemSuperpowers, Submenu = powers },
                 new MenuItem { Title = UiStrings.ItemJustice, Submenu = BuildJusticeScreen() },
                 _webnetItem = new MenuItem { Title = UiStrings.ItemWebnet, Submenu = RebuildWebnetScreen() },
                 new MenuItem { Title = UiStrings.ItemSettings, Submenu = settings }

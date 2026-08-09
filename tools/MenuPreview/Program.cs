@@ -210,20 +210,31 @@ public static class Program
     {
         var screens = new List<(string, object?)>();
 
-        // ── Root (mirrors PowerMenuService) ──
+        // ── Root (mirrors PowerMenuService — S21 v3: powers grouped) ──
+        var powers = new MenuScreen
+        {
+            Title = "Superpowers",
+            SelectedIndex = 0,
+            Items = new[]
+            {
+                new MenuItem { Title = "Dash Teleport [X]", Value = "12.0 m" },
+                new MenuItem { Title = "Map Teleport" },
+                new MenuItem { Title = "Fly", Value = "OFF" },
+                new MenuItem { Title = "Invisible [B]", Value = "OFF" },
+                new MenuItem { Title = "God Mode", Value = "OFF" },
+                new MenuItem { Title = "Time Stop [Z]" },
+            }
+        };
+        screens.Add(("SUPERPOWERS", powers));
+
         var root = new MenuScreen
         {
             Title = "CHRONO MENU",
             SelectedIndex = 0,
             Items = new[]
             {
-                new MenuItem { Title = "Time Stop [Z]" },
-                new MenuItem { Title = "Dash [X]", Value = "12.0 m" },
-                new MenuItem { Title = "Map Teleport" },
-                new MenuItem { Title = "God Mode", Value = "OFF" },
-                new MenuItem { Title = "Invisible [B]", Value = "OFF" },
-                new MenuItem { Title = "Fly", Value = "OFF" },
-                new MenuItem { Title = "Justice System", Submenu = BuildJustice() },
+                new MenuItem { Title = "Superpowers", Submenu = powers },
+                new MenuItem { Title = "Justice", Submenu = BuildJustice() },
                 new MenuItem { Title = "WEBNET News", Submenu = BuildWebnet() },
                 new MenuItem { Title = "Settings", Submenu = BuildSettings() },
             }
