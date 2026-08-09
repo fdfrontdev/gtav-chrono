@@ -30,6 +30,8 @@ public class PrisonChoiceTests
     {
         wanted.CurrentStars = 5;
         service.Tick();                    // Severe crime + arrest
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // verdict → prison
         return service;

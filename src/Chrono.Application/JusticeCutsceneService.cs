@@ -4,7 +4,7 @@ using Chrono.Application.Ports;
 
 namespace Chrono.Application;
 
-public enum CutsceneKind { None, Arrest, Trial, Intake, Release }
+public enum CutsceneKind { None, Confrontation, Arrest, Trial, Intake, Release }
 
 /// <summary>
 /// Cinematic justice director (S11): arrest → booking, court session, prison intake
@@ -90,6 +90,10 @@ public sealed class JusticeCutsceneService
         _renderer.ShowBanner(PhaseBanner(_kind, _phaseIndex));
         switch (_kind)
         {
+            case CutsceneKind.Confrontation:
+                _renderer.SetCamera(_anchor + new Vector3(0f, 2.0f, 1.1f), _anchor + new Vector3(0f, 0f, 0.5f), 44f);
+                break;
+
             case CutsceneKind.Arrest:
                 if (_phaseIndex == 0)
                     _renderer.SetCamera(_anchor + new Vector3(0f, 1.4f, 0.7f), _anchor + new Vector3(0f, 0f, 0.5f), 45f);
@@ -131,6 +135,7 @@ public sealed class JusticeCutsceneService
 
     private int PhaseCount(CutsceneKind kind) => kind switch
     {
+        CutsceneKind.Confrontation => 1,
         CutsceneKind.Arrest => 3,
         CutsceneKind.Trial => 3,
         CutsceneKind.Intake => 2,
@@ -140,6 +145,7 @@ public sealed class JusticeCutsceneService
 
     private long PhaseDuration(CutsceneKind kind, int index) => kind switch
     {
+        CutsceneKind.Confrontation => 3000,
         CutsceneKind.Arrest => index == 0 ? 2400 : index == 1 ? 3000 : 2400,
         CutsceneKind.Trial => index == 0 ? 2600 : index == 1 ? 3000 : 3200,
         CutsceneKind.Intake => index == 0 ? 2600 : 2400,
@@ -151,6 +157,8 @@ public sealed class JusticeCutsceneService
     {
         switch (kind)
         {
+            case CutsceneKind.Confrontation:
+                return "POLICE! HANDS WHERE I CAN SEE THEM — DON'T MOVE";
             case CutsceneKind.Arrest:
                 return index switch
                 {

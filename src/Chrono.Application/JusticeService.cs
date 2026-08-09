@@ -52,6 +52,20 @@ public sealed class JusticeService
     private int _reportStreak;            // S12: each recognition escalates the response
     private bool _onBail;                 // S15: out on bail — charges pending, court next arrest
     private int _paroleUntilDay;          // S15: supervised release after a prison term (0 = none)
+    // S19 — arrest confrontation: police fight/cuff/shoot instead of instant capture
+    private bool _confronting;
+    private bool _confrontChoiceOpen;
+    private readonly Stopwatch _confrontClock = new();
+    private double _confrontElapsedMs;              // accumulated (test seam)
+    private long _confrontCooldownUntilMs = -1;
+    // S19 — compliance: a stationary unarmed suspect makes police stand down
+    private bool _complying;
+    private bool _complied;              // S19: the episode ended by compliance, not by running
+    private Vector3 _lastPos;
+    private readonly Stopwatch _complianceClock = new();
+    private double _complianceElapsedMs;
+    private double _lastDecayMs;
+    private bool _complianceArmed;
     private readonly Stopwatch _escapeClock = Stopwatch.StartNew();   // S13: choice window
     private readonly IPrisonOutfit? _outfit;                          // S13: prison look
     private readonly CriminalRecord _record;
@@ -130,6 +144,8 @@ public sealed class JusticeService
                 TryOpenEscapeChoice();   // S13: G during confinement = escape-plan window
             else if (State == JusticeState.Captured)
                 PostBail();              // S15: G during custody = post bail
+            else if (_confronting)
+                _confrontChoiceOpen = true;   // S19: G = comply (resolved in UpdateConfrontation)
         }
 
         int stars = _wanted.CurrentStars;
@@ -163,7 +179,7 @@ public sealed class JusticeService
         // CHASE ESCAPE (S10): the episode ended WITHOUT capture → the police lost
         // you. Media loves a vanishing suspect (viral). Guarded against death/capture.
         if (stars == 0 && previousStars > 0 && !dead && !_arrested
-            && _episodeSeverity != null && State == JusticeState.Wanted)
+            && _episodeSeverity != null && State == JusticeState.Wanted && !_complying && !_complied)
         {
             _episodeSeverity = null;
             OnChaseEscaped();
@@ -178,8 +194,14 @@ public sealed class JusticeService
         else if (State == JusticeState.Wanted && stars == 0) State = JusticeState.Free;
 
         // S3 flow
-        if (State == JusticeState.Wanted && stars >= ArrestStars && !_arrested)
-            OnCaptured();
+        if (State == JusticeState.Wanted && stars >= ArrestStars && !_arrested && !_confronting
+            && _confrontElapsedMs >= _confrontCooldownUntilMs)
+            BeginConfrontation();   // S19: 4★+ = confrontation, not instant capture
+
+        if (_confronting)
+            UpdateConfrontation();
+        else
+            UpdateCompliance();
 
         if (State == JusticeState.Captured && (_cutscene == null || !_cutscene.IsActive))
         {
@@ -270,6 +292,7 @@ public sealed class JusticeService
             _notifier.Show("PAROLE VIOLATION — the state was watching");
             _log.Info("Parole violated");
         }
+        _complied = false;               // S19: a new crime starts a fresh episode
         var severity = SeverityFromStars(stars);
         _episodeSeverity ??= severity;   // sentence uses the ORIGINAL offense of the episode
         _reputation?.OnCrime(severity);  // S9: crimes build notoriety
@@ -288,7 +311,10 @@ public sealed class JusticeService
         if (burned)
         {
             _identity.SetBurned();
-            _warrant.Activate(evt.GameTime);
+            // S19: only Moderate+ (3★+) offenses carry a standing warrant — a minor
+            // scrape does NOT make the whole city report you forever (user UAT r13)
+            if (severity >= CrimeSeverity.Moderate)
+                _warrant.Activate(evt.GameTime);
         }
 
         // S17: while in custody (busted → court) the suspect is not "wanted on the
@@ -701,6 +727,152 @@ public sealed class JusticeService
             _log.Info("Parole period completed");
         }
     }
+
+    /// <summary>S19: at 4★+ the police CONFRONT — hands-up banner, then a choice
+    /// window: G = COMPLY (cuffed → booking); X/Z/B = RESIST (roll: shot down → the
+    /// death path takes you to custody; break away → RESISTING ARREST on record and
+    /// the chase continues). Window expiry = auto-cuff (you froze).</summary>
+    private void BeginConfrontation()
+    {
+        _confronting = true;
+        _confrontChoiceOpen = false;
+        _confrontClock.Restart();   // first tick accumulates into _confrontElapsedMs
+        _cutscene?.Play(CutsceneKind.Confrontation);   // hands-up banner + camera
+        _vfx?.ScreenFlash(250);
+        _notifier.Show("POLICE! HANDS WHERE I CAN SEE THEM — press G to comply");
+        _log.Info("Confrontation started at 4★+");
+    }
+
+    public void AdvanceConfrontationTime(double realSeconds)
+        => _confrontElapsedMs += realSeconds * 1000;   // test seam
+
+    private void UpdateConfrontation()
+    {
+        _confrontElapsedMs += _confrontClock.Elapsed.TotalMilliseconds;
+        _confrontClock.Restart();
+        double elapsed = _confrontElapsedMs / 1000.0;
+        if (!_confrontChoiceOpen && elapsed >= 2.0)
+        {
+            _confrontChoiceOpen = true;
+            _notifier.Show("G COMPLY · X/Z/B RESIST — " + (int)_config.ConfrontationChoiceSeconds + "s");
+        }
+
+        // Input resolution
+        if (_confrontChoiceOpen && _input != null)
+        {
+            if (_input.IsInteractKeyJustPressed)
+            {
+                _confronting = false;
+                OnCaptured();   // compliant — cuffed and booked
+                return;
+            }
+            if (_input.IsDashKeyJustPressed || _input.IsTimeStopHotkeyJustPressed || _input.IsInvisibleHotkeyJustPressed)
+            {
+                ResistArrest();
+                return;
+            }
+        }
+
+        // Window expiry → the officers cuff you (you froze)
+        if (elapsed >= _config.ConfrontationChoiceSeconds)
+        {
+            _confronting = false;
+            OnCaptured();
+        }
+    }
+
+    private void ResistArrest()
+    {
+        _confronting = false;
+        double roll = _random();
+        if (roll < _config.ResistCaptureChance)
+        {
+            // You moved — they open fire. The vanilla AI finishes the job; death
+            // while wanted → custody on respawn (the capture-by-force path)
+            _wanted.SetStars(5);
+            _notifier.Show("YOU MOVED — THE OFFICERS OPEN FIRE!");
+            _media?.News("SUSPECT RESISTS ARREST — officers open fire in " + _player.GetDistrictName());
+            _log.Info("Resisted arrest — officers opened fire (stars 5)");
+        }
+        else
+        {
+            _confrontCooldownUntilMs = (long)_confrontElapsedMs
+                + (long)(_config.ConfrontationCooldownSeconds * 1000);
+            var evt = new CrimeEvent(
+                Guid.NewGuid().ToString("N"), CrimeSeverity.Minor, "resisting_arrest",
+                DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"), _player.GetDistrictName(), true);
+            _record.Append(evt);
+            _store.SaveAtomic(_record);
+            _notifier.Show("You broke away — the chase continues. RESISTING ARREST on your record.");
+            _media?.News("SUSPECT BREAKS FREE FROM ARREST — manhunt continues");
+            _log.Info("Broke away from arrest — resisting_arrest charged");
+        }
+    }
+
+    /// <summary>S19 use-of-force realism: at 3★+, a stationary UNARMED suspect makes
+    /// the officers stand down (stars decay — no shooting at a compliant suspect).
+    /// Moving or drawing a weapon re-engages the chase.</summary>
+    private void UpdateCompliance()
+    {
+        if (State != JusticeState.Wanted || _confronting) return;
+        int stars = _wanted.CurrentStars;
+        if (stars < 3 && !_complying)   // an ACTIVE stand-down runs all the way to 0
+        {
+            _complying = false;
+            _complianceArmed = false;
+            return;
+        }
+
+        bool still = (_player.Position - _lastPos).Length() < 1.2f;
+        _lastPos = _player.Position;
+        bool unarmed = !_player.HasWeapon;
+
+        _complianceElapsedMs += _complianceClock.Elapsed.TotalMilliseconds;
+        _complianceClock.Restart();
+
+        if (still && unarmed)
+        {
+            if (!_complianceArmed)
+            {
+                _complianceArmed = true;
+                _complianceElapsedMs = 0;
+            }
+            if (!_complying && _complianceElapsedMs >= _config.ComplianceSeconds * 1000)
+            {
+                _complying = true;
+                _notifier.Show("STAY STILL — the officers stand down");
+                _log.Info("Suspect still + unarmed — officers stand down");
+            }
+            if (_complying && _complianceElapsedMs - _lastDecayMs >= 1500 && stars > 0)
+            {
+                _lastDecayMs = _complianceElapsedMs;
+                _wanted.SetStars(Math.Max(0, stars - 1));
+            }
+            if (_complying && _wanted.CurrentStars == 0)
+            {
+                _complying = false;
+                _complied = true;
+                _notifier.Show("You complied — the officers leave");
+                _log.Info("Compliance complete — stars cleared");
+            }
+        }
+        else
+        {
+            if (_complying || _complianceArmed)
+            {
+                _complying = false;
+                _complianceArmed = false;
+                _notifier.Show("You moved — the chase is back on");
+            }
+            _complianceElapsedMs = 0;
+            _lastDecayMs = 0;
+        }
+    }
+
+    /// <summary>S19 test seam — accumulate time only; the decay happens in
+    /// UpdateCompliance during real ticks.</summary>
+    public void AdvanceComplianceTime(double realSeconds)
+        => _complianceElapsedMs += realSeconds * 1000;
 
     private void UpdateManhunt()
     {

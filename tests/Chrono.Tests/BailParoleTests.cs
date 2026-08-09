@@ -31,7 +31,9 @@ public class BailParoleTests
     private static void Capture(JusticeService service, FakeWantedMonitor wanted)
     {
         wanted.CurrentStars = 4;
-        service.Tick();                    // Moderate crime + arrest (stars cleared)
+        service.Tick();                    // Moderate crime + S19 confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // window expires → cuffed (stars cleared)
     }
 
     [Fact]
@@ -93,11 +95,13 @@ public class BailParoleTests
         service.Tick();                    // sync _lastStars after the star clear
         service.PostBail();                // out on bail — charges pending
 
-        wanted.CurrentStars = 2;           // second episode
+        wanted.CurrentStars = 3;           // second episode — Moderate so a warrant exists (S19)
         service.Tick();
         wanted.CurrentStars = 0;
         service.Tick();
         wanted.CurrentStars = 4;
+        service.Tick();                    // S19 confrontation begins
+        service.AdvanceConfrontationTime(6.0);
         service.Tick();                    // next arrest → court bundles EVERYTHING
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -112,7 +116,10 @@ public class BailParoleTests
     {
         var (service, wanted, player, notifier, _, clock, media) = Build();
         wanted.CurrentStars = 5;
-        service.Tick();                    // Severe → prison
+        service.Tick();                    // S19: confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                  // S19: window expires -> cuffed
+                    // Severe → prison
         service.AdvanceTrialTime(45.0);
         service.Tick();
         for (int i = 0; i < 40 && service.State == JusticeState.Prison; i++)
@@ -136,7 +143,10 @@ public class BailParoleTests
     {
         var (service, wanted, _, notifier, _, clock, _) = Build();
         wanted.CurrentStars = 5;
-        service.Tick();
+        service.Tick();                    // S19: confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                  // S19: window expires -> cuffed
+
         service.AdvanceTrialTime(45.0);
         service.Tick();
         for (int i = 0; i < 40 && service.State == JusticeState.Prison; i++)
@@ -172,12 +182,13 @@ public class BailParoleTests
         // Two reports (streak 2) → capture → bail (streak reset) → revoked →
         // the next report starts back at 1★, not a jumped 3★
         var (service, wanted, player, _, store, _, _) = Build();
-        var identity = new IdentityService(store, new FakeLog());
-        var warrant = new WarrantService(store, new FakeLog());
         var probe = new FakeProbe { NearbyCivilians = 5 };
         var cfg = new JusticeConfig { WarrantReportSeconds = 0 };
+        // S9 lesson: services cache status at construction — seed BEFORE constructing
         store.Status.Identity = IdentityState.Burned;
         store.Status.WarrantActive = true;
+        var identity = new IdentityService(store, new FakeLog());
+        var warrant = new WarrantService(store, new FakeLog());
         var input = new FakeInput();
         var s2 = new JusticeService(wanted, player, store, identity, warrant, new FakeNotifier(),
             new FakeLog(), cfg, new FakeClock(), input: input, probe: probe, random: () => 0.0);
@@ -192,7 +203,10 @@ public class BailParoleTests
         wanted.CurrentStars = 0;
         s2.Tick();
         s2.Tick();                  // report #4 → 4★
-        s2.Tick();                  // captured
+        s2.Tick();                  // S19 confrontation begins
+        s2.AdvanceConfrontationTime(6.0);
+        s2.Tick();                  // cuffed
+        s2.Tick();                  // sync _lastStars after the star clear
 
         s2.PostBail();              // streak reset
         wanted.CurrentStars = 2;    // new crime → revoked
@@ -209,7 +223,10 @@ public class BailParoleTests
     {
         var (service, wanted, player, _, _, _, _) = Build();
         wanted.CurrentStars = 5;
-        service.Tick();
+        service.Tick();                    // S19: confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                  // S19: window expires -> cuffed
+
         service.AdvanceTrialTime(45.0);
         service.Tick();
         for (int i = 0; i < 40 && service.State == JusticeState.Prison; i++)
@@ -227,7 +244,10 @@ public class BailParoleTests
     {
         var (service, wanted, player, _, _, _, _) = Build(roll: 0.0);
         wanted.CurrentStars = 5;
-        service.Tick();
+        service.Tick();                    // S19: confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                  // S19: window expires -> cuffed
+
         service.AdvanceTrialTime(45.0);
         service.Tick();
         service.AdvancePrisonTime(25.0);

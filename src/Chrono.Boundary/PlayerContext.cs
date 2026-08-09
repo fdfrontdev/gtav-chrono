@@ -11,6 +11,7 @@ public sealed class PlayerContext : IPlayerContext
     public int PlayerHandle => Game.Player.Character?.Handle ?? 0;
     public int? PlayerVehicleHandle => Game.Player.Character?.CurrentVehicle?.Handle;
     public Vector3 Position => EntityFreezer.ToNumerics(Game.Player.Character.Position);
+    public bool HasWeapon => Function.Call<bool>(Hash.IS_PED_ARMED, Game.Player.Character.Handle, 7);
     public float Heading => Game.Player.Character.Heading;
     public bool IsAiming => Game.Player.IsAiming;
     public bool IsInVehicle => Game.Player.Character?.CurrentVehicle != null;

@@ -113,7 +113,9 @@ public class JusticeCutsceneIntegrationTests
             service.Tick();
         }
         service.Tick();
-        service.Tick();
+        service.Tick();                  // 4★ → S19 confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                  // window expires → cuffed (you froze)
     }
 
     [Fact]
@@ -121,10 +123,14 @@ public class JusticeCutsceneIntegrationTests
     {
         var (service, cutscene, renderer, wanted, _, _, _) = Build();
         wanted.CurrentStars = 4;
-        service.Tick();
-
+        service.Tick();                    // S19: confrontation begins (hands-up banner)
         Assert.True(cutscene.IsActive);
         Assert.Equal(1, renderer.BeginCount);
+
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // window expired → cuffed → arrest cutscene
+
+        Assert.Equal(2, renderer.BeginCount);   // confrontation + arrest
         Assert.Equal(0, wanted.CurrentStars);   // S11: handcuffed — chase over
         FinishArrest(cutscene);
     }
@@ -171,7 +177,9 @@ public class JusticeCutsceneIntegrationTests
     {
         var (service, cutscene, renderer, wanted, player, store, clock) = Build();
         wanted.CurrentStars = 5;
-        service.Tick();                    // crime + arrest
+        service.Tick();                    // Severe episode → S19 confrontation
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // cuffed → arrest
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court session
