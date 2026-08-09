@@ -88,7 +88,8 @@ public class ChronoScript : Script
             _menu = new PowerMenuService(
                 menuFramework, _timeStop, teleport, vfxService,
                 input, player, notifier, _log, config, store,
-                hack: hack, stats: stats, feedProvider: () => media.Feed);
+                hack: hack, stats: stats, feedProvider: () => media.Feed,
+                cutsceneActive: () => _cutscene?.IsActive ?? false);
             _menu.BuildMenu();
 
             CreateClinicBlip();

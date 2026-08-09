@@ -27,6 +27,7 @@ public sealed class PowerMenuService
     private readonly InvisibilityService _invisible;
     private readonly FlyService _fly;
     private readonly Func<IReadOnlyList<NewsFeedItem>>? _feedProvider;
+    private readonly Func<bool>? _cutsceneActive;   // S16: menu stays closed during cutscenes
     private MenuItem? _webnetItem;
     private bool _menuWasOpen;
     private readonly NpcReactionService _npcReaction;
@@ -61,7 +62,8 @@ public sealed class PowerMenuService
         NpcReactionService? npcReaction = null,
         PoliceDbHackService? hack = null,
         JusticeStatsService? stats = null,
-        Func<IReadOnlyList<NewsFeedItem>>? feedProvider = null)
+        Func<IReadOnlyList<NewsFeedItem>>? feedProvider = null,
+        Func<bool>? cutsceneActive = null)
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -80,6 +82,7 @@ public sealed class PowerMenuService
         _hack = hack;
         _stats = stats;
         _feedProvider = feedProvider;
+        _cutsceneActive = cutsceneActive;
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -270,6 +273,11 @@ public sealed class PowerMenuService
         }
         else if (_rootScreen != null)
         {
+            if (_cutsceneActive != null && _cutsceneActive())
+            {
+                _notifier.Show("Not now — a cutscene is playing");
+                return;
+            }
             _menu.Open(_rootScreen);
             _player.SetControlEnabled(false);   // freeze the character while the menu is up (S8)
         }
