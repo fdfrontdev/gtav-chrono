@@ -55,6 +55,19 @@ public class BailParoleTests
     }
 
     [Fact]
+    public void Bail_ClearsCuffedAnimation()   // S21 v3: "FREE but still handcuffed" regression
+    {
+        var (service, wanted, player, _, _, _, _, crimeProbe) = Build();
+        Capture(service, wanted, crimeProbe);   // the arrest cutscene's cuffed LOOP is on
+        Assert.True(player.ClearAnimCount == 0);
+
+        service.PostBail();
+
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.True(player.ClearAnimCount == 1, "bail must drop the cuffed loop — the player walks free");
+    }
+
+    [Fact]
     public void Bail_TooPoor_StaysInCustody()
     {
         var (service, wanted, _, notifier, _, _, _, crimeProbe) = Build(money: 100);
