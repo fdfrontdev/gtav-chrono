@@ -150,17 +150,35 @@ public class UseOfForceTests
         Assert.True(wanted.CurrentStars <= 1);
     }
 
-    // ── 4. During a confrontation the hold is OFF (they're cuffing you) ──
+    // ── 4. S21: a cop closing in does NOT open fire on a still unarmed suspect —
+    // the hold stays ON until the suspect moves (physical capture replaced S19's
+    // confrontation: cops reach you → cuff; they never shoot a compliant suspect) ──
 
     [Fact]
-    public void DuringConfrontation_NoHoldFire()
+    public void CopNear_StationaryUnarmed_HoldStaysActive()
     {
         var (service, wanted, player, crimeProbe, _) = Build();
-        wanted.CurrentStars = 4;            // 4★ triggers the confrontation (S19)
-        service.Tick();
+        wanted.CurrentStars = 4;            // Severe wanted level
+        service.Tick();                     // Wanted state
+        crimeProbe.NearestPoliceDistance = 6f;   // a cop is closing in (outside 3m cuff range)
+        service.Tick();                     // still + unarmed → hold ON (aim, don't shoot)
 
-        Assert.True(service.State == JusticeState.Wanted);
-        // confrontation begins — hold must NOT be active (they're closing in)
-        Assert.False(crimeProbe.HoldActive);
+        Assert.True(service.State == JusticeState.Wanted);   // not captured — cop not within 3m
+        Assert.True(crimeProbe.HoldActive);                  // the officers are NOT shooting
+    }
+
+    [Fact]
+    public void CopNear_Moving_LiftsHold()
+    {
+        var (service, wanted, player, crimeProbe, _) = Build();
+        wanted.CurrentStars = 4;
+        service.Tick();
+        crimeProbe.NearestPoliceDistance = 6f;
+        service.Tick();                     // hold ON
+        Assert.True(crimeProbe.HoldActive);
+
+        player.Position = new Vector3(10, 0, 0);   // suspect runs
+        service.Tick();
+        Assert.False(crimeProbe.HoldActive);       // chase re-engages — they fire
     }
 }

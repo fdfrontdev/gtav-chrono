@@ -24,6 +24,7 @@ public class ChronoScript : Script
     private ChronoLogger? _log;
     private CrimeDetectionService? _crimeDetection;   // S20: act-based crime detection
     private CrimeProbe? _crimeProbe;                  // S20: concrete — Poll() runs from OnTick
+    private JusticeHudWidget? _hud;                   // S21: persistent HUD widget
     private readonly Stopwatch _clock = Stopwatch.StartNew();
 
     public ChronoScript()
@@ -57,7 +58,8 @@ public class ChronoScript : Script
             INotifier notifier = new Notifier();
             IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey, config.Justice.InteractKey);
             IVfxBoundary vfx = new VfxBoundary();
-            IMenuRenderer renderer = new ModernMenuRenderer();   // S13: custom-drawn UI
+            IMenuRenderer renderer = new MaterialMenuRenderer();   // S21: Vuetify-style (was ModernMenuRenderer)
+            IHudRenderer hudRenderer = new MaterialHudRenderer();  // S21: persistent justice widget
 
             // Application services
             _timeStop = new TimeStopService(repo, freezer, clock, player, notifier, _log, config.TimeStop);
@@ -81,6 +83,7 @@ public class ChronoScript : Script
                 reputation, probe, null, cutscene, prisonOutfit, crimeProbe);
             _crimeDetection = new CrimeDetectionService(
                 crimeProbe, probe, player, _justice, _log, config.Justice);
+            _hud = new JusticeHudWidget(_justice, hudRenderer, config.Justice);   // S21
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(
@@ -95,7 +98,8 @@ public class ChronoScript : Script
                 menuFramework, _timeStop, teleport, vfxService,
                 input, player, notifier, _log, config, store,
                 hack: hack, stats: stats, feedProvider: () => media.Feed,
-                cutsceneActive: () => _cutscene?.IsActive ?? false);
+                cutsceneActive: () => _cutscene?.IsActive ?? false,
+                hud: _hud);
             _menu.BuildMenu();
 
             CreateClinicBlip();
@@ -126,6 +130,7 @@ public class ChronoScript : Script
             _crimeProbe?.Poll();                 // S20: 200ms world snapshots
             _crimeDetection?.Tick(_clock.ElapsedMilliseconds);
             _justice?.Tick();
+            _hud?.Tick();                        // S21: persistent justice widget
             _cutscene?.Tick(_clock.ElapsedMilliseconds);
             _clinic?.Tick();
             _crowd?.Tick(_clock.ElapsedMilliseconds);

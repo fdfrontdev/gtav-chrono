@@ -60,9 +60,18 @@ public sealed class WorldProbe : IWorldProbe
         {
             var peds = World.GetNearbyPeds(EntityFreezer.ToGta(position), radius, Array.Empty<Model>());
             int playerHandle = Game.Player.Character.Handle;
+            var copGroup = new RelationshipGroup(RelationshipGroupHash.Cop);   // S21
             foreach (var ped in peds)
             {
                 if (ped == null || !ped.Exists() || ped.Handle == playerHandle) continue;
+                // S21 (user UAT r15): police/uniformed officers do NOT flee like
+                // civilians — they hold their ground and engage.
+                try
+                {
+                    if (ped.RelationshipGroup != null && ped.RelationshipGroup.Hash == copGroup.Hash)
+                        continue;
+                }
+                catch { /* relationship read is flavor — never a crash vector */ }
                 Function.Call(GTA.Native.Hash.TASK_SMART_FLEE_PED, ped, Game.Player.Character, 100f, -1, false, false);
             }
         }

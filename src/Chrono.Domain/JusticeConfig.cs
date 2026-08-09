@@ -10,7 +10,7 @@ public sealed class JusticeConfig
     public int PerEventCost { get; set; } = 1000;          // FR-5.4 (scales with record)
     public int SurgeryCooldownDays { get; set; } = 1;      // FR-5.5
     public int HackCooldownDays { get; set; } = 1;         // FR-6.4
-    public double PrisonDayRealSeconds { get; set; } = 30; // FR-9.1 (1 in-game day ≈ 30 real s)
+    public double PrisonDayRealSeconds { get; set; } = 45; // FR-9.1 (S21: 45s — serve slowly, user UAT r15)
 
     /// <summary>Yard-time window per in-game day (escape window, FR-10.1). Must be &lt; PrisonDayRealSeconds.</summary>
     public double PrisonYardSeconds { get; set; } = 10;
@@ -51,13 +51,11 @@ public sealed class JusticeConfig
     /// N game days — a new crime during parole = instant 3★+ + PAROLE VIOLATION.</summary>
     public int ParoleDays { get; set; } = 3;
 
-    /// <summary>S19 — arrest confrontation: at 4★+ the police CONFRONT (no instant
-    /// capture): comply (G) → cuffed; resist (X/Z/B) → they open fire (chance to be
-    /// shot down → custody via death; else you break away, chase continues with a
-    /// RESISTING ARREST charge). Window + cooldown in seconds.</summary>
-    public double ConfrontationChoiceSeconds { get; set; } = 6;
-    public double ResistCaptureChance { get; set; } = 0.6;
-    public double ConfrontationCooldownSeconds { get; set; } = 45;
+    /// <summary>S21 — physical capture (user UAT r15): NO auto-cuff. Police must
+    /// physically REACH the player (<see cref="CaptureRangeM"/>) while they are
+    /// not escaping → cuffed; G near a cop = surrender; shot down → custody.</summary>
+    public float CaptureRangeM { get; set; } = 3f;
+    public float SurrenderRangeM { get; set; } = 12f;
 
     /// <summary>S19 — use-of-force realism: a stationary, unarmed suspect at 3★+
     /// makes police stand down (stars decay; no shooting). Seconds of stillness.</summary>
@@ -100,4 +98,7 @@ public sealed class JusticeConfig
 
     /// <summary>Radius (m) within which nearby police peds are put on hold-fire.</summary>
     public float PoliceHoldRadiusM { get; set; } = 60f;
+
+    /// <summary>Persistent HUD widget on/off (Settings menu toggles at runtime).</summary>
+    public bool HudEnabled { get; set; } = true;
 }

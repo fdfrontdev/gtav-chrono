@@ -9,7 +9,7 @@ namespace Chrono.Tests;
 /// supervised parole after a prison term.</summary>
 public class BailParoleTests
 {
-    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeNotifier notifier, FakeRecordStore store, FakeClock clock, FakeMediaNotifier media) Build(int money = 100000, double roll = 0.99)
+    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeNotifier notifier, FakeRecordStore store, FakeClock clock, FakeMediaNotifier media, FakeCrimeProbe crimeProbe) Build(int money = 100000, double roll = 0.99)
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true, Money = money, DistrictName = "Vinewood" };
@@ -18,29 +18,30 @@ public class BailParoleTests
         var clock = new FakeClock();
         var media = new FakeMediaNotifier();
         var input = new FakeInput();
+        var crimeProbe = new FakeCrimeProbe();
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
-            notifier, new FakeLog(), new JusticeConfig(), clock,
+            notifier, new FakeLog(), new JusticeConfig { PrisonDayRealSeconds = 30 }, clock,
             new MediaService(media, new FakeLog(), new JusticeConfig()),
-            input: input, random: () => roll);
-        return (service, wanted, player, notifier, store, clock, media);
+            input: input, random: () => roll, crimeProbe: crimeProbe);
+        return (service, wanted, player, notifier, store, clock, media, crimeProbe);
     }
 
-    private static void Capture(JusticeService service, FakeWantedMonitor wanted)
+    private static void Capture(JusticeService service, FakeWantedMonitor wanted, FakeCrimeProbe crimeProbe)
     {
         wanted.CurrentStars = 4;
-        service.Tick();                    // Moderate crime + S19 confrontation begins
-        service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // window expires → cuffed (stars cleared)
+        service.Tick();                    // Moderate crime → Wanted
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // S21: cop reaches you → cuffed
     }
 
     [Fact]
     public void Bail_PostsAndReleases_ChargesPending()
     {
-        var (service, wanted, player, notifier, store, _, _) = Build();
-        Capture(service, wanted);          // Moderate: projected fine 8000 → bail 4000
+        var (service, wanted, player, notifier, store, _, _, crimeProbe) = Build();
+        Capture(service, wanted, crimeProbe);          // Moderate: projected fine 8000 → bail 4000
         int cost = service.BailCost();
 
         service.PostBail();
@@ -56,8 +57,8 @@ public class BailParoleTests
     [Fact]
     public void Bail_TooPoor_StaysInCustody()
     {
-        var (service, wanted, _, notifier, _, _, _) = Build(money: 100);
-        Capture(service, wanted);
+        var (service, wanted, _, notifier, _, _, _, crimeProbe) = Build(money: 100);
+        Capture(service, wanted, crimeProbe);
 
         service.PostBail();
 
@@ -68,8 +69,8 @@ public class BailParoleTests
     [Fact]
     public void BailRevoked_OnNewCrime_WarrantBack()
     {
-        var (service, wanted, _, notifier, _, _, media) = Build();
-        Capture(service, wanted);
+        var (service, wanted, _, notifier, _, _, media, crimeProbe) = Build();
+        Capture(service, wanted, crimeProbe);
         service.Tick();                    // stars already cleared → sync _lastStars
         service.PostBail();
 
@@ -85,7 +86,7 @@ public class BailParoleTests
     [Fact]
     public void BailFlow_NextArrest_ChargesAllPending()
     {
-        var (service, wanted, player, _, store, _, _) = Build();
+        var (service, wanted, player, _, store, _, _, crimeProbe) = Build();
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime (2000)
         wanted.CurrentStars = 0;
@@ -101,7 +102,7 @@ public class BailParoleTests
         service.Tick();
         wanted.CurrentStars = 4;
         service.Tick();                    // S19 confrontation begins
-        service.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // next arrest → court bundles EVERYTHING
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -114,10 +115,10 @@ public class BailParoleTests
     [Fact]
     public void PrisonRelease_StartsParole_ViolationEscalates()
     {
-        var (service, wanted, player, notifier, _, clock, media) = Build();
+        var (service, wanted, player, notifier, _, clock, media, crimeProbe) = Build();
         wanted.CurrentStars = 5;
         service.Tick();                    // S19: confrontation begins
-        service.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                  // S19: window expires -> cuffed
                     // Severe → prison
         service.AdvanceTrialTime(45.0);
@@ -141,10 +142,10 @@ public class BailParoleTests
     [Fact]
     public void Parole_ExpiresAfterDays_Clean()
     {
-        var (service, wanted, _, notifier, _, clock, _) = Build();
+        var (service, wanted, _, notifier, _, clock, _, crimeProbe) = Build();
         wanted.CurrentStars = 5;
         service.Tick();                    // S19: confrontation begins
-        service.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                  // S19: window expires -> cuffed
 
         service.AdvanceTrialTime(45.0);
@@ -167,8 +168,8 @@ public class BailParoleTests
     [Fact]
     public void Bail_MediaBeat_ReleasedOnBail()
     {
-        var (service, wanted, player, _, _, _, media) = Build();
-        Capture(service, wanted);
+        var (service, wanted, player, _, _, _, media, crimeProbe) = Build();
+        Capture(service, wanted, crimeProbe);
         service.Tick();
 
         service.PostBail();
@@ -181,7 +182,7 @@ public class BailParoleTests
     {
         // Two reports (streak 2) → capture → bail (streak reset) → revoked →
         // the next report starts back at 1★, not a jumped 3★
-        var (service, wanted, player, _, store, _, _) = Build();
+        var (service, wanted, player, _, store, _, _, crimeProbe) = Build();
         var probe = new FakeProbe { NearbyCivilians = 5 };
         var cfg = new JusticeConfig { WarrantReportSeconds = 0 };
         // S9 lesson: services cache status at construction — seed BEFORE constructing
@@ -191,7 +192,8 @@ public class BailParoleTests
         var warrant = new WarrantService(store, new FakeLog());
         var input = new FakeInput();
         var s2 = new JusticeService(wanted, player, store, identity, warrant, new FakeNotifier(),
-            new FakeLog(), cfg, new FakeClock(), input: input, probe: probe, random: () => 0.0);
+            new FakeLog(), cfg, new FakeClock(), input: input, probe: probe, random: () => 0.0,
+            crimeProbe: crimeProbe);
 
         s2.Tick();                  // report #1 → 1★
         wanted.CurrentStars = 0;
@@ -204,11 +206,12 @@ public class BailParoleTests
         s2.Tick();
         s2.Tick();                  // report #4 → 4★
         s2.Tick();                  // S19 confrontation begins
-        s2.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         s2.Tick();                  // cuffed
         s2.Tick();                  // sync _lastStars after the star clear
 
         s2.PostBail();              // streak reset
+        crimeProbe.NearestPoliceDistance = float.MaxValue;   // S21: cops gone — out on bail
         wanted.CurrentStars = 2;    // new crime → revoked
         s2.Tick();
         wanted.CurrentStars = 0;
@@ -221,10 +224,10 @@ public class BailParoleTests
     [Fact]
     public void Release_ClearsCellAnimation()
     {
-        var (service, wanted, player, _, _, _, _) = Build();
+        var (service, wanted, player, _, _, _, _, crimeProbe) = Build();
         wanted.CurrentStars = 5;
         service.Tick();                    // S19: confrontation begins
-        service.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                  // S19: window expires -> cuffed
 
         service.AdvanceTrialTime(45.0);
@@ -242,10 +245,10 @@ public class BailParoleTests
     [Fact]
     public void Escape_ClearsCellAnimation()
     {
-        var (service, wanted, player, _, _, _, _) = Build(roll: 0.0);
+        var (service, wanted, player, _, _, _, _, crimeProbe) = Build(roll: 0.0);
         wanted.CurrentStars = 5;
         service.Tick();                    // S19: confrontation begins
-        service.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                  // S19: window expires -> cuffed
 
         service.AdvanceTrialTime(45.0);

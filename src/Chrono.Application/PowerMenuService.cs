@@ -33,6 +33,7 @@ public sealed class PowerMenuService
     private readonly NpcReactionService _npcReaction;
     private readonly PoliceDbHackService? _hack;
     private readonly JusticeStatsService? _stats;
+    private readonly JusticeHudWidget? _hud;   // S21: persistent HUD widget (Settings toggle)
 
     private MenuScreen? _rootScreen;
     private MenuScreen? _webnetScreen;   // S14: WEBNET lives INSIDE the menu now
@@ -63,7 +64,8 @@ public sealed class PowerMenuService
         PoliceDbHackService? hack = null,
         JusticeStatsService? stats = null,
         Func<IReadOnlyList<NewsFeedItem>>? feedProvider = null,
-        Func<bool>? cutsceneActive = null)
+        Func<bool>? cutsceneActive = null,
+        JusticeHudWidget? hud = null)   // S21: persistent HUD widget toggle
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -83,6 +85,7 @@ public sealed class PowerMenuService
         _stats = stats;
         _feedProvider = feedProvider;
         _cutsceneActive = cutsceneActive;
+        _hud = hud;
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -523,6 +526,18 @@ public sealed class PowerMenuService
                     OnActivate = () =>
                     {
                         _config.TimeStop.PauseClock = !_config.TimeStop.PauseClock;
+                        PersistConfig();
+                    }
+                },
+                new MenuItem
+                {
+                    Title = UiStrings.ItemShowHud,
+                    Value = _hud?.Enabled == true ? "ON" : "OFF",
+                    OnActivate = () =>
+                    {
+                        if (_hud == null) return;
+                        _hud.Enabled = !_hud.Enabled;
+                        _config.Justice.HudEnabled = _hud.Enabled;
                         PersistConfig();
                     }
                 },

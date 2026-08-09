@@ -168,16 +168,6 @@ public static class ConfigValidator
             justice.BailMinCost = 1000;
             warnings.Add("justice.bailMinCost outside [100,100000] → 1000");
         }
-        if (justice.ConfrontationChoiceSeconds < 2 || justice.ConfrontationChoiceSeconds > 30)
-        {
-            justice.ConfrontationChoiceSeconds = 6;
-            warnings.Add("justice.confrontationChoiceSeconds outside [2,30] → 6");
-        }
-        if (justice.ResistCaptureChance < 0.1 || justice.ResistCaptureChance > 1.0)
-        {
-            justice.ResistCaptureChance = 0.6;
-            warnings.Add("justice.resistCaptureChance outside [0.1,1.0] → 0.6");
-        }
         if (justice.ComplianceSeconds < 1 || justice.ComplianceSeconds > 20)
         {
             justice.ComplianceSeconds = 3;
@@ -224,6 +214,17 @@ public static class ConfigValidator
         {
             justice.PoliceHoldRadiusM = 60f;
             warnings.Add("justice.policeHoldRadiusM outside [20,200] → 60");
+        }
+        // --- S21 — physical capture + HUD widget (user UAT r15) ---
+        if (justice.CaptureRangeM < 1f || justice.CaptureRangeM > 10f)
+        {
+            justice.CaptureRangeM = 3f;
+            warnings.Add("justice.captureRangeM outside [1,10] → 3");
+        }
+        if (justice.SurrenderRangeM < 3f || justice.SurrenderRangeM > 30f)
+        {
+            justice.SurrenderRangeM = 12f;
+            warnings.Add("justice.surrenderRangeM outside [3,30] → 12");
         }
     }
 

@@ -102,6 +102,9 @@ public sealed class CrimeProbe : ICrimeProbe
         }
     }
 
+    /// <summary>S21: nearest cop distance (physical capture). Sampled on each 200 ms poll.</summary>
+    public float NearestPoliceDistanceM { get; private set; } = float.MaxValue;
+
     /// <summary>Poll the world at most every 200 ms and diff snapshots (consuming).</summary>
     public void Poll()
     {
@@ -114,8 +117,19 @@ public sealed class CrimeProbe : ICrimeProbe
             int playerHandle = playerPed.Handle;
             int? playerVehicle = playerPed.CurrentVehicle?.Handle;
 
+            // ── S21: nearest cop distance (physical capture) ──
+            float nearest = float.MaxValue;
+            var allPeds = World.GetNearbyPeds(pos, 60f, Array.Empty<Model>()).Take(MaxBatch).ToList();
+            foreach (var cop in allPeds)
+            {
+                if (cop == null || !cop.Exists() || !IsCop(cop)) continue;
+                float d = GTA.Math.Vector3.Distance(pos, cop.Position);
+                if (d < nearest) nearest = d;
+            }
+            NearestPoliceDistanceM = nearest;
+
             // --- peds: death attribution + non-lethal damage ---
-            var peds = World.GetNearbyPeds(pos, 60f, Array.Empty<Model>()).Take(MaxBatch).ToList();
+            var peds = allPeds;
             foreach (var ped in peds)
             {
                 int h = ped.Handle;

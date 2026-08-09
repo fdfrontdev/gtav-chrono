@@ -35,6 +35,10 @@ public interface ICrimeProbe
     /// <summary>Nearby police peds (witness count + hold-fire targeting).</summary>
     int CountNearbyPolice(float radius);
 
+    /// <summary>S21: distance (m) to the NEAREST police ped; float.MaxValue when none
+    /// (physical capture — cops must REACH you to cuff you, user UAT r15).</summary>
+    float NearestPoliceDistanceM { get; }
+
     /// <summary>
     /// Hold-fire: nearby police aim but do NOT shoot (use-of-force continuum,
     /// ADR-04 D2). false lifts the hold (vanilla AI re-engages).

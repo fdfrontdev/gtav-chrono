@@ -17,6 +17,7 @@ public static class UiStrings
     public const string ItemWebnet = "WEBNET News";   // S14: feed lives in the menu
     public const string ItemSettings = "Settings";
     public const string ItemHotkeys = "Hotkeys";
+    public const string ItemShowHud = "Show HUD";
     public const string ItemDashRange = "Dash Range";
     public const string ItemFlySpeed = "Fly Speed";
     public const string ItemFreezeProps = "Freeze Props";

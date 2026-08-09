@@ -6,7 +6,7 @@ namespace Chrono.Tests;
 /// <summary>S1 justice core: wanted edges → crimes, burning, warrants, state machine.</summary>
 public class JusticeServiceTests
 {
-    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeClock clock, FakeInput input) Build()
+    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeClock clock, FakeInput input, FakeCrimeProbe crimeProbe) Build()
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer();
@@ -14,16 +14,17 @@ public class JusticeServiceTests
         var notifier = new FakeNotifier();
         var clock = new FakeClock();
         var input = new FakeInput();
+        var crimeProbe = new FakeCrimeProbe();
         var identity = new IdentityService(store, new FakeLog());
         var warrant = new WarrantService(store, new FakeLog());
-        var service = new JusticeService(wanted, player, store, identity, warrant, notifier, new FakeLog(), new JusticeConfig(), clock, null, null, input);
-        return (service, wanted, player, store, notifier, clock, input);
+        var service = new JusticeService(wanted, player, store, identity, warrant, notifier, new FakeLog(), new JusticeConfig { PrisonDayRealSeconds = 30 }, clock, null, null, input, crimeProbe: crimeProbe);
+        return (service, wanted, player, store, notifier, clock, input, crimeProbe);
     }
 
     [Fact]
     public void StarsIncrease_RecordsSingleCrimeAtMaxSeverity()
     {
-        var (service, wanted, _, store, _, _, _) = Build();
+        var (service, wanted, _, store, _, _, _, crimeProbe) = Build();
 
         wanted.CurrentStars = 5;   // 0 → 5 jump = ONE Severe episode
         service.Tick();
@@ -36,7 +37,7 @@ public class JusticeServiceTests
     [Fact]
     public void StarsIncrease_TwoStars_IsMinor()
     {
-        var (service, wanted, _, store, _, _, _) = Build();
+        var (service, wanted, _, store, _, _, _, crimeProbe) = Build();
         wanted.CurrentStars = 2;
         service.Tick();
         Assert.Equal(CrimeSeverity.Minor, store.Record.Events[0].Severity);
@@ -45,10 +46,10 @@ public class JusticeServiceTests
     [Fact]
     public void StarsIncrease_FourStars_IsModerate()
     {
-        var (service, wanted, _, store, _, _, _) = Build();
+        var (service, wanted, _, store, _, _, _, crimeProbe) = Build();
         wanted.CurrentStars = 4;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         Assert.Equal(CrimeSeverity.Moderate, store.Record.Events[0].Severity);
     }
@@ -56,7 +57,7 @@ public class JusticeServiceTests
     [Fact]
     public void VisibleCrime_BurnsIdentity_AndActivatesWarrant()
     {
-        var (service, wanted, player, store, _, _, _) = Build();
+        var (service, wanted, player, store, _, _, _, crimeProbe) = Build();
         player.IsVisible = true;
 
         wanted.CurrentStars = 3;
@@ -71,12 +72,12 @@ public class JusticeServiceTests
     public void InvisibleCrime_DoesNotBurn()
     {
         // FR-2.4: no face seen while invisible → identity stays Clean, no warrant
-        var (service, wanted, player, store, _, _, _) = Build();
+        var (service, wanted, player, store, _, _, _, crimeProbe) = Build();
         player.IsVisible = false;
 
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
 
         Assert.False(store.Record.Events[0].Burned);
@@ -87,7 +88,7 @@ public class JusticeServiceTests
     [Fact]
     public void RecordFromWantedDisabled_NoEvent()
     {
-        var (service, wanted, _, store, _, _, _) = Build();
+        var (service, wanted, _, store, _, _, _, crimeProbe) = Build();
         var config = new JusticeConfig { RecordFromWanted = false };
         var identity = new IdentityService(store, new FakeLog());
         var warrant = new WarrantService(store, new FakeLog());
@@ -95,7 +96,7 @@ public class JusticeServiceTests
 
         wanted.CurrentStars = 4;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
 
         Assert.Empty(store.Record.Events);
@@ -104,7 +105,7 @@ public class JusticeServiceTests
     [Fact]
     public void NoStarChange_NoEvent()
     {
-        var (service, wanted, _, store, _, _, _) = Build();
+        var (service, wanted, _, store, _, _, _, crimeProbe) = Build();
         wanted.CurrentStars = 0;
         service.Tick();
         wanted.CurrentStars = 0;
@@ -116,7 +117,7 @@ public class JusticeServiceTests
     [Fact]
     public void StarsDrop_StateReturnsToFree_WarrantPersists()
     {
-        var (service, wanted, player, store, _, _, _) = Build();
+        var (service, wanted, player, store, _, _, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 3;
         service.Tick();
@@ -143,11 +144,11 @@ public class JusticeServiceTests
     public void Release_ClearsWarrant()
     {
         // FR-8.4: justice served → warrant cleared
-        var (service, wanted, player, store, _, _, _) = Build();
+        var (service, wanted, player, store, _, _, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         Assert.True(service.Warrant.IsActive);
 
@@ -163,12 +164,12 @@ public class JusticeServiceTests
     public void FourStars_TriggersArrest()
     {
         // FR-8.1 (amended): capture at 4★+ — Moderate crimes can end in arrest
-        var (service, wanted, player, _, notifier, _, _) = Build();
+        var (service, wanted, player, _, notifier, _, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 4;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // S19: confrontation window expires -> cuffed
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // S21: cop reaches you → cuffed
 
         Assert.Equal(JusticeState.Captured, service.State);
         Assert.Contains(notifier.Messages, m => m.Contains("ARRESTED"));
@@ -177,11 +178,11 @@ public class JusticeServiceTests
     [Fact]
     public void Arrest_FiresOnce_NotEveryTick()
     {
-        var (service, wanted, player, _, notifier, _, _) = Build();
+        var (service, wanted, player, _, notifier, _, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.Tick();
         service.Tick();
@@ -193,7 +194,7 @@ public class JusticeServiceTests
 
     /// S12: warrant-report escalation — 4 recognitions raise stars 1★→4★ and the
     /// capture fires with NO new crimes recorded (the original event is the only charge).
-    private static void EscalateToCapture(JusticeService service, FakeWantedMonitor wanted)
+    private static void EscalateToCapture(JusticeService service, FakeWantedMonitor wanted, FakeCrimeProbe crimeProbe)
     {
         for (int i = 0; i < 3; i++)
         {
@@ -202,9 +203,8 @@ public class JusticeServiceTests
             service.Tick();
         }
         service.Tick();                  // report #4 → 4★
-        service.Tick();                  // S19 confrontation begins
-        service.AdvanceConfrontationTime(6.0);
-        service.Tick();                  // window expires -> cuffed
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                  // S21: cop reaches you → cuffed
     }
 
     [Fact]
@@ -212,12 +212,12 @@ public class JusticeServiceTests
     {
         // S12: a Minor offense + report escalation → captured with ONE charge →
         // fine-only release, warrant cleared (justice served)
-        var (service, wanted, player, store, notifier, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, player, store, notifier, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                  // Minor event recorded
         wanted.CurrentStars = 0;
         service.Tick();                  // escape
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
         Assert.Equal(JusticeState.Captured, service.State);
 
         service.AdvanceTrialTime(45.0);
@@ -234,11 +234,11 @@ public class JusticeServiceTests
     public void TrialDayArrives_PrisonSentence_ConfinementStarts()
     {
         // 5★ crime (Severe: 25000 + 30d) → prison
-        var (service, wanted, player, store, _, clock, _) = Build();
+        var (service, wanted, player, store, _, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();                  // crime + arrest same tick
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // verdict
@@ -253,14 +253,14 @@ public class JusticeServiceTests
     [Fact]
     public void Recidivism_SecondVerdict_HarsherFine()
     {
-        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, player, store, _, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
 
         // First conviction: Minor offense → fine 2000 (multiplier 1.0) → release
         wanted.CurrentStars = 2;
         service.Tick();
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
         service.AdvanceTrialTime(45.0);
         service.Tick();
         Assert.Equal(JusticeState.Free, service.State);
@@ -273,7 +273,7 @@ public class JusticeServiceTests
         service.Tick();
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -284,12 +284,12 @@ public class JusticeServiceTests
     [Fact]
     public void PrisonDays_Served_ReleasesAndAges()
     {
-        var (service, wanted, player, store, _, clock, _) = Build();
+        var (service, wanted, player, store, _, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // S19: confrontation window expires -> cuffed
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // S21: cop reaches you -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // 30-day sentence, confined
         Assert.Equal(JusticeState.Prison, service.State);
@@ -307,11 +307,11 @@ public class JusticeServiceTests
     {
         // S13: NO auto-escape — wandering past the yard radius is containment; a
         // guard brings you back to the cell. Escaping is always the player's choice.
-        var (service, wanted, player, store, notifier, clock, _) = Build();
+        var (service, wanted, player, store, notifier, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined
@@ -329,11 +329,11 @@ public class JusticeServiceTests
     [Fact]
     public void YardTime_OpensAtEndOfDay_WithHint()
     {
-        var (service, wanted, player, _, notifier, clock, _) = Build();
+        var (service, wanted, player, _, notifier, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined (day = 30s, yard opens at 20s)
@@ -347,11 +347,11 @@ public class JusticeServiceTests
         [Fact]
     public void Escape_Choice_TimeStopFreezesGuards()
     {
-        var (service, wanted, player, _, notifier, clock, _) = Build();
+        var (service, wanted, player, _, notifier, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -370,11 +370,11 @@ public class JusticeServiceTests
     public void Escape_Choice_PowersBlink()
     {
         // S13: escape is a CHOICE — yard time, open the plan, pick powers (X)
-        var (service, wanted, player, _, notifier, clock, _) = Build();
+        var (service, wanted, player, _, notifier, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -392,11 +392,11 @@ public class JusticeServiceTests
     public void Escape_Choice_InvisibleSlipsPastGuards()
     {
         // S13: stealth-flavored power pick — invisibility (the choice mechanic, not the fence)
-        var (service, wanted, player, _, notifier, clock, _) = Build();
+        var (service, wanted, player, _, notifier, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -414,11 +414,11 @@ public class JusticeServiceTests
     public void Escape_Choice_FlyOverWall()
     {
         // S13: fly is a power pick in the escape plan
-        var (service, wanted, player, _, notifier, clock, _) = Build();
+        var (service, wanted, player, _, notifier, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -435,11 +435,11 @@ public class JusticeServiceTests
     [Fact]
     public void Escape_SetsManhuntStars_AndMedia()
     {
-        var (service, wanted, player, store, _, clock, input) = Build();
+        var (service, wanted, player, store, _, clock, input, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -457,11 +457,11 @@ public class JusticeServiceTests
     [Fact]
     public void Manhunt_ExpiresAfterOneGameDay()
     {
-        var (service, wanted, player, _, notifier, clock, input) = Build();
+        var (service, wanted, player, _, notifier, clock, input, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
@@ -480,11 +480,11 @@ public class JusticeServiceTests
     [Fact]
     public void Confinement_BookingPoseAndCellIdle()
     {
-        var (service, wanted, player, _, _, clock, _) = Build();
+        var (service, wanted, player, _, _, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined → booking anim
@@ -503,11 +503,11 @@ public class JusticeServiceTests
     public void Escape_NotPossibleOutsideYardTime()
     {
         // In cell phase, the at-fence + hotkey combo must NOT escape (only crossing does)
-        var (service, wanted, player, _, notifier, clock, input) = Build();
+        var (service, wanted, player, _, notifier, clock, input, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
+                crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined, cell phase
@@ -526,7 +526,7 @@ public class JusticeServiceTests
     [Fact]
     public void DeathWhileWanted_OnRespawn_CustodyAndHospitalRefund()
     {
-        var (service, wanted, player, store, notifier, clock, _) = Build();
+        var (service, wanted, player, store, notifier, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 3;
         service.Tick();                    // Moderate crime
@@ -547,7 +547,7 @@ public class JusticeServiceTests
     [Fact]
     public void DeathWhileWanted_TrialSchedulesVerdict()
     {
-        var (service, wanted, player, store, _, clock, _) = Build();
+        var (service, wanted, player, store, _, clock, _, crimeProbe) = Build();
         player.IsVisible = true;
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime
@@ -567,7 +567,7 @@ public class JusticeServiceTests
     [Fact]
     public void DeathNotWanted_NoCustody()
     {
-        var (service, wanted, player, _, notifier, _, _) = Build();
+        var (service, wanted, player, _, notifier, _, _, crimeProbe) = Build();
         player.IsVisible = true;
         player.IsDead = true;
         service.Tick();                    // died with no wanted episode
@@ -584,12 +584,12 @@ public class JusticeServiceTests
     public void Trial_FiresAfterDelaySeconds_NotBefore()
     {
         // Minor offense + report escalation → arrested; fine-only release (S12)
-        var (service, wanted, _, _, _, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, _, _, _, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
 
         service.AdvanceTrialTime(44.9);    // 45s default delay
         service.Tick();
@@ -602,25 +602,27 @@ public class JusticeServiceTests
 
     // --- S10: chase escape media (you lost the cops → viral) ---
 
-    private static (JusticeService service, FakeWantedMonitor wanted, FakeMediaNotifier media, FakePlayer player) BuildWithMedia()
+    private static (JusticeService service, FakeWantedMonitor wanted, FakeMediaNotifier media, FakePlayer player, FakeCrimeProbe crimeProbe) BuildWithMedia()
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true, DistrictName = "Vinewood" };
         var store = new FakeRecordStore();
         var media = new FakeMediaNotifier();
+        var crimeProbe = new FakeCrimeProbe();
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
             new FakeNotifier(), new FakeLog(), new JusticeConfig(), new FakeClock(),
-            new MediaService(media, new FakeLog(), new JusticeConfig()));
-        return (service, wanted, media, player);
+            new MediaService(media, new FakeLog(), new JusticeConfig()),
+            crimeProbe: crimeProbe);
+        return (service, wanted, media, player, crimeProbe);
     }
 
     [Fact]
     public void ChaseEscape_StarsDropWithoutCapture_ViralNews()
     {
-        var (service, wanted, media, _) = BuildWithMedia();
+        var (service, wanted, media, _, crimeProbe) = BuildWithMedia();
         wanted.CurrentStars = 3;
         service.Tick();                    // Moderate crime
         wanted.CurrentStars = 0;
@@ -633,11 +635,11 @@ public class JusticeServiceTests
     [Fact]
     public void ChaseEscape_NotAfterArrest()
     {
-        var (service, wanted, media, _) = BuildWithMedia();
+        var (service, wanted, media, _, crimeProbe) = BuildWithMedia();
         wanted.CurrentStars = 4;
-        service.Tick();                    // arrest (capture)
-                service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // S19: confrontation window expires -> cuffed
+        service.Tick();                    // Wanted
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // S21: cop reaches you -> cuffed
         wanted.CurrentStars = 0;
         service.Tick();                    // stars cleared after capture
 
@@ -647,7 +649,7 @@ public class JusticeServiceTests
     [Fact]
     public void ChaseEscape_NotOnDeath()
     {
-        var (service, wanted, media, player) = BuildWithMedia();
+        var (service, wanted, media, player, crimeProbe) = BuildWithMedia();
         wanted.CurrentStars = 3;
         service.Tick();                    // Moderate crime
         player.IsDead = true;              // died in the chase
@@ -663,7 +665,7 @@ public class JusticeServiceTests
     public void WarrantReports_Escalate_UntilCapture()
     {
         // Each recognition raises the response: 1★ → 2★ → 3★ → 4★ → captured
-        var (service, wanted, _, store, _, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, _, store, _, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
 
         service.Tick();
         Assert.Equal(1, wanted.CurrentStars);
@@ -679,7 +681,7 @@ public class JusticeServiceTests
         service.Tick();
         service.Tick();                  // 4th report → 4★
         service.Tick();                  // S19 confrontation begins
-        service.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                  // cuffed
 
         Assert.Equal(JusticeState.Captured, service.State);
@@ -690,12 +692,12 @@ public class JusticeServiceTests
     public void Verdict_ChargesAllUnchargedCrimes_TotalFine()
     {
         // Two episodes → two charges at the next court date: 2000 + 2000 = 4000
-        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, player, store, _, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                  // Minor #1
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
         service.AdvanceTrialTime(45.0);
         service.Tick();
         Assert.Equal(JusticeState.Free, service.State);
@@ -708,7 +710,7 @@ public class JusticeServiceTests
     public void Verdict_TotalsAcrossEpisodes()
     {
         // Minor (2000) + Moderate (8000) episodes → 10000 fine + 7 days
-        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, player, store, _, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                  // Minor
         wanted.CurrentStars = 0;
@@ -717,7 +719,7 @@ public class JusticeServiceTests
         service.Tick();                  // Moderate
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -733,13 +735,13 @@ public class JusticeServiceTests
     {
         // Moderate charge (8000) with only 3000 cash → pay 3000, $5,000 short →
         // +5 days at the $1,000/day rate → prison
-        var (service, wanted, player, store, _, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, player, store, _, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
         player.Money = 3000;
         wanted.CurrentStars = 3;
         service.Tick();                  // Moderate
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -750,7 +752,7 @@ public class JusticeServiceTests
 
     // --- S9: warrant enforcement (civilians report a burned face) ---
 
-    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeProbe probe) BuildWithProbe(double? roll = null, bool burned = false)
+    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeNotifier notifier, FakeProbe probe, FakeCrimeProbe crimeProbe) BuildWithProbe(double? roll = null, bool burned = false)
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true };
@@ -763,20 +765,22 @@ public class JusticeServiceTests
         var notifier = new FakeNotifier();
         var clock = new FakeClock();
         var probe = new FakeProbe { NearbyCivilians = 5 };
+        var crimeProbe = new FakeCrimeProbe();
         var config = new JusticeConfig { WarrantReportSeconds = 0 };   // no cooldown in tests
         var identity = new IdentityService(store, new FakeLog());
         var warrant = new WarrantService(store, new FakeLog());
+        config.PrisonDayRealSeconds = 30;   // tests keep fast deterministic days
         var service = new JusticeService(
             wanted, player, store, identity, warrant, notifier, new FakeLog(),
             config, clock, null, null, null, null, probe,
-            roll.HasValue ? () => roll.Value : null);
-        return (service, wanted, player, store, notifier, probe);
+            roll.HasValue ? () => roll.Value : null, crimeProbe: crimeProbe);
+        return (service, wanted, player, store, notifier, probe, crimeProbe);
     }
 
     [Fact]
     public void WarrantReport_BurnedVisibleNearCivilians_StarsRise()
     {
-        var (service, wanted, _, _, notifier, _) = BuildWithProbe(0.0, burned: true);   // always reports
+        var (service, wanted, _, _, notifier, _, crimeProbe) = BuildWithProbe(0.0, burned: true);   // always reports;
 
         service.Tick();
         service.Tick();   // next tick: stars 0 → 1 edge (suppressed crime)
@@ -788,7 +792,7 @@ public class JusticeServiceTests
     [Fact]
     public void WarrantReport_DoesNotRecordNewCrime()
     {
-        var (service, wanted, _, store, _, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, _, store, _, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
 
         service.Tick();   // report raises stars to 1
         service.Tick();   // edge processed — must NOT create a crime event
@@ -799,7 +803,7 @@ public class JusticeServiceTests
     [Fact]
     public void WarrantReport_NotWhenCleanIdentity()
     {
-        var (service, wanted, _, _, notifier, _) = BuildWithProbe(0.0);   // identity stays Clean
+        var (service, wanted, _, _, notifier, _, crimeProbe) = BuildWithProbe(0.0);   // identity stays Clean;
 
         service.Tick();
         service.Tick();
@@ -811,7 +815,7 @@ public class JusticeServiceTests
     [Fact]
     public void WarrantReport_NotWhenInvisible()
     {
-        var (service, wanted, player, _, notifier, _) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, player, _, notifier, _, crimeProbe) = BuildWithProbe(0.0, burned: true);
         player.IsVisible = false;
 
         service.Tick();
@@ -824,7 +828,7 @@ public class JusticeServiceTests
     [Fact]
     public void WarrantReport_NotWithoutCivilians()
     {
-        var (service, wanted, _, _, notifier, probe) = BuildWithProbe(0.0, burned: true);
+        var (service, wanted, _, _, notifier, probe, crimeProbe) = BuildWithProbe(0.0, burned: true);
         probe.NearbyCivilians = 0;
 
         service.Tick();
@@ -837,7 +841,7 @@ public class JusticeServiceTests
     [Fact]
     public void WarrantReport_ChanceMiss_NoReport()
     {
-        var (service, wanted, _, _, notifier, _) = BuildWithProbe(0.99);   // roll misses
+        var (service, wanted, _, _, notifier, _, crimeProbe) = BuildWithProbe(0.99);   // roll misses;
 
         service.Tick();
         service.Tick();

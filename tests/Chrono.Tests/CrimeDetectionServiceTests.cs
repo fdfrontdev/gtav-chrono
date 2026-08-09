@@ -31,7 +31,8 @@ public class CrimeDetectionServiceTests
             new WarrantService(store, new FakeLog()),
             notifier, new FakeLog(), cfg, new FakeClock(),
             new MediaService(new FakeMediaNotifier(), new FakeLog(), cfg),
-            input: new FakeInput(), probe: world, random: () => 0.5);
+            input: new FakeInput(), probe: world, random: () => 0.5,
+            crimeProbe: probe);
         var detection = new CrimeDetectionService(probe, world, player, justice, new FakeLog(), cfg);
         return (detection, justice, wanted, player, probe, world, store, notifier);
     }
@@ -232,7 +233,7 @@ public class CrimeDetectionServiceTests
         // Simulate capture → bail via the real service flow
         wanted.CurrentStars = 4;
         justice.Tick();
-        justice.AdvanceConfrontationTime(6.0);
+        probe.NearestPoliceDistance = 2f;
         justice.Tick();                       // cuffed
         justice.PostBail();                   // on bail
         Assert.True(justice.IsOnBail);
