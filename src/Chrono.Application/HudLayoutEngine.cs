@@ -1,101 +1,164 @@
 using System;
 using System.Collections.Generic;
+using Chrono.Application.Ports;
 
 namespace Chrono.Application;
 
 /// <summary>
-/// S21 v2 — pure HUD-widget layout engine (the "component model" for the widget,
-/// same idea as <see cref="MenuLayoutEngine"/>). Computes ALL widget geometry:
-/// card, accent rail, status row, countdown row, identity row, feed rows.
-/// Game-free — text width from an injected measurer (native in-game, font table
-/// in the preview tool). One layout drives the renderer AND the HTML preview.
+/// S21 v3 — pure HUD-widget layout engine (the "component model" for the widget).
+/// Segmented Material card (user UAT: "readable font, proper widget with
+/// segment/partition — beautiful, practical, usable"):
 ///
-/// FIXES from user UAT (screenshot 2026-08-09): balanced vertical padding
-/// (rows were top-heavy, bottom line hugged the edge), wider accent rail,
-/// text no longer crowds the left with dead right space.
+///   ┌──────────────────────────────────┐
+///   │ CHRONO JUSTICE           ★★★    │  header strip (primary, full width)
+///   ├──────────────────────────────────┤  divider 1
+///   │ WANTED 3★                        │  status row (big, color-coded)
+///   │ ▓▓▓▓▓▓▓▓░░░░  COURT IN 0:34     │  countdown row + progress bar
+///   │ FACE ON FILE (BURNED)            │  identity row
+///   ├──────────────────────────────────┤  divider 2
+///   │ LIVE FEED                        │  section label (overline)
+///   │ W BREAKING: suspect taken...     │  feed rows (blue webnet / gray msg)
+///   │ A civilian recognized you...     │
+///   └──────────────────────────────────┘
+///
+/// Font 0 (Chalet London — the vanilla HUD font) for readability; the v1/v2
+/// font 4 (thin Chalet Comprimé) was the readability problem.
 /// </summary>
 public sealed class HudLayoutEngine
 {
     // ── Tokens (normalized) ──
-    public const float CardW = 0.30f;            // wider than v1 (0.21) — feed needs room
+    public const float CardW = 0.32f;            // a touch wider — bigger type needs room
     public const float RightMargin = 0.020f;     // from right screen edge
-    public const float BottomY = 0.985f;         // card BOTTOM anchor (v2: taller card with feed)
-    public const float AccentW = 0.009f;         // accent rail width (v1 was 0.006 — too thin)
-    public const float RowH = 0.026f;
-    public const int MaxFeedRows = 4;
+    public const float BottomY = 0.985f;         // card BOTTOM anchor
+    public const float Font = 0;                 // Chalet London — the readable HUD font
+    public const float HeaderH = 0.034f;
+    public const float RowH = 0.030f;
+    public const float DividerH = 0.002f;
+    public const int MaxFeedRows = 3;            // bigger type → fewer rows
 
     public readonly record struct Rect(float X, float Y, float W, float H);
-    public readonly record struct TextSpan(string Text, float X, float Y, float Scale, int Font, bool Bold);
+    public readonly record struct TextSpan(string Text, float X, float Y, float Scale, bool Bold);
 
     public sealed record Row(TextSpan Text, (int R, int G, int B) Color);
 
     public sealed record Layout(
-        Rect Card,          // surface
-        Rect Shadow,        // elevation shadow
-        Rect Accent,        // primary rail on the left edge
-        IReadOnlyList<Row> Rows,          // status / countdown / identity / feed lines
+        Rect Card,           // surface
+        Rect Shadow,         // elevation shadow
+        Rect Header,         // primary strip (full card width, top)
+        Rect Divider1,       // header / status
+        Rect Divider2,       // status block / feed block
+        Rect ProgressTrack,  // countdown bar track
+        Rect ProgressFill,   // countdown bar fill (w = track.W * progress)
+        TextSpan HeaderTitle,   // "CHRONO JUSTICE"
+        TextSpan HeaderStars,   // "★★★" right-aligned, amber
+        Row Status,             // big, color-coded
+        Row Countdown,          // smaller, dim
+        Row Identity,           // dimmest
+        TextSpan FeedLabel,     // "LIVE FEED" overline
+        IReadOnlyList<Row> FeedRows,
         float CardHeight);
 
     /// <summary>
-    /// Compute widget layout. status/countdown/identity are the v1 rows; feed is
-    /// the live message tail (messages + WEBNET headlines). measure(text, scale,
-    /// font) → normalized width.
+    /// Compute the segmented widget layout. kind = status color coding;
+    /// progress 0..1 drives the countdown bar fill (0 = no bar).
     /// </summary>
     public static Layout Compute(
         string status, string countdown, string identity,
         IReadOnlyList<HudFeedItem> feed,
+        JusticeStatusKind kind, float progress, int stars,
         Func<string, float, int, float> measure,
         bool hasCountdown = true, bool hasIdentity = true)
     {
-        float cardH = 0.012f + RowH + RowH + RowH + 0.006f + MaxFeedRows * 0.022f + 0.012f;
-        float right = 1f - RightMargin;          // card RIGHT edge (left-edge semantics)
-        float x = right - CardW;                 // card left edge — v2 bug fix: right edge was at 1.13 (off-screen)
-        float y = BottomY - cardH;               // v2: BottomY anchors the card BOTTOM (not center)
+        int feedRows = Math.Min(feed.Count, MaxFeedRows);
+        // feed block: label pad + label + rows + bottom pad. The last row's text
+        // CENTER sits at labelY+0.008+feedRows*0.024; its glyphs extend ~0.011
+        // below the center (half line-height at 0.21 scale) — the v3 clip bug:
+        // block was short by ~0.012, cutting the last feed line at the card edge.
+        float feedBlockH = 0.006f + 0.008f + feedRows * 0.024f + 0.028f;
+        float cardH = HeaderH + DividerH + RowH * 2.5f + DividerH + feedBlockH;
 
+        float right = 1f - RightMargin;
+        float x = right - CardW;
+        float y = BottomY - cardH;
         var card = new Rect(x, y, CardW, cardH);
         var shadow = new Rect(x - 0.006f, y - 0.006f, CardW + 0.012f, cardH + 0.012f);
-        var accent = new Rect(x + 0.004f, y, AccentW, cardH - 0.008f);
 
-        var rows = new List<Row>(3 + MaxFeedRows);
-        float textX = x + 0.018f;
-        float maxW = CardW - 0.036f;
+        float textX = x + 0.016f;
+        float maxW = CardW - 0.032f;
 
-        // Row 1 — status (bold, near-white)
-        rows.Add(new Row(new TextSpan(Truncate(status, maxW, measure, 0.24f, 4), textX, y + 0.006f + RowH / 2f, 0.24f, 4, true), (235, 235, 235)));
+        // ── Header strip ──
+        var header = new Rect(x, y, CardW, HeaderH);
+        var headerTitle = new TextSpan(Truncate("CHRONO JUSTICE", maxW - 0.10f, measure, 0.22f), textX, y + HeaderH / 2f, 0.22f, true);
+        string starStr = new string('★', Math.Max(0, Math.Min(5, stars)));
+        var headerStars = new TextSpan(starStr, x + CardW - 0.016f - 0.055f, y + HeaderH / 2f, 0.22f, true);
 
-        // Row 2 — countdown (amber for court, blue for prison, dim otherwise)
-        if (hasCountdown && !string.IsNullOrEmpty(countdown))
-            rows.Add(new Row(new TextSpan(Truncate(countdown, maxW, measure, 0.26f, 4), textX, y + 0.006f + RowH * 1.5f, 0.26f, 4, false), (160, 160, 160)));
+        // ── Status block ──
+        float divider1Y = y + HeaderH;
+        var divider1 = new Rect(x + 0.008f, divider1Y, CardW - 0.016f, DividerH);
 
-        // Row 3 — identity (dim)
-        if (hasIdentity && !string.IsNullOrEmpty(identity))
-            rows.Add(new Row(new TextSpan(Truncate(identity, maxW, measure, 0.22f, 4), textX, y + 0.006f + RowH * 2.5f, 0.22f, 4, false), (120, 120, 120)));
+        float statusY = divider1Y + DividerH + RowH * 0.5f;
+        var statusRow = new Row(
+            new TextSpan(Truncate(status, maxW, measure, 0.30f), textX, statusY, 0.30f, true),
+            KindColor(kind));
 
-        // Feed — up to MaxFeedRows, oldest first; WEBNET/viral get the blue tint
-        float feedTop = y + 0.006f + RowH * 3 + 0.006f;
-        int shown = Math.Min(feed.Count, MaxFeedRows);
-        for (int i = 0; i < shown; i++)
+        float countdownY = statusY + RowH;
+        var countdownRow = new Row(
+            new TextSpan(Truncate(countdown, maxW, measure, 0.24f), textX, countdownY, 0.24f, false),
+            (170, 170, 170));
+
+        float identityY = countdownY + RowH;
+        var identityRow = new Row(
+            new TextSpan(Truncate(identity, maxW, measure, 0.22f), textX, identityY, 0.22f, false),
+            (130, 130, 130));
+
+        // ── Divider 2 + feed block ──
+        float feedTop = identityY + RowH * 0.5f;
+        var divider2 = new Rect(x + 0.008f, feedTop, CardW - 0.016f, DividerH);
+        float labelY = feedTop + 0.006f;
+        var feedLabel = new TextSpan("LIVE FEED", textX, labelY, 0.17f, true);
+
+        var feedRowsList = new List<Row>(feedRows);
+        for (int i = 0; i < feedRows; i++)
         {
             var item = feed[i];
-            string label = item.Kind == FeedKind.Webnet ? "W " + item.Text : item.Text;
-            if (item.Kind == FeedKind.Viral) label = "V " + item.Text;
+            string label = item.Kind == FeedKind.Webnet ? "W " + item.Text
+                : item.Kind == FeedKind.Viral ? "V " + item.Text : item.Text;
             var color = item.Kind == FeedKind.Webnet ? (100, 181, 246)
-                : item.Kind == FeedKind.Viral ? (239, 83, 80) : (140, 140, 140);
-            rows.Add(new Row(new TextSpan(Truncate(label, maxW, measure, 0.19f, 4), textX, feedTop + i * 0.022f, 0.19f, 4, false), color));
+                : item.Kind == FeedKind.Viral ? (239, 83, 80) : (150, 150, 150);
+            feedRowsList.Add(new Row(
+                new TextSpan(Truncate(label, maxW, measure, 0.21f), textX, labelY + 0.008f + (i + 1) * 0.024f, 0.21f, false),
+                color));
         }
 
-        return new Layout(card, shadow, accent, rows, cardH);
+        // ── Countdown progress bar (under the countdown row) ──
+        float barTop = countdownY + 0.010f;
+        var track = new Rect(x + 0.016f, barTop, maxW, 0.004f);
+        var fill = new Rect(x + 0.016f, barTop, maxW * Math.Max(0f, Math.Min(1f, progress)), 0.004f);
+
+        return new Layout(card, shadow, header, divider1, divider2, track, fill,
+            headerTitle, headerStars, statusRow, countdownRow, identityRow,
+            feedLabel, feedRowsList, cardH);
     }
 
+    /// <summary>Material semantic status colors (S21 v3).</summary>
+    public static (int R, int G, int B) KindColor(JusticeStatusKind kind) => kind switch
+    {
+        JusticeStatusKind.Wanted   => (255, 179, 64),    // amber
+        JusticeStatusKind.Captured => (239, 83, 80),     // red
+        JusticeStatusKind.Prison   => (100, 181, 246),   // blue
+        JusticeStatusKind.OnBail   => (171, 71, 188),    // violet
+        _                          => (76, 175, 80),     // green (Free)
+    };
+
     public static string Truncate(string text, float maxW, Func<string, float, int, float> measure,
-        float scale, int font)
+        float scale)
     {
         if (string.IsNullOrEmpty(text)) return text;
-        if (measure(text, scale, font) <= maxW) return text;
+        if (measure(text, scale, (int)Font) <= maxW) return text;
         for (int i = text.Length - 1; i > 0; i--)
         {
             string t = text.Substring(0, i) + "...";
-            if (measure(t, scale, font) <= maxW) return t;
+            if (measure(t, scale, (int)Font) <= maxW) return t;
         }
         return "...";
     }

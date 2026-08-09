@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using Chrono.Application;
+using Chrono.Application.Ports;
 using Xunit;
 
 namespace Chrono.Tests;
 
 /// <summary>
-/// S21 v2 — deterministic layout tests for the HUD widget (the "proper testing"
-/// loop the user asked for). Same <see cref="HudLayoutEngine"/> drives the
-/// in-game renderer AND the HTML preview tool.
+/// S21 v3 — deterministic layout tests for the segmented HUD widget (the
+/// "proper widget" redesign: header strip, divider lines, color-coded status,
+/// progress bar, LIVE FEED segment). Same <see cref="HudLayoutEngine"/> drives
+/// the in-game renderer AND the HTML preview tool.
 /// </summary>
 public class HudLayoutEngineTests
 {
@@ -22,56 +24,142 @@ public class HudLayoutEngineTests
         return list;
     }
 
+    private static HudLayoutEngine.Layout Compute(
+        string status = "FREE", string countdown = "", string identity = "CLEAN IDENTITY",
+        List<HudFeedItem>? feed = null, JusticeStatusKind kind = JusticeStatusKind.Free, float progress = 0f, int stars = 3)
+        => HudLayoutEngine.Compute(status, countdown, identity,
+            feed ?? Feed(), kind, progress, stars, Measure,
+            hasCountdown: !string.IsNullOrEmpty(countdown),
+            hasIdentity: !string.IsNullOrEmpty(identity));
+
     // ── 1. Card geometry ──
 
     [Fact]
     public void Card_IsBottomRight_InsideScreen()
     {
-        var layout = HudLayoutEngine.Compute("FREE", "", "CLEAN IDENTITY", Feed(), Measure,
-            hasCountdown: false);
+        var layout = Compute();
 
         // Card RIGHT edge must sit at the right margin (v2 bug: it was at 1.13 — off-screen)
         float cardRight = layout.Card.X + layout.Card.W;
         Assert.InRange(cardRight, 1f - HudLayoutEngine.RightMargin - 0.001f, 1f - HudLayoutEngine.RightMargin + 0.001f);
-        // Card bottom must sit at the bottom anchor (not above, not off-screen)
+        // Card bottom must sit at the bottom anchor
         Assert.InRange(layout.Card.Y + layout.Card.H, HudLayoutEngine.BottomY - 0.001f, HudLayoutEngine.BottomY + 0.001f);
         Assert.True(layout.Card.X > 0.5f, "card must be on the right half");
         Assert.True(layout.Card.X + layout.Card.W <= 1f, "card must not exceed the screen width");
     }
 
     [Fact]
-    public void AccentRail_SpansCard_InsideLeftEdge()
+    public void HeaderStrip_SitsAtCardTop_FullWidth()
     {
-        var layout = HudLayoutEngine.Compute("FREE", "", "", Feed(), Measure, hasCountdown: false, hasIdentity: false);
+        var layout = Compute();
 
-        Assert.True(layout.Accent.W >= 0.008f, "accent rail must be visible (v1 was too thin)");
-        Assert.True(layout.Accent.X + layout.Accent.W <= layout.Card.X + 0.02f,
-            "accent must sit near the card's left edge");
-        Assert.True(layout.Accent.H <= layout.Card.H - 0.004f, "accent must not exceed card height");
+        Assert.Equal(layout.Card.Y, layout.Header.Y, 3);
+        Assert.Equal(layout.Card.W, layout.Header.W, 3);
+        Assert.Equal(HudLayoutEngine.HeaderH, layout.Header.H, 3);
+        Assert.Equal(layout.Card.X, layout.Header.X, 3);
     }
 
-    // ── 2. Row balance (the v1 "off" look: top-heavy, bottom hugged the edge) ──
+    // ── 2. Segments & partitions (the "proper widget" ask) ──
+
+    [Fact]
+    public void Dividers_SeparateHeaderAndFeedBlocks()
+    {
+        var layout = Compute(feed: Feed(("msg", FeedKind.Message)));
+
+        // divider 1: between header and status block
+        Assert.True(layout.Divider1.Y > layout.Header.Y + layout.Header.H - 0.001f,
+            "divider1 must sit below the header strip");
+        Assert.True(layout.Status.Text.Y > layout.Divider1.Y, "status must sit below divider1");
+
+        // divider 2: between status block and feed block
+        Assert.True(layout.Divider2.Y > layout.Identity.Text.Y, "divider2 must sit below identity");
+        Assert.True(layout.FeedLabel.Y > layout.Divider2.Y, "feed label must sit below divider2");
+        Assert.Equal(layout.Divider2.Y, layout.Divider2.Y, 3);   // same rect, defined once
+    }
+
+    [Fact]
+    public void FeedLabel_PrefixesFeedRows()
+    {
+        var layout = Compute(feed: Feed(("hello", FeedKind.Message)));
+
+        Assert.Equal("LIVE FEED", layout.FeedLabel.Text);
+        Assert.Single(layout.FeedRows);
+        Assert.True(layout.FeedRows[0].Text.Y > layout.FeedLabel.Y, "feed rows below the label");
+    }
+
+    // ── 3. Row balance & readability (font 0, bigger type) ──
+
+    [Fact]
+    public void StatusRow_UsesReadableFontAndBigScale()
+    {
+        var layout = Compute(status: "WANTED 3★", kind: JusticeStatusKind.Wanted);
+
+        Assert.Equal(0, (int)HudLayoutEngine.Font);   // font 0 = Chalet London
+        Assert.True(layout.Status.Text.Scale >= 0.28f, "status must be big (readability)");
+        Assert.True(layout.Status.Text.Bold, "status must be bold");
+    }
 
     [Fact]
     public void Rows_AreVerticallyBalanced_InsideCard()
     {
-        var layout = HudLayoutEngine.Compute("WANTED 3*", "COURT IN 0:34", "WARRANT ACTIVE", Feed(), Measure);
+        var layout = Compute(countdown: "COURT IN 0:34", identity: "WARRANT ACTIVE",
+            feed: Feed(("m", FeedKind.Message)), kind: JusticeStatusKind.Captured, progress: 0.5f);
 
-        Assert.True(layout.Rows.Count >= 3, "status + countdown + identity rows");
-        foreach (var row in layout.Rows)
+        foreach (var row in new[] { layout.Status, layout.Countdown, layout.Identity })
         {
-            Assert.InRange(row.Text.Y, layout.Card.Y + 0.004f, layout.Card.Y + layout.Card.H - 0.004f);
+            Assert.InRange(row.Text.Y, layout.Card.Y, layout.Card.Y + layout.Card.H);
         }
-        // status must not hug the top edge (v1 defect)
-        Assert.True(layout.Rows[0].Text.Y > layout.Card.Y + 0.008f,
-            "status row must have top breathing room");
-        // identity must not hug the bottom edge
-        var last = layout.Rows[Math.Min(2, layout.Rows.Count - 1)];
-        Assert.True(last.Text.Y < layout.Card.Y + layout.Card.H - 0.008f,
-            "last text row must have bottom breathing room");
+        Assert.True(layout.Status.Text.Y > layout.Card.Y + 0.008f, "status must have top breathing room");
     }
 
-    // ── 3. Feed ──
+    [Fact]
+    public void HeaderStars_ReflectWantedLevel_Clamped()
+    {
+        var none = Compute(stars: 0);
+        Assert.Equal("", none.HeaderStars.Text);
+
+        var three = Compute(stars: 3);
+        Assert.Equal("★★★", three.HeaderStars.Text);
+
+        var over = Compute(stars: 7);
+        Assert.Equal("★★★★★", over.HeaderStars.Text);   // clamped to 5
+    }
+
+    // ── 4. Status color coding ──
+
+    [Fact]
+    public void KindColor_CodesEachState()
+    {
+        Assert.Equal((76, 175, 80), HudLayoutEngine.KindColor(JusticeStatusKind.Free));     // green
+        Assert.Equal((255, 179, 64), HudLayoutEngine.KindColor(JusticeStatusKind.Wanted));  // amber
+        Assert.Equal((239, 83, 80), HudLayoutEngine.KindColor(JusticeStatusKind.Captured)); // red
+        Assert.Equal((100, 181, 246), HudLayoutEngine.KindColor(JusticeStatusKind.Prison)); // blue
+        Assert.Equal((171, 71, 188), HudLayoutEngine.KindColor(JusticeStatusKind.OnBail));  // violet
+    }
+
+    [Fact]
+    public void StatusColor_MatchesKind()
+    {
+        var layout = Compute(status: "IN CUSTODY — COURT AWAITS", kind: JusticeStatusKind.Captured);
+        Assert.Equal(HudLayoutEngine.KindColor(JusticeStatusKind.Captured), layout.Status.Color);
+    }
+
+    // ── 5. Progress bar ──
+
+    [Fact]
+    public void ProgressFill_ScalesWithProgress_Clamped()
+    {
+        var half = Compute(countdown: "COURT IN 0:34", progress: 0.5f);
+        Assert.Equal(half.ProgressTrack.W * 0.5f, half.ProgressFill.W, 3);
+
+        var full = Compute(countdown: "COURT IN 0:05", progress: 1.2f);
+        Assert.Equal(full.ProgressTrack.W, full.ProgressFill.W, 3);   // clamped to 1.0
+
+        var none = Compute(progress: 0f);
+        Assert.True(none.ProgressFill.W <= 0.001f, "zero progress → no fill");
+    }
+
+    // ── 6. Feed ──
 
     [Fact]
     public void Feed_RendersUpToMaxRows_OldestFirst()
@@ -81,39 +169,33 @@ public class HudLayoutEngineTests
             ("second", FeedKind.Message),
             ("third", FeedKind.Webnet),
             ("fourth", FeedKind.Viral),
-            ("fifth", FeedKind.Message),
-            ("sixth", FeedKind.Message));   // 6 items > MaxFeedRows 4
+            ("fifth", FeedKind.Message));   // 5 items > MaxFeedRows 3
 
-        var layout = HudLayoutEngine.Compute("FREE", "", "CLEAN", feed, Measure, hasCountdown: false);
+        var layout = Compute(feed: feed);
 
-        int feedRows = layout.Rows.Count - 2;   // status + identity are the first 2
-        Assert.Equal(HudLayoutEngine.MaxFeedRows, feedRows);
-        // oldest items shown (first 4 of the feed)
-        Assert.Contains(layout.Rows, r => r.Text.Text == "first");
-        Assert.DoesNotContain(layout.Rows, r => r.Text.Text == "sixth");
+        Assert.Equal(HudLayoutEngine.MaxFeedRows, layout.FeedRows.Count);
+        Assert.Contains(layout.FeedRows, r => r.Text.Text == "first");
+        Assert.DoesNotContain(layout.FeedRows, r => r.Text.Text == "fifth");
     }
 
     [Fact]
     public void WebnetItems_GetBlueTint_AndPrefix()
     {
-        var feed = Feed(("BREAKING: suspect caught", FeedKind.Webnet));
-        var layout = HudLayoutEngine.Compute("FREE", "", "CLEAN", feed, Measure, hasCountdown: false);
+        var layout = Compute(feed: Feed(("BREAKING: suspect caught", FeedKind.Webnet)));
 
-        var webnetRow = layout.Rows[2];
-        Assert.StartsWith("W ", webnetRow.Text.Text);
-        Assert.Equal((100, 181, 246), webnetRow.Color);
+        Assert.StartsWith("W ", layout.FeedRows[0].Text.Text);
+        Assert.Equal((100, 181, 246), layout.FeedRows[0].Color);
     }
 
     [Fact]
     public void LongFeedText_IsEllipsized()
     {
-        var feed = Feed(("A very long WEBNET headline that will never fit the widget width at all so it must be truncated with dots", FeedKind.Webnet));
-        var layout = HudLayoutEngine.Compute("FREE", "", "CLEAN", feed, Measure, hasCountdown: false);
+        var layout = Compute(feed: Feed(("A very long WEBNET headline that will never fit the widget width at all so it must be truncated with dots", FeedKind.Webnet)));
 
-        Assert.EndsWith("...", layout.Rows[2].Text.Text);
+        Assert.EndsWith("...", layout.FeedRows[0].Text.Text);
     }
 
-    // ── 4. Feed buffer behavior ──
+    // ── 7. Feed buffer behavior ──
 
     [Fact]
     public void FeedBuffer_CapsAtMaxItems_OldestDropped()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Chrono.Application;
+using Chrono.Application.Ports;
 
 namespace Chrono.MenuPreview;
 
@@ -69,20 +70,43 @@ public static class Program
     /// <summary>Widget preview inputs — the same snapshot shape the widget builds.</summary>
     private sealed record WidgetPreview(
         string Status, string Countdown, string Identity,
-        HudFeedItem[] Feed);
+        HudFeedItem[] Feed, JusticeStatusKind Kind, float Progress, int Stars = 3);
 
     private static void AppendWidgetScreen(StringBuilder sb, WidgetPreview wp)
     {
         var layout = HudLayoutEngine.Compute(wp.Status, wp.Countdown, wp.Identity,
-            wp.Feed, MeasureApprox,
+            wp.Feed, wp.Kind, wp.Progress, wp.Stars, MeasureApprox,
             hasCountdown: !string.IsNullOrEmpty(wp.Countdown),
             hasIdentity: !string.IsNullOrEmpty(wp.Identity));
 
         AppendRect(sb, layout.Shadow, 0, 0, 0, 0.62f);
-        AppendRect(sb, layout.Card, 30, 30, 30, 0.94f);
-        AppendRect(sb, layout.Accent, 24, 103, 192, 1f);
+        AppendRect(sb, layout.Card, 30, 30, 30, 0.95f);
 
-        foreach (var row in layout.Rows)
+        // header strip
+        AppendRect(sb, layout.Header, 24, 103, 192, 1f);
+        AppendText(sb, layout.HeaderTitle.Text, layout.HeaderTitle.X, layout.HeaderTitle.Y, layout.HeaderTitle.Scale, 235, 235, 235, true);
+        AppendText(sb, layout.HeaderStars.Text, layout.HeaderStars.X, layout.HeaderStars.Y, layout.HeaderStars.Scale, 255, 193, 7, true);
+
+        // dividers
+        AppendRect(sb, layout.Divider1, 122, 122, 122, 0.55f);
+        AppendRect(sb, layout.Divider2, 122, 122, 122, 0.55f);
+
+        // status / countdown / identity
+        AppendText(sb, layout.Status.Text.Text, layout.Status.Text.X, layout.Status.Text.Y, layout.Status.Text.Scale,
+            layout.Status.Color.R, layout.Status.Color.G, layout.Status.Color.B, layout.Status.Text.Bold);
+        AppendText(sb, layout.Countdown.Text.Text, layout.Countdown.Text.X, layout.Countdown.Text.Y, layout.Countdown.Text.Scale,
+            layout.Countdown.Color.R, layout.Countdown.Color.G, layout.Countdown.Color.B, layout.Countdown.Text.Bold);
+        AppendText(sb, layout.Identity.Text.Text, layout.Identity.Text.X, layout.Identity.Text.Y, layout.Identity.Text.Scale,
+            layout.Identity.Color.R, layout.Identity.Color.G, layout.Identity.Color.B, layout.Identity.Text.Bold);
+
+        // progress bar
+        AppendRect(sb, layout.ProgressTrack, 44, 44, 44, 1f);
+        if (layout.ProgressFill.W > 0.001f)
+            AppendRect(sb, layout.ProgressFill, 24, 103, 192, 1f);
+
+        // feed block
+        AppendText(sb, layout.FeedLabel.Text, layout.FeedLabel.X, layout.FeedLabel.Y, layout.FeedLabel.Scale, 190, 190, 190, true);
+        foreach (var row in layout.FeedRows)
         {
             AppendText(sb, row.Text.Text, row.Text.X, row.Text.Y, row.Text.Scale,
                 row.Color.R, row.Color.G, row.Color.B, row.Text.Bold);
@@ -223,24 +247,24 @@ public static class Program
             Status: "FREE", Countdown: "", Identity: "CLEAN IDENTITY",
             Feed: new[] {
                 new HudFeedItem("A civilian recognized you — police dispatched (1★)", FeedKind.Message, "12:01:22"),
-            })));
+            }, JusticeStatusKind.Free, 0f)));
         screens.Add(("WIDGET: WANTED", new WidgetPreview(
             Status: "WANTED 3*", Countdown: "", Identity: "WARRANT ACTIVE — FACE ON FILE",
             Feed: new[] {
                 new HudFeedItem("A civilian recognized you — police dispatched (3★)", FeedKind.Message, "12:05:10"),
                 new HudFeedItem("POLICE LOSE SUPER-POWERED SUSPECT in Vinewood — chase footage goes viral", FeedKind.Viral, "12:05:44"),
-            })));
+            }, JusticeStatusKind.Wanted, 0f)));
         screens.Add(("WIDGET: CUSTODY", new WidgetPreview(
             Status: "IN CUSTODY — COURT AWAITS", Countdown: "COURT IN 0:34", Identity: "FACE ON FILE (BURNED)",
             Feed: new[] {
                 new HudFeedItem("BREAKING: super-powered suspect taken into custody", FeedKind.Webnet, "12:10:02"),
                 new HudFeedItem("Bail: $12,000 — press G or face the court", FeedKind.Message, "12:10:05"),
-            })));
+            }, JusticeStatusKind.Captured, 0.55f)));
         screens.Add(("WIDGET: PRISON", new WidgetPreview(
             Status: "PRISON — DAY 3/14", Countdown: "NEXT DAY IN 0:12", Identity: "WARRANT CLEARED",
             Feed: new[] {
                 new HudFeedItem("Day 2 of 14 — yard time at dusk", FeedKind.Message, "12:30:00"),
-            })));
+            }, JusticeStatusKind.Prison, 0.4f)));
 
         return screens;
     }
