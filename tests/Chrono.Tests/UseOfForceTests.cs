@@ -118,36 +118,69 @@ public class UseOfForceTests
         Assert.False(crimeProbe.HoldActive, "no chase → no hold-fire needed");
     }
 
-    // ── 3. Compliance stand-down now works from 2★ (was 3★) ──
+    // ── 3. S21 v2: compliance = ARREST (user UAT 2026-08-09 — the old star-decay
+    // "officers leave" release was removed: complying with a cop in reach cuffs
+    // you; the chase-escape event fires only when stars drop WITHOUT capture) ──
 
     [Fact]
-    public void StandDown_AtTwoStars_StarsDecayToZero()
+    public void Comply_WithCopInReach_ArrestsYou()
     {
         var (service, wanted, player, crimeProbe, _) = Build();
         StartChase(service, wanted, 2);
+        crimeProbe.NearestPoliceDistance = 6f;   // a cop is within surrender range (12m)
 
-        // 3+ seconds of stillness → stand-down fires, stars decay
+        // 3+ seconds of stillness + unarmed → compliance completes → ARRESTED
         service.Tick();
         service.AdvanceComplianceTime(4.0);
         service.Tick();
 
-        Assert.True(wanted.CurrentStars < 2, "2★ compliant suspect → stars decay");
-        Assert.True(crimeProbe.HoldActive, "hold stays active through the stand-down");
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.Equal(0, wanted.CurrentStars);   // handcuffed — chase over (S11)
     }
 
     [Fact]
-    public void StandDown_ActiveAtOneStar_ContinuesToZero()
+    public void Comply_NoCopInReach_DoesNotRelease()
     {
-        // An ACTIVE stand-down runs all the way to 0 even below the 2★ gate
         var (service, wanted, player, crimeProbe, _) = Build();
+        StartChase(service, wanted, 3);
+        crimeProbe.NearestPoliceDistance = 50f;   // no cop in surrender range
+
+        service.Tick();
+        service.AdvanceComplianceTime(10.0);      // long stillness
+        service.Tick();
+
+        // NO star decay, NO release — the player must wait for a cop or run
+        Assert.Equal(JusticeState.Wanted, service.State);
+        Assert.Equal(3, wanted.CurrentStars);
+        Assert.True(crimeProbe.HoldActive, "hold stays active — cops aim, don't shoot");
+    }
+
+    [Fact]
+    public void ComplianceArrest_ClearsWarrant_ViaJusticePipeline()
+    {
+        var (service, wanted, player, crimeProbe, _) = Build();
+        var warrant = service.Warrant;
+        warrant.Activate("2026-08-09T12:00:00");
         StartChase(service, wanted, 2);
+        crimeProbe.NearestPoliceDistance = 6f;
+
         service.Tick();
         service.AdvanceComplianceTime(4.0);
-        service.Tick();                     // stars 2 → 1
+        service.Tick();                      // compliance → custody
 
-        wanted.CurrentStars = 1;
-        service.Tick();                     // below gate but already complying → keep going
-        Assert.True(wanted.CurrentStars <= 1);
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.True(warrant.IsActive, "warrant stays through custody (cleared on release/bail)");
+
+        // Serve the pipeline: trial → sentence (fine-only) → released → warrant cleared
+        service.AdvanceTrialTime(service.TrialSecondsLeft + 1);
+        service.Tick();
+        if (service.State == JusticeState.Captured)
+        {
+            service.AdvanceTrialTime(service.TrialSecondsLeft + 1);
+            service.Tick();
+        }
+        Assert.Equal(JusticeState.Free, service.State);
+        Assert.False(warrant.IsActive, "justice served — warrant cleared, no more civilian reports");
     }
 
     // ── 4. S21: a cop closing in does NOT open fire on a still unarmed suspect —
