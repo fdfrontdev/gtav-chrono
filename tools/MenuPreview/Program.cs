@@ -40,10 +40,13 @@ public static class Program
         sb.AppendLine("<div id='tabs'></div>");
         sb.AppendLine("<div class='stage'>");
         int screenIdx = 0;
-        foreach (var (name, screen) in screens)
+        foreach (var (name, content) in screens)
         {
             sb.AppendLine($"<div class='screen' id='scr{screenIdx}'>");
-            AppendScreen(sb, screen);
+            if (content is MenuScreen ms)
+                AppendMenuScreen(sb, ms);
+            else
+                AppendWidgetScreen(sb, (WidgetPreview)content!);
             sb.AppendLine("</div>");
             screenIdx++;
         }
@@ -63,7 +66,30 @@ public static class Program
         Console.WriteLine($"WROTE {outPath} ({screens.Count} screens)");
     }
 
-    private static void AppendScreen(StringBuilder sb, MenuScreen screen)
+    /// <summary>Widget preview inputs — the same snapshot shape the widget builds.</summary>
+    private sealed record WidgetPreview(
+        string Status, string Countdown, string Identity,
+        HudFeedItem[] Feed);
+
+    private static void AppendWidgetScreen(StringBuilder sb, WidgetPreview wp)
+    {
+        var layout = HudLayoutEngine.Compute(wp.Status, wp.Countdown, wp.Identity,
+            wp.Feed, MeasureApprox,
+            hasCountdown: !string.IsNullOrEmpty(wp.Countdown),
+            hasIdentity: !string.IsNullOrEmpty(wp.Identity));
+
+        AppendRect(sb, layout.Shadow, 0, 0, 0, 0.62f);
+        AppendRect(sb, layout.Card, 30, 30, 30, 0.94f);
+        AppendRect(sb, layout.Accent, 24, 103, 192, 1f);
+
+        foreach (var row in layout.Rows)
+        {
+            AppendText(sb, row.Text.Text, row.Text.X, row.Text.Y, row.Text.Scale,
+                row.Color.R, row.Color.G, row.Color.B, row.Text.Bold);
+        }
+    }
+
+    private static void AppendMenuScreen(StringBuilder sb, MenuScreen screen)
     {
         var layout = MenuLayoutEngine.Compute(screen, MeasureApprox);
 
@@ -116,9 +142,19 @@ public static class Program
 
     private static void AppendRect(StringBuilder sb, MenuLayoutEngine.Rect r, int rr, int g, int b, float a)
     {
+        AppendRect(sb, r.X, r.Y, r.W, r.H, rr, g, b, a);
+    }
+
+    private static void AppendRect(StringBuilder sb, HudLayoutEngine.Rect r, int rr, int g, int b, float a)
+    {
+        AppendRect(sb, r.X, r.Y, r.W, r.H, rr, g, b, a);
+    }
+
+    private static void AppendRect(StringBuilder sb, float x, float y, float w, float h, int rr, int g, int b, float a)
+    {
         // mirror DRAW_RECT: x/y are CENTER coords → center = X + W/2 (the 2nd-column bug fix)
-        float cx = (r.X + r.W / 2f) * W, cy = (r.Y + r.H / 2f) * H;
-        sb.AppendLine($"<div class='rect' style='left:{cx.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)}px;top:{cy.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)}px;width:{r.W * W}px;height:{r.H * H}px;background:rgba({rr},{g},{b},{a.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)});'></div>");
+        float cx = (x + w / 2f) * W, cy = (y + h / 2f) * H;
+        sb.AppendLine($"<div class='rect' style='left:{cx.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)}px;top:{cy.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)}px;width:{w * W}px;height:{h * H}px;background:rgba({rr},{g},{b},{a.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)});'></div>");
     }
 
     private static void AppendText(StringBuilder sb, string text, float x, float y, float scale, int rr, int g, int b, bool bold = false)
@@ -146,9 +182,9 @@ public static class Program
         return units * scale * 0.0265f;
     }
 
-    private static List<(string name, MenuScreen screen)> BuildScreens()
+    private static List<(string name, object? content)> BuildScreens()
     {
-        var screens = new List<(string, MenuScreen)>();
+        var screens = new List<(string, object?)>();
 
         // ── Root (mirrors PowerMenuService) ──
         var root = new MenuScreen
@@ -181,6 +217,30 @@ public static class Program
 
         // ── Criminal Record (13+ rows — viewport window stress) ──
         screens.Add(("RECORD", BuildRecord()));
+
+        // ── HUD widget states (S21 v2) — the bottom-right card ──
+        screens.Add(("WIDGET: FREE", new WidgetPreview(
+            Status: "FREE", Countdown: "", Identity: "CLEAN IDENTITY",
+            Feed: new[] {
+                new HudFeedItem("A civilian recognized you — police dispatched (1★)", FeedKind.Message, "12:01:22"),
+            })));
+        screens.Add(("WIDGET: WANTED", new WidgetPreview(
+            Status: "WANTED 3*", Countdown: "", Identity: "WARRANT ACTIVE — FACE ON FILE",
+            Feed: new[] {
+                new HudFeedItem("A civilian recognized you — police dispatched (3★)", FeedKind.Message, "12:05:10"),
+                new HudFeedItem("POLICE LOSE SUPER-POWERED SUSPECT in Vinewood — chase footage goes viral", FeedKind.Viral, "12:05:44"),
+            })));
+        screens.Add(("WIDGET: CUSTODY", new WidgetPreview(
+            Status: "IN CUSTODY — COURT AWAITS", Countdown: "COURT IN 0:34", Identity: "FACE ON FILE (BURNED)",
+            Feed: new[] {
+                new HudFeedItem("BREAKING: super-powered suspect taken into custody", FeedKind.Webnet, "12:10:02"),
+                new HudFeedItem("Bail: $12,000 — press G or face the court", FeedKind.Message, "12:10:05"),
+            })));
+        screens.Add(("WIDGET: PRISON", new WidgetPreview(
+            Status: "PRISON — DAY 3/14", Countdown: "NEXT DAY IN 0:12", Identity: "WARRANT CLEARED",
+            Feed: new[] {
+                new HudFeedItem("Day 2 of 14 — yard time at dusk", FeedKind.Message, "12:30:00"),
+            })));
 
         return screens;
     }

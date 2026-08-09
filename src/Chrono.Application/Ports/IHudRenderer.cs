@@ -1,11 +1,14 @@
+using System.Collections.Generic;
 using Chrono.Domain;
 
 namespace Chrono.Application.Ports;
 
 /// <summary>
-/// S21 — persistent HUD widget (user UAT r15: "lack of feedback on the screen —
-/// I expect a custom widget... how many days before I have to go to court").
-/// Game-neutral snapshot; the boundary renders it as a Material card.
+/// S21 v2 — persistent HUD widget (user UAT r15: "lack of feedback on the
+/// screen — I expect a custom widget... how many days before I have to go to
+/// court"; v2: "all messages should move inside the widget; WEBNET should
+/// live-stream into it"). Game-neutral snapshot; the boundary renders it as a
+/// Material card. Feed carries the live message tail (notifier + WEBNET).
 /// </summary>
 public sealed record JusticeHudState(
     bool Visible,             // widget on (config + menu toggle)
@@ -14,7 +17,8 @@ public sealed record JusticeHudState(
     string CountdownLine,     // "COURT IN 0:34" / "PRISON DAY 3/14 · 1:12 LEFT" / ""
     string SecondLine,        // e.g. "WARRANT ACTIVE" / "CLEAN" / ""
     bool CourtCountdown,      // show the countdown in amber (urgent)
-    bool PrisonCountdown);    // show the countdown in blue
+    bool PrisonCountdown,     // show the countdown in blue
+    IReadOnlyList<HudFeedItem>? Feed = null);   // S21 v2: live message feed (oldest first)
 
 /// <summary>Renders the persistent justice widget (implemented by the boundary).</summary>
 public interface IHudRenderer
