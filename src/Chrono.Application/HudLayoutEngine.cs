@@ -148,6 +148,7 @@ public sealed class HudLayoutEngine
         JusticeStatusKind.Captured => (239, 83, 80),     // red
         JusticeStatusKind.Prison   => (100, 181, 246),   // blue
         JusticeStatusKind.OnBail   => (171, 71, 188),    // violet
+        JusticeStatusKind.Manhunt  => (198, 40, 40),     // crimson — prison-break manhunt
         _                          => (76, 175, 80),     // green (Free)
     };
 

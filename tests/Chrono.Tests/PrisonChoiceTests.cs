@@ -111,6 +111,8 @@ public class PrisonChoiceTests
         Assert.Equal(JusticeState.Free, service.State);
         Assert.NotEqual(new System.Numerics.Vector3(1826f, 2635f, 46f), player.TeleportCalls.Last());   // out of prison
         Assert.Equal(4, wanted.CurrentStars);    // manhunt (ManhuntStars)
+        Assert.True(service.IsManhunt, "escape must put the state into a MANHUNT");
+        Assert.Equal(101, service.ManhuntUntilDay);   // FakeClock day 100 + 1 → heat until 101
     }
 
     [Fact]

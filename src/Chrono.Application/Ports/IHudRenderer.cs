@@ -29,6 +29,7 @@ public enum JusticeStatusKind
     Captured,   // red — in custody
     Prison,     // blue — serving time
     OnBail,     // violet — conditional release
+    Manhunt,    // S21 v3: crimson — escaped prisoner, the whole state is looking
 }
 
 /// <summary>Renders the persistent justice widget (implemented by the boundary).</summary>
