@@ -66,6 +66,7 @@ public sealed class FakePlayer : IPlayerContext
     public int PlayerHandle { get; set; } = 1;
     public int? PlayerVehicleHandle { get; set; }
     public Vector3 Position { get; set; } = new(0, 0, 0);
+    public bool HasWeapon { get; set; } = false;   // S19
     public float Heading { get; set; } = 0f;
     public bool IsAiming { get; set; }
     public bool IsInVehicle { get; set; }

@@ -38,7 +38,9 @@ public class CustodyAndViewportTests
         wanted.CurrentStars = 0; service.Tick(); service.Tick();   // 2★
         wanted.CurrentStars = 0; service.Tick(); service.Tick();   // 3★
         wanted.CurrentStars = 0; service.Tick(); service.Tick();   // 4★
-        service.Tick();                    // captured
+        service.Tick();                    // S19 confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // cuffed
         Assert.Equal(JusticeState.Captured, service.State);
         int starsAtCapture = wanted.StarSets.Count;
 

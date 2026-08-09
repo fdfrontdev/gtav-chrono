@@ -116,6 +116,8 @@ public class MediaServiceTests
 
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
 
         // S14 coherence: the crime headline AND the custody headline (arrest is news)
         Assert.Contains(media.Headlines, h => h.Contains("terrorizes"));

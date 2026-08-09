@@ -168,6 +168,21 @@ public static class ConfigValidator
             justice.BailMinCost = 1000;
             warnings.Add("justice.bailMinCost outside [100,100000] → 1000");
         }
+        if (justice.ConfrontationChoiceSeconds < 2 || justice.ConfrontationChoiceSeconds > 30)
+        {
+            justice.ConfrontationChoiceSeconds = 6;
+            warnings.Add("justice.confrontationChoiceSeconds outside [2,30] → 6");
+        }
+        if (justice.ResistCaptureChance < 0.1 || justice.ResistCaptureChance > 1.0)
+        {
+            justice.ResistCaptureChance = 0.6;
+            warnings.Add("justice.resistCaptureChance outside [0.1,1.0] → 0.6");
+        }
+        if (justice.ComplianceSeconds < 1 || justice.ComplianceSeconds > 20)
+        {
+            justice.ComplianceSeconds = 3;
+            warnings.Add("justice.complianceSeconds outside [1,20] → 3");
+        }
         if (justice.ParoleDays < 0 || justice.ParoleDays > 30)
         {
             justice.ParoleDays = 3;

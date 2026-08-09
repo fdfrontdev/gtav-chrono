@@ -47,6 +47,10 @@
     "bailFraction": 0.5,
     "bailMinCost": 1000,
     "paroleDays": 3,
+    "confrontationChoiceSeconds": 6,
+    "resistCaptureChance": 0.6,
+    "confrontationCooldownSeconds": 45,
+    "complianceSeconds": 3,
     "interactKey": "G",
     "newsEnabled": true,
     "viralEnabled": true

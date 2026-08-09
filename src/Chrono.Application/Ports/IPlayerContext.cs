@@ -8,6 +8,7 @@ public interface IPlayerContext
     int PlayerHandle { get; }
     int? PlayerVehicleHandle { get; }
     Vector3 Position { get; }
+    bool HasWeapon { get; }               // S19: compliance checks an unarmed suspect
     float Heading { get; }
     bool IsAiming { get; }
     bool IsInVehicle { get; }

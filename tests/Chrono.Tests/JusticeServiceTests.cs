@@ -48,6 +48,8 @@ public class JusticeServiceTests
         var (service, wanted, _, store, _, _, _) = Build();
         wanted.CurrentStars = 4;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         Assert.Equal(CrimeSeverity.Moderate, store.Record.Events[0].Severity);
     }
 
@@ -74,6 +76,8 @@ public class JusticeServiceTests
 
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
 
         Assert.False(store.Record.Events[0].Burned);
         Assert.Equal(IdentityState.Clean, store.Status.Identity);
@@ -91,6 +95,8 @@ public class JusticeServiceTests
 
         wanted.CurrentStars = 4;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
 
         Assert.Empty(store.Record.Events);
     }
@@ -141,6 +147,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         Assert.True(service.Warrant.IsActive);
 
         service.OnReleased();
@@ -159,6 +167,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 4;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
 
         Assert.Equal(JusticeState.Captured, service.State);
         Assert.Contains(notifier.Messages, m => m.Contains("ARRESTED"));
@@ -171,6 +181,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.Tick();
         service.Tick();
 
@@ -190,7 +202,9 @@ public class JusticeServiceTests
             service.Tick();
         }
         service.Tick();                  // report #4 → 4★
-        service.Tick();                  // capture check
+        service.Tick();                  // S19 confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                  // window expires -> cuffed
     }
 
     [Fact]
@@ -224,6 +238,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();                  // crime + arrest same tick
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // verdict
 
@@ -251,8 +267,9 @@ public class JusticeServiceTests
         Assert.Single(store.Record.Convictions);
         Assert.Contains(player.MoneyCalls, m => m == -2000);
 
-        // Second offense: same Minor → recidivism multiplier 1.5 → 3000
-        wanted.CurrentStars = 2;
+        // Second offense: Moderate (3★ — S19: only Moderate+ crimes carry a warrant,
+        // so the escalation loop can run again) → recidivism multiplier 1.5 → 12000
+        wanted.CurrentStars = 3;
         service.Tick();
         wanted.CurrentStars = 0;
         service.Tick();
@@ -260,7 +277,7 @@ public class JusticeServiceTests
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
-        Assert.Contains(player.MoneyCalls, m => m == -3000);
+        Assert.Contains(player.MoneyCalls, m => m == -12000);
         Assert.Equal(2, store.Record.ConvictionCount);
     }
 
@@ -271,6 +288,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // 30-day sentence, confined
         Assert.Equal(JusticeState.Prison, service.State);
@@ -292,6 +311,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined
 
@@ -312,6 +333,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined (day = 30s, yard opens at 20s)
 
@@ -328,6 +351,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -349,6 +374,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -369,6 +396,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -389,6 +418,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -408,6 +439,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -428,6 +461,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();
 
@@ -449,6 +484,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined → booking anim
 
@@ -470,6 +507,8 @@ public class JusticeServiceTests
         player.IsVisible = true;
         wanted.CurrentStars = 5;
         service.Tick();
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // confined, cell phase
 
@@ -597,6 +636,8 @@ public class JusticeServiceTests
         var (service, wanted, media, _) = BuildWithMedia();
         wanted.CurrentStars = 4;
         service.Tick();                    // arrest (capture)
+                service.AdvanceConfrontationTime(6.0);
+        service.Tick();                    // S19: confrontation window expires -> cuffed
         wanted.CurrentStars = 0;
         service.Tick();                    // stars cleared after capture
 
@@ -637,7 +678,9 @@ public class JusticeServiceTests
         wanted.CurrentStars = 0;
         service.Tick();
         service.Tick();                  // 4th report → 4★
-        service.Tick();                  // capture check
+        service.Tick();                  // S19 confrontation begins
+        service.AdvanceConfrontationTime(6.0);
+        service.Tick();                  // cuffed
 
         Assert.Equal(JusticeState.Captured, service.State);
         Assert.Equal(0, wanted.CurrentStars);

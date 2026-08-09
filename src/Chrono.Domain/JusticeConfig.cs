@@ -50,6 +50,18 @@ public sealed class JusticeConfig
     /// <summary>Parole (S15 — realism): after a prison term, release is supervised for
     /// N game days — a new crime during parole = instant 3★+ + PAROLE VIOLATION.</summary>
     public int ParoleDays { get; set; } = 3;
+
+    /// <summary>S19 — arrest confrontation: at 4★+ the police CONFRONT (no instant
+    /// capture): comply (G) → cuffed; resist (X/Z/B) → they open fire (chance to be
+    /// shot down → custody via death; else you break away, chase continues with a
+    /// RESISTING ARREST charge). Window + cooldown in seconds.</summary>
+    public double ConfrontationChoiceSeconds { get; set; } = 6;
+    public double ResistCaptureChance { get; set; } = 0.6;
+    public double ConfrontationCooldownSeconds { get; set; } = 45;
+
+    /// <summary>S19 — use-of-force realism: a stationary, unarmed suspect at 3★+
+    /// makes police stand down (stars decay; no shooting). Seconds of stillness.</summary>
+    public double ComplianceSeconds { get; set; } = 3;
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
 }
