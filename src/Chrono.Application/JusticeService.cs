@@ -420,7 +420,7 @@ public sealed class JusticeService
         else
         {
             _notifier.Show($"ARRESTED — bail {BailCost():$#,##0} (press G) or face the court");
-            _media?.News($"BREAKING: super-powered suspect taken into custody in {_player.GetDistrictName()}");
+            _media?.News($"BREAKING: {_player.GetCharacterName().ToUpperInvariant()} taken into custody in {_player.GetDistrictName()}");
         }
         _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
         _log.Info("Captured at 4★+ — custody started");
@@ -462,7 +462,7 @@ public sealed class JusticeService
         // Court cinematic first (S11): the sentence applies when the gavel falls
         string chargeLine = $"{charges.Count} CHARGE{(charges.Count > 1 ? "S" : "")} — {ChargeSummary(charges)}";
         string verdictLine = $"GUILTY — ${sentence.Fine} fine · {sentence.PrisonDays} day{(sentence.PrisonDays == 1 ? "" : "s")}";
-        _media?.News($"COURT: super-powered suspect sentenced — ${sentence.Fine} fine · {sentence.PrisonDays} days");
+        _media?.News($"COURT: {_player.GetCharacterName().ToUpperInvariant()} sentenced — ${sentence.Fine} fine · {sentence.PrisonDays} days");
         if (_cutscene != null)
         {
             _cutscene.Play(CutsceneKind.Trial, () => ApplySentence(sentence), chargeLine, verdictLine);
@@ -782,7 +782,7 @@ public sealed class JusticeService
             _ => "You froze the guards and walked out!"
         };
         _notifier.Show($"{flavor} ESCAPED — the whole state is looking for you");
-        _media?.News("PRISON BREAK: super-powered inmate escapes Bolingbroke — MANHUNT underway");
+        _media?.News($"PRISON BREAK: {_player.GetCharacterName().ToUpperInvariant()} escapes Bolingbroke — MANHUNT underway");
         _log.Info($"Prison escape via {kind} — manhunt until game-day {_manhuntUntilDay}");
     }
 

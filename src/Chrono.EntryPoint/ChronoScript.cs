@@ -72,8 +72,10 @@ public class ChronoScript : Script
             var recordStore = new JsonRecordStore(BaseDirectory, _log);
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
-            var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice, hudFeed);
-            var reputation = new ReputationService(recordStore, clock, media, config.Justice);
+            var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice, hudFeed,
+                characterName: player.GetCharacterName);   // S21 v3: real names in headlines
+            var reputation = new ReputationService(recordStore, clock, media, config.Justice,
+                characterName: player.GetCharacterName);   // S21 v3
             var wantedMonitor = new WantedMonitor();
             var cutscene = new JusticeCutsceneService(new CutsceneRenderer(), player, _log);
             _cutscene = cutscene;

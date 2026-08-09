@@ -110,6 +110,8 @@ public sealed class FakePlayer : IPlayerContext
     public bool IsVisible { get; set; } = true;
     public string DistrictName { get; set; } = "Vinewood";
     public string GetDistrictName() => DistrictName;
+    public string CharacterName { get; set; } = "Franklin";
+    public string GetCharacterName() => CharacterName;
     public int Money { get; set; } = 100000;
     public List<int> MoneyCalls { get; } = new();
     public void AddMoney(int delta) { Money += delta; MoneyCalls.Add(delta); }

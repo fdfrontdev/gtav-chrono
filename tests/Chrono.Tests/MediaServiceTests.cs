@@ -27,6 +27,31 @@ public class MediaServiceTests
         => new("e", s, "public_offense", "2026-08-08T12:00:00", district, true);
 
     [Fact]
+    public void ModerateCrime_HeadlineUsesCharacterName()   // S21 v3: real names, not "super-powered"
+    {
+        var media = new FakeMediaNotifier();
+        var service = new MediaService(media, new FakeLog(), new JusticeConfig(),
+            characterName: () => "Franklin");
+
+        service.ReportCrime(Event(CrimeSeverity.Moderate));
+
+        Assert.Contains(media.Headlines, h => h.Contains("FRANKLIN") && !h.Contains("super-powered"));
+        Assert.Contains(service.Feed, f => f.Text.Contains("Franklin"));
+    }
+
+    [Fact]
+    public void Escape_HeadlineUsesCharacterName()
+    {
+        var media = new FakeMediaNotifier();
+        var service = new MediaService(media, new FakeLog(), new JusticeConfig(),
+            characterName: () => "Michael");
+
+        service.ReportEscape("Bolingbroke");
+
+        Assert.Contains(media.Headlines, h => h.Contains("MICHAEL") && h.Contains("MANHUNT"));
+    }
+
+    [Fact]
     public void MinorCrime_NoNews()
     {
         var (service, media) = Build();
