@@ -5,13 +5,14 @@ using GTA.Native;
 namespace Chrono.Boundary;
 
 /// <summary>
-/// S21 — Material-style persistent justice widget (bottom-left card): wanted
-/// stars, court countdown, prison day counter, bail/parole, warrant status.
-/// Same measured-text discipline as MaterialMenuRenderer — no overflow.
+/// S21 — Material-style persistent justice widget (bottom-right card, user
+/// ruling 2026-08-09): wanted stars, court countdown, prison day counter,
+/// bail/parole, warrant status. Same measured-text discipline as
+/// MaterialMenuRenderer — no overflow.
 /// </summary>
 public sealed class MaterialHudRenderer : IHudRenderer
 {
-    private const float CardX = 0.022f + 0.105f;   // card center X (bottom-left)
+    private const float CardX = 1f - 0.022f - 0.105f;   // card center X (bottom-right)
     private const float CardW = 0.21f;
     private const float CardY = 0.945f;            // card center Y (bottom)
     private const float RowH = 0.024f;
