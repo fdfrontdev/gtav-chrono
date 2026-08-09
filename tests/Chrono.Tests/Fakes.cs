@@ -134,6 +134,37 @@ public sealed class FakeProbe : IWorldProbe
     public void MakeNearbyCiviliansFlee(Vector3 position, float radius) => FleeCalls++;
 }
 
+/// <summary>S20 — fake act sampler for CrimeDetectionService tests.</summary>
+public sealed class FakeCrimeProbe : ICrimeProbe
+{
+    public PlayerActContext Context { get; set; } = new(DeathCauseKind.None, false, false, 0f);
+    public Queue<DeathCauseKind> Kills { get; } = new();
+    public bool PedDamage { get; set; }
+    public bool VehicleDamage { get; set; }
+    public float CrosshairDistance { get; set; } = float.MaxValue;
+    public int PoliceCount { get; set; }
+    public List<bool> HoldFireCalls { get; } = new();
+    public bool HoldActive => HoldFireCalls.Count > 0 && HoldFireCalls[HoldFireCalls.Count - 1];
+
+    public PlayerActContext SampleContext() => Context;
+    public DeathCauseKind PollKillSinceLastPoll() => Kills.Count > 0 ? Kills.Dequeue() : DeathCauseKind.None;
+    public bool PollPedDamageSinceLastPoll()
+    {
+        bool v = PedDamage;
+        PedDamage = false;
+        return v;
+    }
+    public bool PollVehicleDamageSinceLastPoll()
+    {
+        bool v = VehicleDamage;
+        VehicleDamage = false;
+        return v;
+    }
+    public float CrosshairPedDistanceM => CrosshairDistance;
+    public int CountNearbyPolice(float radius) => PoliceCount;
+    public void SetPoliceHoldFire(bool hold) => HoldFireCalls.Add(hold);
+}
+
 public sealed class FakeCutsceneRenderer : ICutsceneRenderer
 {
     public int BeginCount { get; private set; }

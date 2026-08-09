@@ -1,75 +1,84 @@
 {
-  "menuKey": "Shift+0",
-  "dash": {
-    "range": 12.0,
-    "maxRange": 30.0,
-    "hotkey": "X"
-  },
+ "menuKey": "Shift+0",
+ "dash": {
+  "range": 12.0,
+  "maxRange": 30.0,
+  "hotkey": "X"
+ },
+ "timeStop": {
+  "freezeProps": true,
+  "pauseClock": true,
+  "maintenanceIntervalMs": 2000,
+  "maxFrozenEntities": 1024,
+  "freezeRadius": 100.0,
+  "hotkey": "Z"
+ },
+ "invisible": {
+  "hotkey": "B"
+ },
+ "teleport": {
+  "groundProbeDistance": 100.0
+ },
+ "fly": {
+  "speed": 25.0,
+  "acceleration": 6.0
+ },
+ "npc": {
+  "reactionDelayMs": 3000
+ },
+ "justice": {
+  "recordFromWanted": true,
+  "clinicBaseCost": 5000,
+  "perEventCost": 1000,
+  "surgeryCooldownDays": 1,
+  "hackCooldownDays": 1,
+  "prisonDayRealSeconds": 30,
+  "prisonYardSeconds": 10,
+  "trialDelaySeconds": 45,
+  "warrantReportEnabled": true,
+  "warrantReportSeconds": 10,
+  "warrantReportChance": 0.35,
+  "fineToPrisonRate": 1000,
+  "escapeStealthChance": 0.5,
+  "escapeFightChance": 0.7,
+  "escapeChoiceSeconds": 10,
+  "solitaryStealthDays": 3,
+  "solitaryFightDays": 5,
+  "bailFraction": 0.5,
+  "bailMinCost": 1000,
+  "paroleDays": 3,
+  "confrontationChoiceSeconds": 6,
+  "resistCaptureChance": 0.6,
+  "confrontationCooldownSeconds": 45,
+  "complianceSeconds": 3,
+  "interactKey": "G",
+  "newsEnabled": true,
+  "viralEnabled": true,
+  "crimeDetectionEnabled": true,
+  "crimeWitnessRadiusM": 30.0,
+  "crimePollRadiusM": 40.0,
+  "crimeKindCooldownSeconds": 20.0,
+  "robberyRangeM": 6.0,
+  "vehicularManslaughterSpeedMps": 15.0,
+  "useOfForceEnabled": true,
+  "useOfForceMinStars": 2,
+  "policeHoldRadiusM": 60.0
+ },
+ "visual": {
   "timeStop": {
-    "freezeProps": true,
-    "pauseClock": true,
-    "maintenanceIntervalMs": 2000,
-    "maxFrozenEntities": 1024,
-    "freezeRadius": 100.0,
-    "hotkey": "Z"
+   "tintStrength": 0.4
   },
-  "invisible": {
-    "hotkey": "B"
+  "dash": {
+   "enabled": true,
+   "trail": true
   },
-  "teleport": {
-    "groundProbeDistance": 100.0
-  },
-  "fly": {
-    "speed": 25.0,
-    "acceleration": 6.0
-  },
-  "npc": {
-    "reactionDelayMs": 3000
-  },
-  "justice": {
-    "recordFromWanted": true,
-    "clinicBaseCost": 5000,
-    "perEventCost": 1000,
-    "surgeryCooldownDays": 1,
-    "hackCooldownDays": 1,
-    "prisonDayRealSeconds": 30,
-    "prisonYardSeconds": 10,
-    "trialDelaySeconds": 45,
-    "warrantReportEnabled": true,
-    "warrantReportSeconds": 10,
-    "warrantReportChance": 0.35,
-    "fineToPrisonRate": 1000,
-    "escapeStealthChance": 0.5,
-    "escapeFightChance": 0.7,
-    "escapeChoiceSeconds": 10,
-    "solitaryStealthDays": 3,
-    "solitaryFightDays": 5,
-    "bailFraction": 0.5,
-    "bailMinCost": 1000,
-    "paroleDays": 3,
-    "confrontationChoiceSeconds": 6,
-    "resistCaptureChance": 0.6,
-    "confrontationCooldownSeconds": 45,
-    "complianceSeconds": 3,
-    "interactKey": "G",
-    "newsEnabled": true,
-    "viralEnabled": true
-  },
-  "visual": {
-    "timeStop": {
-      "tintStrength": 0.4
-    },
-    "dash": {
-      "enabled": true,
-      "trail": true
-    },
-    "mapTeleport": {
-      "enabled": true,
-      "useScreenFlash": false,
-      "shake": true
-    }
-  },
-  "logging": {
-    "level": "info"
+  "mapTeleport": {
+   "enabled": true,
+   "useScreenFlash": false,
+   "shake": true
   }
+ },
+ "logging": {
+  "level": "info"
+ }
 }

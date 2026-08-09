@@ -45,6 +45,7 @@ public sealed class JusticeService
     private readonly IWorldProbe? _probe;
     private readonly JusticeCutsceneService? _cutscene;
     private readonly Func<double> _random;
+    private readonly ICrimeProbe? _crimeProbe;   // S20: act detection + police hold-fire
     private readonly Stopwatch _reportClock = Stopwatch.StartNew();
     private int _suppressStars;           // S12: suppress ONLY the edge at the report's
                                          // star level (a later, higher crime still records)
@@ -104,7 +105,8 @@ public sealed class JusticeService
         IWorldProbe? probe = null,
         Func<double>? random = null,
         JusticeCutsceneService? cutscene = null,
-        IPrisonOutfit? outfit = null)
+        IPrisonOutfit? outfit = null,
+        ICrimeProbe? crimeProbe = null)
     {
         _wanted = wanted;
         _player = player;
@@ -124,6 +126,7 @@ public sealed class JusticeService
         _random = random ?? (() => new Random().NextDouble());
         _cutscene = cutscene;
         _outfit = outfit;
+        _crimeProbe = crimeProbe;
         _prisonCalendar = new PrisonCalendar(config.PrisonDayRealSeconds);
         _lastStars = wanted.CurrentStars;
     }
@@ -274,24 +277,7 @@ public sealed class JusticeService
 
     private void OnStarsIncreased(int stars)
     {
-        // S15 realism: a new crime while out on bail revokes it (warrant + escalation);
-        // a new crime on parole is an instant 3★+ violation (the state is watching)
-        if (_onBail)
-        {
-            _onBail = false;
-            _warrant.Activate(DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"));
-            _media?.News("BAIL REVOKED — flight risk, warrant issued");
-            _notifier.Show("BAIL REVOKED — new crime while on bail. No bail next time.");
-            _log.Info("Bail revoked — new crime while out");
-        }
-        if (_paroleUntilDay > 0 && _clock.CurrentGameDay < _paroleUntilDay)
-        {
-            _wanted.SetStars(Math.Max(stars, 3));
-            _paroleUntilDay = 0;
-            _media?.News("PAROLE VIOLATION — warrant issued");
-            _notifier.Show("PAROLE VIOLATION — the state was watching");
-            _log.Info("Parole violated");
-        }
+        HandleBailAndParole(stars);
         _complied = false;               // S19: a new crime starts a fresh episode
         var severity = SeverityFromStars(stars);
         _episodeSeverity ??= severity;   // sentence uses the ORIGINAL offense of the episode
@@ -327,6 +313,74 @@ public sealed class JusticeService
             ? $"CRIME RECORDED ({severity}) — they saw your face"
             : $"CRIME RECORDED ({severity}) — no face seen");
         _media?.ReportCrime(evt);   // S2: news/viral coverage
+    }
+
+    /// <summary>
+    /// S20 — record a classified ACT (ADR-04): the mod drives the wanted level from
+    /// the act (murder → instant 5★) instead of inheriting the game's coarse stars.
+    /// Witness gating is done by <see cref="CrimeDetectionService"/> BEFORE this is
+    /// called (FR-1.4: only witnessed + visible acts record).
+    /// </summary>
+    public void RecordDetectedCrime(ClassifiedCrime crime)
+    {
+        HandleBailAndParole(crime.Stars);
+        _complied = false;
+        _episodeSeverity ??= crime.Severity;
+        _reputation?.OnCrime(crime.Severity);
+        bool burned = _player.IsVisible;
+        var evt = new CrimeEvent(
+            Guid.NewGuid().ToString("N"),
+            crime.Severity,
+            crime.Name,
+            DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"),
+            _player.GetDistrictName(),
+            burned);
+
+        _record.Append(evt);
+        _store.SaveAtomic(_record);
+
+        if (burned)
+        {
+            _identity.SetBurned();
+            if (crime.Severity >= CrimeSeverity.Moderate)
+                _warrant.Activate(evt.GameTime);
+        }
+
+        if (State != JusticeState.Captured)
+            State = JusticeState.Wanted;
+
+        // Drive the wanted level from the ACT (ADR-04 D1) — and suppress the
+        // star-proxy edge at this level so the same act doesn't record twice.
+        _wanted.SetStars(crime.Stars);
+        _suppressStars = crime.Stars;
+
+        _log.Info($"Crime detected: {crime.Name} ({crime.Severity}) burned={burned} in {evt.District}");
+        _notifier.Show(burned
+            ? $"CRIME RECORDED ({crime.Name.ToUpperInvariant()}) — they saw your face"
+            : $"CRIME RECORDED ({crime.Name.ToUpperInvariant()}) — no face seen");
+        _media?.ReportCrime(evt);
+    }
+
+    /// <summary>S15 realism — a NEW crime while out on bail revokes it (warrant +
+    /// escalation); a new crime on parole is an instant 3★+ violation.</summary>
+    private void HandleBailAndParole(int stars)
+    {
+        if (_onBail)
+        {
+            _onBail = false;
+            _warrant.Activate(DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"));
+            _media?.News("BAIL REVOKED — flight risk, warrant issued");
+            _notifier.Show("BAIL REVOKED — new crime while on bail. No bail next time.");
+            _log.Info("Bail revoked — new crime while out");
+        }
+        if (_paroleUntilDay > 0 && _clock.CurrentGameDay < _paroleUntilDay)
+        {
+            _wanted.SetStars(Math.Max(stars, 3));
+            _paroleUntilDay = 0;
+            _media?.News("PAROLE VIOLATION — warrant issued");
+            _notifier.Show("PAROLE VIOLATION — the state was watching");
+            _log.Info("Parole violated");
+        }
     }
 
     // --- S3: capture → trial → sentence (FR-8) ---
@@ -809,23 +863,35 @@ public sealed class JusticeService
         }
     }
 
-    /// <summary>S19 use-of-force realism: at 3★+, a stationary UNARMED suspect makes
-    /// the officers stand down (stars decay — no shooting at a compliant suspect).
-    /// Moving or drawing a weapon re-engages the chase.</summary>
+    /// <summary>S19/S20 use-of-force realism: at 2★+ (S20 lowered from 3★+), a
+    /// stationary UNARMED suspect makes the officers stand down — stars decay AND
+    /// nearby police peds are put on HOLD-FIRE (S20: aim but don't shoot — the
+    /// user UAT r14: cops opened fire on a still unarmed player at 2★). Moving or
+    /// drawing a weapon re-engages the chase and lifts the hold.</summary>
     private void UpdateCompliance()
     {
-        if (State != JusticeState.Wanted || _confronting) return;
+        if (State != JusticeState.Wanted || _confronting)
+        {
+            _crimeProbe?.SetPoliceHoldFire(false);
+            return;
+        }
         int stars = _wanted.CurrentStars;
-        if (stars < 3 && !_complying)   // an ACTIVE stand-down runs all the way to 0
+        if (stars < _config.UseOfForceMinStars && !_complying)   // an ACTIVE stand-down runs all the way to 0
         {
             _complying = false;
             _complianceArmed = false;
+            _crimeProbe?.SetPoliceHoldFire(false);
             return;
         }
 
         bool still = (_player.Position - _lastPos).Length() < 1.2f;
         _lastPos = _player.Position;
         bool unarmed = !_player.HasWeapon;
+
+        // S20: the hold-fire is ACTIVE whenever the suspect is still + unarmed —
+        // even during the armed-timer window, so cops never open fire on a
+        // compliant suspect (ADR-04 D2). Idempotent at the boundary.
+        _crimeProbe?.SetPoliceHoldFire(still && unarmed);
 
         _complianceElapsedMs += _complianceClock.Elapsed.TotalMilliseconds;
         _complianceClock.Restart();

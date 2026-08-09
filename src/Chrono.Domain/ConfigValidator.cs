@@ -188,6 +188,43 @@ public static class ConfigValidator
             justice.ParoleDays = 3;
             warnings.Add("justice.paroleDays outside [0,30] → 3");
         }
+        // --- S20 — act-based crime detection (ADR-04 D1) ---
+        if (justice.CrimeWitnessRadiusM < 5f || justice.CrimeWitnessRadiusM > 100f)
+        {
+            justice.CrimeWitnessRadiusM = 30f;
+            warnings.Add("justice.crimeWitnessRadiusM outside [5,100] → 30");
+        }
+        if (justice.CrimePollRadiusM < 10f || justice.CrimePollRadiusM > 100f)
+        {
+            justice.CrimePollRadiusM = 40f;
+            warnings.Add("justice.crimePollRadiusM outside [10,100] → 40");
+        }
+        if (justice.CrimeKindCooldownSeconds < 2 || justice.CrimeKindCooldownSeconds > 120)
+        {
+            justice.CrimeKindCooldownSeconds = 20;
+            warnings.Add("justice.crimeKindCooldownSeconds outside [2,120] → 20");
+        }
+        if (justice.RobberyRangeM < 2f || justice.RobberyRangeM > 15f)
+        {
+            justice.RobberyRangeM = 6f;
+            warnings.Add("justice.robberyRangeM outside [2,15] → 6");
+        }
+        if (justice.VehicularManslaughterSpeedMps < 5f || justice.VehicularManslaughterSpeedMps > 50f)
+        {
+            justice.VehicularManslaughterSpeedMps = 15f;
+            warnings.Add("justice.vehicularManslaughterSpeedMps outside [5,50] → 15");
+        }
+        // --- S20 — use of force (ADR-04 D2) ---
+        if (justice.UseOfForceMinStars < 1 || justice.UseOfForceMinStars > 5)
+        {
+            justice.UseOfForceMinStars = 2;
+            warnings.Add("justice.useOfForceMinStars outside [1,5] → 2");
+        }
+        if (justice.PoliceHoldRadiusM < 20f || justice.PoliceHoldRadiusM > 200f)
+        {
+            justice.PoliceHoldRadiusM = 60f;
+            warnings.Add("justice.policeHoldRadiusM outside [20,200] → 60");
+        }
     }
 
     private static void ValidateTeleport(TeleportConfig tp, List<string> warnings)
