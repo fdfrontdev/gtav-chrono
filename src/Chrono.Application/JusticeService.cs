@@ -78,6 +78,7 @@ public sealed class JusticeService
     private bool _yardNotified;
     private Vector3 _lastCellPos;
     private bool _cellAnimPlaying;
+    private int _cellAnimStartedMs;   // S21 v3: one-shot idle re-arm clock
     private int _manhuntUntilDay;
     private bool _wasDead;
     private bool _diedWanted;         // died during a wanted episode → custody on respawn
@@ -579,6 +580,16 @@ public sealed class JusticeService
         }
     }
 
+    /// <summary>
+    /// S21 v3 fix (user UAT: "while in prison I can't move — how do I escape?"):
+    /// the cell idle must NEVER be an infinite loop — a looped full-body anim
+    /// owns the ped task slot and blocks ALL movement input (the same bug class
+    /// as the release-cuff loop). Played as a finite one-shot (CellIdleMs) that
+    /// re-arms only while the player stays still, so movement is always possible
+    /// — the yard escape (G) stays reachable every day.
+    /// </summary>
+    private const int CellIdleMs = 8000;
+
     private void UpdateCellAnimation()
     {
         var pos = _player.Position;
@@ -597,8 +608,16 @@ public sealed class JusticeService
 
         if (!_cellAnimPlaying)
         {
-            _player.PlayLoopedAnimation(CellIdleDict, CellIdleAnim);   // cell idle (FR-9.3)
+            // one-shot — ends on its own, so the player can ALWAYS move
+            _player.PlayAnimationOnce(CellIdleDict, CellIdleAnim, CellIdleMs);
             _cellAnimPlaying = true;
+            _cellAnimStartedMs = Environment.TickCount;
+        }
+        else if (Environment.TickCount - _cellAnimStartedMs >= CellIdleMs)
+        {
+            // the one-shot ended while still — re-arm (idle flavor, never a lock)
+            _player.PlayAnimationOnce(CellIdleDict, CellIdleAnim, CellIdleMs);
+            _cellAnimStartedMs = Environment.TickCount;
         }
     }
 
@@ -631,6 +650,8 @@ public sealed class JusticeService
     /// <summary>Testable seam — true when the escape-plan window is open.</summary>
     public bool IsEscapeChoiceOpen => _escapeChoiceOpen;
     public bool IsOnBail => _onBail;                        // S15
+    /// <summary>S21 v3: yard time is open — the escape prompt (G) is live (widget hint).</summary>
+    public bool IsYardPhase => _isYardPhase;
     public int ParoleDaysLeft => Math.Max(0, _paroleUntilDay - _clock.CurrentGameDay);   // S15
 
     public void TryOpenEscapeChoice()

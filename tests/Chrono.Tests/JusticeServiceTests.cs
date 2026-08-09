@@ -491,8 +491,10 @@ public class JusticeServiceTests
 
         Assert.Contains(player.OneShotAnims, a => a.StartsWith("mp_arrest_paired/crook_p1_front"));
 
-        service.Tick();                  // still in cell, not moving → idle loop
-        Assert.Contains(player.LoopedAnims, a => a == "anim@heists@prison_heist/ped_a_loop_a");
+        service.Tick();                  // still in cell, not moving → idle one-shot (S21 v3: never a loop)
+        Assert.Contains(player.OneShotAnims, a => a.StartsWith("anim@heists@prison_heist/ped_a_loop_a"));
+        Assert.True(!player.LoopedAnims.Exists(a => a.Contains("prison_heist")),
+            "cell idle must NOT be an infinite loop — it would block all movement (S21 v3)");
 
         player.Position = new System.Numerics.Vector3(1830, 2640, 46);   // moving
         service.Tick();

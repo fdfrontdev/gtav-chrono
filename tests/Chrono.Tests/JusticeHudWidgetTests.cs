@@ -97,6 +97,28 @@ public class JusticeHudWidgetTests
     }
 
     [Fact]
+    public void YardPhase_ShowsEscapePrompt()   // S21 v3: "how do I escape?" — the widget must SAY it
+    {
+        var (widget, renderer, justice, wanted, probe) = Build();
+        wanted.CurrentStars = 5;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();
+        justice.AdvanceTrialTime(60.0);
+        justice.Tick();                  // verdict → prison
+        justice.Tick();                  // intake done → confinement starts
+
+        // serve most of a day → yard opens (10s before day end; day = 30s in tests)
+        justice.AdvancePrisonTime(20.0);
+        justice.Tick();                  // yard phase notified
+        widget.Tick();
+
+        Assert.True(justice.IsYardPhase);
+        Assert.Contains("YARD OPEN — PRESS G TO ESCAPE", renderer.Last!.CountdownLine);
+        Assert.True(renderer.Last.PrisonCountdown);
+    }
+
+    [Fact]
     public void ToggleOff_HidesWidget()
     {
         var (widget, renderer, _, _, _) = Build();

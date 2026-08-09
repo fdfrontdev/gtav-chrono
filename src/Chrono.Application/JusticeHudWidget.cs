@@ -61,9 +61,19 @@ public sealed class JusticeHudWidget
         }
         else if (state == JusticeState.Prison)
         {
-            countdown = $"NEXT DAY IN {FormatClock(j.PrisonDaySecondsLeft)}";
+            // S21 v3 (user UAT: "how do I escape?"): during yard time the
+            // countdown line becomes the escape prompt — the player must SEE it.
+            if (j.IsYardPhase)
+            {
+                countdown = "YARD OPEN — PRESS G TO ESCAPE";
+                progress = 1f;   // bar full = the escape window is live
+            }
+            else
+            {
+                countdown = $"NEXT DAY IN {FormatClock(j.PrisonDaySecondsLeft)}";
+                progress = (float)j.PrisonDayProgress;
+            }
             prison = true;
-            progress = (float)j.PrisonDayProgress;
         }
         else if (j.IsOnBail)
         {
