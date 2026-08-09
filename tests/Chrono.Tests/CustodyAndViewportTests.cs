@@ -60,7 +60,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_ShortList_ShowsAll()
     {
-        var (first, visible) = MaterialMenuRenderer.ViewportWindow(3, 5, 12);
+        var (first, visible) = MenuLayoutEngine.ViewportWindow(3, 5, 12);
         Assert.Equal(0, first);
         Assert.Equal(5, visible);
     }
@@ -68,7 +68,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_SelectionAtStart_ClampsToTop()
     {
-        var (first, visible) = MaterialMenuRenderer.ViewportWindow(0, 40, 12);
+        var (first, visible) = MenuLayoutEngine.ViewportWindow(0, 40, 12);
         Assert.Equal(0, first);
         Assert.Equal(12, visible);
     }
@@ -76,7 +76,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_SelectionAtEnd_ClampsToBottom()
     {
-        var (first, visible) = MaterialMenuRenderer.ViewportWindow(39, 40, 12);
+        var (first, visible) = MenuLayoutEngine.ViewportWindow(39, 40, 12);
         Assert.Equal(28, first);
         Assert.Equal(12, visible);
     }
@@ -84,7 +84,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_SelectionInMiddle_Centers()
     {
-        var (first, _) = MaterialMenuRenderer.ViewportWindow(20, 40, 12);
+        var (first, _) = MenuLayoutEngine.ViewportWindow(20, 40, 12);
         Assert.Equal(14, first);           // 20 - 12/2
     }
 
@@ -93,7 +93,7 @@ public class CustodyAndViewportTests
     {
         for (int sel = 0; sel < 60; sel++)
         {
-            var (first, visible) = MaterialMenuRenderer.ViewportWindow(sel, 60, 12);
+            var (first, visible) = MenuLayoutEngine.ViewportWindow(sel, 60, 12);
             Assert.InRange(sel, first, first + visible - 1);
         }
     }
