@@ -156,6 +156,20 @@ public sealed class PlayerContext : IPlayerContext
         }
     }
 
+    public string GetCharacterName()
+    {
+        try
+        {
+            // Game.Player.Name = the current character's name (Franklin/Michael/Trevor)
+            string name = Game.Player.Name;
+            return string.IsNullOrWhiteSpace(name) ? "Unknown" : name;
+        }
+        catch
+        {
+            return "Unknown";   // flavor — never a crash vector
+        }
+    }
+
     public string GetDistrictName()
     {
         try

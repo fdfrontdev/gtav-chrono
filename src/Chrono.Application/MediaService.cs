@@ -21,18 +21,20 @@ public sealed class MediaService
     private readonly IMediaNotifier _media;
     private readonly ILogSink _log;
     private readonly JusticeConfig _config;
+    private readonly Func<string> _name;      // S21 v3: character name for media flavor
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private readonly List<NewsFeedItem> _feed = new();
     private readonly HudFeedBuffer? _hudFeed;   // S21 v2
     private long _lastNewsMs = -NewsCooldownMs;   // first event always passes (no overflow)
 
     public MediaService(IMediaNotifier media, ILogSink log, JusticeConfig config,
-        HudFeedBuffer? hudFeed = null)   // S21 v2: live-stream headlines into the widget feed
+        HudFeedBuffer? hudFeed = null, Func<string>? characterName = null)   // S21 v3: real names in headlines
     {
         _media = media;
         _log = log;
         _config = config;
         _hudFeed = hudFeed;
+        _name = characterName ?? (() => "Unknown");
     }
 
     /// <summary>Session social feed (WEBNET phone, S7) — newest last, cap 20.</summary>
@@ -81,12 +83,12 @@ public sealed class MediaService
         switch (evt.Severity)
         {
             case CrimeSeverity.Moderate:
-                _media.News($"BREAKING: super-powered suspect seen in {evt.District}");
-                PushFeed($"BREAKING: super-powered suspect seen in {evt.District}", false);
+                _media.News($"BREAKING: {_name().ToUpperInvariant()} seen in {evt.District}");
+                PushFeed($"BREAKING: {_name()} seen in {evt.District}", false);
                 break;
             case CrimeSeverity.Severe:
-                _media.News($"BREAKING: WANTED super-powered suspect terrorizes {evt.District}");
-                PushFeed($"BREAKING: WANTED suspect terrorizes {evt.District}", false);
+                _media.News($"BREAKING: WANTED {_name().ToUpperInvariant()} terrorizes {evt.District}");
+                PushFeed($"BREAKING: WANTED {_name()} terrorizes {evt.District}", false);
                 if (_config.ViralEnabled)
                 {
                     _media.Viral($"WEBNET: {evt.District} dash-cam footage goes viral");
@@ -104,7 +106,7 @@ public sealed class MediaService
         if (!_config.NewsEnabled) return;
         if (!TryTakeNewsSlot()) return;
 
-        _media.News($"MANHUNT: convicted super-powered fugitive escaped {district}");
+        _media.News($"MANHUNT: convicted fugitive {_name().ToUpperInvariant()} escaped {district}");
         PushFeed($"MANHUNT: fugitive escaped {district}", true);
         if (_config.ViralEnabled)
         {

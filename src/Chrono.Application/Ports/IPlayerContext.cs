@@ -43,6 +43,13 @@ public interface IPlayerContext
     /// <summary>Current map zone name for crime/media flavor (e.g. "Vinewood").</summary>
     string GetDistrictName();
 
+    /// <summary>
+    /// S21 v3 — the character's public name (e.g. "Franklin", "Michael",
+    /// "Trevor") for media flavor: "PRISON BREAK: FRANKLIN escapes..." instead
+    /// of "super-powered suspect". Returns "Unknown" as a safe fallback.
+    /// </summary>
+    string GetCharacterName();
+
     /// <summary>Add money (negative = fine deduction, FR-8.3).</summary>
     void AddMoney(int delta);
 

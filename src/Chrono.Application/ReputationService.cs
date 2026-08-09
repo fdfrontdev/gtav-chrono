@@ -25,16 +25,19 @@ public sealed class ReputationService
     private readonly IGameClock _clock;
     private readonly MediaService? _media;
     private readonly JusticeConfig _config;
+    private readonly Func<string> _name;   // S21 v3: character name for milestone flavor
     private int _lastCleanDayChecked;
     private bool _notorietyMilestoneFiredSuspicious, _notorietyMilestoneFiredCriminal, _notorietyMilestoneFiredMenace;
     private bool _fameMilestoneFiredRespected, _fameMilestoneFiredFavorite, _fameMilestoneFiredBeloved;
 
-    public ReputationService(IRecordStore store, IGameClock clock, MediaService? media, JusticeConfig config)
+    public ReputationService(IRecordStore store, IGameClock clock, MediaService? media, JusticeConfig config,
+        Func<string>? characterName = null)   // S21 v3: real character names in milestones
     {
         _store = store;
         _clock = clock;
         _media = media;
         _config = config;
+        _name = characterName ?? (() => "Unknown");
     }
 
     public int Notoriety => _store.LoadStatus().Notoriety;
@@ -123,7 +126,7 @@ public sealed class ReputationService
         if (status.Notoriety >= MenaceAt && !_notorietyMilestoneFiredMenace)
         {
             _notorietyMilestoneFiredMenace = true;
-            _media?.News("CITY ON EDGE: a super-powered menace walks the streets");
+            _media?.News($"CITY ON EDGE: {_name().ToUpperInvariant()} — the Menace of Los Santos");
             _media?.Viral("WEBNET: sightings of the 'Menace' spread like wildfire");
         }
         else if (status.Notoriety >= KnownCriminalAt && !_notorietyMilestoneFiredCriminal)
