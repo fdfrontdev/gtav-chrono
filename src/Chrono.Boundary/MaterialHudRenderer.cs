@@ -6,16 +6,16 @@ using GTA.Native;
 namespace Chrono.Boundary;
 
 /// <summary>
-/// S21 — Material-style persistent justice widget (bottom-right card, user
-/// ruling): wanted stars, court countdown, prison day counter, bail/parole,
-/// warrant status + LIVE message feed (notifier + WEBNET). Geometry comes from
-/// the pure <see cref="HudLayoutEngine"/> (Application) — same engine drives the
-/// HTML preview tool. v2 (screenshot UAT): balanced rows, wider accent rail.
+/// S21 v3 — segmented Material card HUD widget (user UAT: readable font 0,
+/// proper widget with segment/partition). Geometry + colors from the pure
+/// <see cref="HudLayoutEngine"/> — same engine drives the HTML preview tool.
 /// </summary>
 public sealed class MaterialHudRenderer : IHudRenderer
 {
     private static readonly (int R, int G, int B) Primary = (24, 103, 192);
     private static readonly (int R, int G, int B) Surface = (30, 30, 30);
+    private static readonly (int R, int G, int B) SurfaceVariant = (44, 44, 44);
+    private static readonly (int R, int G, int B) Divider = (122, 122, 122);
 
     public void DrawJusticeHud(JusticeHudState state)
     {
@@ -23,25 +23,61 @@ public sealed class MaterialHudRenderer : IHudRenderer
 
         var layout = HudLayoutEngine.Compute(
             state.StatusLine, state.CountdownLine, state.SecondLine,
-            state.Feed ?? Array.Empty<HudFeedItem>(), Measure,
+            state.Feed ?? Array.Empty<HudFeedItem>(),
+            state.Kind, state.Progress, state.Stars, Measure,
             hasCountdown: !string.IsNullOrEmpty(state.CountdownLine),
             hasIdentity: !string.IsNullOrEmpty(state.SecondLine));
 
-        // Card: shadow → surface → accent rail
+        // ── Elevation: shadow → surface ──
         var s = layout.Shadow;
         Rect(s.X + s.W / 2f, s.Y + s.H / 2f, s.W, s.H, 0, 0, 0, 160);
         var c = layout.Card;
-        Rect(c.X + c.W / 2f, c.Y + c.H / 2f, c.W, c.H, Surface.R, Surface.G, Surface.B, 240);
-        var a = layout.Accent;
-        Rect(a.X + a.W / 2f, a.Y + a.H / 2f, a.W, a.H, Primary.R, Primary.G, Primary.B, 255);
+        Rect(c.X + c.W / 2f, c.Y + c.H / 2f, c.W, c.H, Surface.R, Surface.G, Surface.B, 242);
 
-        // Rows
-        foreach (var row in layout.Rows)
+        // ── Header strip (primary) + title + stars ──
+        var h = layout.Header;
+        Rect(h.X + h.W / 2f, h.Y + h.H / 2f, h.W, h.H, Primary.R, Primary.G, Primary.B, 255);
+        DrawSpan(layout.HeaderTitle, 235, 235, 235);
+        DrawSpan(layout.HeaderStars, 255, 193, 7);   // amber stars
+
+        // ── Dividers ──
+        var d1 = layout.Divider1;
+        Rect(d1.X + d1.W / 2f, d1.Y + d1.H / 2f, d1.W, d1.H, Divider.R, Divider.G, Divider.B, 140);
+        var d2 = layout.Divider2;
+        Rect(d2.X + d2.W / 2f, d2.Y + d2.H / 2f, d2.W, d2.H, Divider.R, Divider.G, Divider.B, 140);
+
+        // ── Status / countdown / identity rows ──
+        DrawRow(layout.Status);
+        DrawRow(layout.Countdown);
+        DrawRow(layout.Identity);
+
+        // ── Countdown progress bar ──
+        if (state.CourtCountdown || state.PrisonCountdown)
         {
-            var t = row.Text;
-            Text(t.Text, t.X, CenterY(t.Y, t.Scale, t.Font), t.Scale,
-                row.Color.R, row.Color.G, row.Color.B, 255, bold: t.Bold, font: t.Font);
+            var track = layout.ProgressTrack;
+            Rect(track.X + track.W / 2f, track.Y, track.W, track.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 255);
+            var fill = layout.ProgressFill;
+            if (fill.W > 0.001f)
+                Rect(fill.X + fill.W / 2f, fill.Y, fill.W, fill.H, Primary.R, Primary.G, Primary.B, 255);
         }
+
+        // ── Feed block ──
+        DrawSpan(layout.FeedLabel, 190, 190, 190);
+        foreach (var row in layout.FeedRows)
+            DrawRow(row);
+    }
+
+    private void DrawRow(HudLayoutEngine.Row row)
+    {
+        var t = row.Text;
+        Text(t.Text, t.X, CenterY(t.Y, t.Scale, (int)HudLayoutEngine.Font), t.Scale,
+            row.Color.R, row.Color.G, row.Color.B, 255, bold: t.Bold, font: (int)HudLayoutEngine.Font);
+    }
+
+    private void DrawSpan(HudLayoutEngine.TextSpan span, int r, int g, int b)
+    {
+        Text(span.Text, span.X, CenterY(span.Y, span.Scale, (int)HudLayoutEngine.Font), span.Scale,
+            r, g, b, 255, bold: span.Bold, font: (int)HudLayoutEngine.Font);
     }
 
     // ── Text measurement: the game's own width command (injected into the engine) ──

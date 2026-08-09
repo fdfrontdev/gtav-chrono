@@ -50,17 +50,20 @@ public sealed class JusticeHudWidget
         }
 
         string countdown = "";
+        float progress = 0f;
         bool court = false, prison = false;
         if (state == JusticeState.Captured)
         {
             double s = j.TrialSecondsLeft;
             countdown = $"COURT IN {FormatClock(s)}";
             court = true;
+            progress = (float)(1 - s / Math.Max(1.0, _config.TrialDelaySeconds));
         }
         else if (state == JusticeState.Prison)
         {
             countdown = $"NEXT DAY IN {FormatClock(j.PrisonDaySecondsLeft)}";
             prison = true;
+            progress = (float)j.PrisonDayProgress;
         }
         else if (j.IsOnBail)
         {
@@ -70,6 +73,16 @@ public sealed class JusticeHudWidget
         {
             countdown = $"PAROLE {j.ParoleDaysLeft}D LEFT";
         }
+
+        // S21 v3: status kind drives the card's color coding
+        var kind = state switch
+        {
+            JusticeState.Prison   => JusticeStatusKind.Prison,
+            JusticeState.Captured => JusticeStatusKind.Captured,
+            JusticeState.Wanted   => JusticeStatusKind.Wanted,
+            _ when j.IsOnBail     => JusticeStatusKind.OnBail,
+            _                     => JusticeStatusKind.Free,
+        };
 
         string second = "";
         if (j.Warrant.IsActive && j.Identity.IsBurned)
@@ -87,7 +100,9 @@ public sealed class JusticeHudWidget
             SecondLine: second,
             CourtCountdown: court,
             PrisonCountdown: prison,
-            Feed: _feed.Items));
+            Feed: _feed.Items,
+            Kind: kind,
+            Progress: progress));
     }
 
     private static string FormatClock(double seconds)
