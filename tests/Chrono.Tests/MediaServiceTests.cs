@@ -18,6 +18,7 @@ public class MediaServiceTests
     private static (MediaService service, FakeMediaNotifier media) Build(JusticeConfig? config = null)
     {
         var media = new FakeMediaNotifier();
+        var crimeProbe = new FakeCrimeProbe();
         var service = new MediaService(media, new FakeLog(), config ?? new JusticeConfig());
         return (service, media);
     }
@@ -107,17 +108,19 @@ public class MediaServiceTests
         var player = new FakePlayer();
         var store = new FakeRecordStore();
         var media = new FakeMediaNotifier();
+        var crimeProbe = new FakeCrimeProbe();
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
             new FakeNotifier(), new FakeLog(), new JusticeConfig(), new FakeClock(),
-            new MediaService(media, new FakeLog(), new JusticeConfig()));
+            new MediaService(media, new FakeLog(), new JusticeConfig()),
+            crimeProbe: crimeProbe);
 
         wanted.CurrentStars = 5;
         service.Tick();
-                service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // S19: confrontation window expires -> cuffed
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // S21: cop reaches you -> cuffed
 
         // S14 coherence: the crime headline AND the custody headline (arrest is news)
         Assert.Contains(media.Headlines, h => h.Contains("terrorizes"));

@@ -1,3 +1,4 @@
+using Chrono.Application;
 using Chrono.Application.Ports;
 using Chrono.Domain;
 
@@ -27,5 +28,31 @@ public sealed class FakeWantedMonitor : IWantedMonitor
     {
         CurrentStars = stars;
         StarSets.Add(stars);
+    }
+}
+
+/// <summary>S21 — shared capture flow for justice tests: a cop REACHES the player
+/// (≤3 m) while the player is stopped → cuffed (physical capture, user UAT r15).
+/// Replaces the old S19 confrontation-timer helper.</summary>
+public static class JusticeTestFlow
+{
+    public static void CaptureByProximity(JusticeService service, FakeWantedMonitor wanted, FakeCrimeProbe probe)
+    {
+        wanted.CurrentStars = 4;
+        service.Tick();                 // Wanted state
+        probe.NearestPoliceDistance = 2f;   // a cop closes in
+        service.Tick();                 // stopped + cop within 3m → OnCaptured
+    }
+
+    public static void Surrender(JusticeService service, FakeWantedMonitor wanted, FakeCrimeProbe probe, FakeInput input)
+    {
+        wanted.CurrentStars = 4;
+        service.Tick();                 // Wanted state
+        probe.NearestPoliceDistance = 8f;   // a cop is near (≤12m)
+        input.InteractHotkey = true;        // G pressed (level → Update computes the edge)
+        input.Update();
+        service.Tick();                 // surrender → custody
+        input.InteractHotkey = false;
+        input.Update();
     }
 }

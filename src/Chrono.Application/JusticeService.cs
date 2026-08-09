@@ -53,12 +53,9 @@ public sealed class JusticeService
     private int _reportStreak;            // S12: each recognition escalates the response
     private bool _onBail;                 // S15: out on bail — charges pending, court next arrest
     private int _paroleUntilDay;          // S15: supervised release after a prison term (0 = none)
-    // S19 — arrest confrontation: police fight/cuff/shoot instead of instant capture
-    private bool _confronting;
-    private bool _confrontChoiceOpen;
-    private readonly Stopwatch _confrontClock = new();
-    private double _confrontElapsedMs;              // accumulated (test seam)
-    private long _confrontCooldownUntilMs = -1;
+    // S21 — physical capture (user UAT r15): police must REACH you (~3 m) to cuff you.
+    private bool _surrenderPrompted;      // hands-up prompt shown this proximity episode
+    private Vector3 _captureLastPos;      // movement gate: you must STOP to be cuffed
     // S19 — compliance: a stationary unarmed suspect makes police stand down
     private bool _complying;
     private bool _complied;              // S19: the episode ended by compliance, not by running
@@ -138,6 +135,30 @@ public sealed class JusticeService
     public int ServedDays => _servedDays;
     public int SentenceDays => _sentenceDays;
 
+    // ── S21: HUD widget probes (user UAT r15: on-screen feedback) ──
+
+    /// <summary>Current wanted stars (widget + capture logic).</summary>
+    public int CurrentStars => _wanted.CurrentStars;
+
+    /// <summary>Seconds until the court date (0 when not captured).</summary>
+    public double TrialSecondsLeft => State == JusticeState.Captured
+        ? Math.Max(0, _config.TrialDelaySeconds - _trialElapsedMs / 1000.0)
+        : 0;
+
+    /// <summary>Progress (0..1) through the CURRENT prison day — for the widget bar.</summary>
+    public double PrisonDayProgress => _prisonCalendar.DayProgressSeconds / Math.Max(1.0, _config.PrisonDayRealSeconds);
+
+    /// <summary>Real seconds left in the current prison day (0 when not serving).</summary>
+    public double PrisonDaySecondsLeft => State == JusticeState.Prison
+        ? Math.Max(0, _config.PrisonDayRealSeconds - _prisonCalendar.DayProgressSeconds)
+        : 0;
+
+    // S21 — confinement gate: prison time only serves AFTER the intake cutscene
+    // calls BeginConfinement (the S21 bug: State=Prison was set before the intake
+    // cutscene, so PrisonTick served days from the service-construction Stopwatch
+    // during the cutscene → a 14-day sentence released in ~1 second).
+    private bool _confinementStarted;
+
     /// <summary>Per-tick: star edges → crimes; capture/trial/prison flow.</summary>
     public void Tick()
     {
@@ -147,8 +168,8 @@ public sealed class JusticeService
                 TryOpenEscapeChoice();   // S13: G during confinement = escape-plan window
             else if (State == JusticeState.Captured)
                 PostBail();              // S15: G during custody = post bail
-            else if (_confronting)
-                _confrontChoiceOpen = true;   // S19: G = comply (resolved in UpdateConfrontation)
+            else if (State == JusticeState.Wanted)
+                TrySurrender();          // S21: G near a cop = hands up (physical capture)
         }
 
         int stars = _wanted.CurrentStars;
@@ -196,15 +217,11 @@ public sealed class JusticeService
         if (State == JusticeState.Free && stars > 0) State = JusticeState.Wanted;
         else if (State == JusticeState.Wanted && stars == 0) State = JusticeState.Free;
 
-        // S3 flow
-        if (State == JusticeState.Wanted && stars >= ArrestStars && !_arrested && !_confronting
-            && _confrontElapsedMs >= _confrontCooldownUntilMs)
-            BeginConfrontation();   // S19: 4★+ = confrontation, not instant capture
-
-        if (_confronting)
-            UpdateConfrontation();
-        else
-            UpdateCompliance();
+        // S21 — physical capture (user UAT r15): NO auto-cuff. Police must
+        // physically REACH you (~3 m) while you're not escaping → they cuff you;
+        // G = surrender when a cop is near; shot down while wanted → custody.
+        UpdatePhysicalCapture();
+        UpdateCompliance();   // S19/S20 hold-fire + stand-down (stationary unarmed)
 
         if (State == JusticeState.Captured && (_cutscene == null || !_cutscene.IsActive))
         {
@@ -502,6 +519,7 @@ public sealed class JusticeService
 
     private void BeginConfinement()
     {
+        _confinementStarted = true;   // S21: gate prison time — see field comment
         _prisonRealClock.Restart();
         _prisonCalendar.Reset();
         _isYardPhase = false;
@@ -517,6 +535,9 @@ public sealed class JusticeService
 
     private void PrisonTick()
     {
+        // S21: never serve time before confinement actually starts (intake cutscene gate)
+        if (!_confinementStarted) return;
+
         // Accelerated day serving (FR-9.1): 1 in-game day ≈ prisonDayRealSeconds real time
         double dt = _prisonRealClock.Elapsed.TotalSeconds;
         _prisonRealClock.Restart();
@@ -782,85 +803,63 @@ public sealed class JusticeService
         }
     }
 
-    /// <summary>S19: at 4★+ the police CONFRONT — hands-up banner, then a choice
-    /// window: G = COMPLY (cuffed → booking); X/Z/B = RESIST (roll: shot down → the
-    /// death path takes you to custody; break away → RESISTING ARREST on record and
-    /// the chase continues). Window expiry = auto-cuff (you froze).</summary>
-    private void BeginConfrontation()
+    /// <summary>
+    /// S21 — physical capture (user UAT r15 ruling 1): police must physically
+    /// REACH the player to cuff them. NO auto-cuff timer, NO forced court date
+    /// on star count. Three paths into custody:
+    ///   1. PROXIMITY — a cop within <see cref="JusticeConfig.CaptureRangeM"/>
+    ///      (~3 m) while the player has STOPPED moving (not sprinting/dashing/
+    ///      flying away) → the officers cuff you.
+    ///   2. SURRENDER — G while a cop is within <see cref="JusticeConfig.SurrenderRangeM"/>
+    ///      (~12 m) → hands up, custody (no shooting).
+    ///   3. SHOT DOWN — death while wanted → custody on respawn (S7 path, unchanged).
+    /// While you fight/run/teleport, the chase continues — capture is earned.
+    /// </summary>
+    private void UpdatePhysicalCapture()
     {
-        _confronting = true;
-        _confrontChoiceOpen = false;
-        _confrontClock.Restart();   // first tick accumulates into _confrontElapsedMs
-        _cutscene?.Play(CutsceneKind.Confrontation);   // hands-up banner + camera
-        _vfx?.ScreenFlash(250);
-        _notifier.Show("POLICE! HANDS WHERE I CAN SEE THEM — press G to comply");
-        _log.Info("Confrontation started at 4★+");
-    }
+        if (State != JusticeState.Wanted || _arrested || _crimeProbe == null) return;
 
-    public void AdvanceConfrontationTime(double realSeconds)
-        => _confrontElapsedMs += realSeconds * 1000;   // test seam
-
-    private void UpdateConfrontation()
-    {
-        _confrontElapsedMs += _confrontClock.Elapsed.TotalMilliseconds;
-        _confrontClock.Restart();
-        double elapsed = _confrontElapsedMs / 1000.0;
-        if (!_confrontChoiceOpen && elapsed >= 2.0)
+        float nearest = _crimeProbe.NearestPoliceDistanceM;
+        if (nearest >= float.MaxValue / 2f)
         {
-            _confrontChoiceOpen = true;
-            _notifier.Show("G COMPLY · X/Z/B RESIST — " + (int)_config.ConfrontationChoiceSeconds + "s");
+            _surrenderPrompted = false;   // cops gone — reset the prompt state
+            _captureLastPos = _player.Position;
+            return;
         }
 
-        // Input resolution
-        if (_confrontChoiceOpen && _input != null)
+        // Hands-up prompt when a cop closes in (12 m) — surrender is always on the table
+        if (nearest <= _config.SurrenderRangeM && !_surrenderPrompted)
         {
-            if (_input.IsInteractKeyJustPressed)
-            {
-                _confronting = false;
-                OnCaptured();   // compliant — cuffed and booked
-                return;
-            }
-            if (_input.IsDashKeyJustPressed || _input.IsTimeStopHotkeyJustPressed || _input.IsInvisibleHotkeyJustPressed)
-            {
-                ResistArrest();
-                return;
-            }
+            _surrenderPrompted = true;
+            _notifier.Show($"POLICE! HANDS WHERE I CAN SEE THEM — press G to surrender");
+            _log.Info($"Surrender prompt at {nearest:F1} m");
+        }
+        else if (nearest > _config.SurrenderRangeM)
+        {
+            _surrenderPrompted = false;
         }
 
-        // Window expiry → the officers cuff you (you froze)
-        if (elapsed >= _config.ConfrontationChoiceSeconds)
+        // Proximity capture: a cop got within ~3 m AND you stopped moving.
+        // Moving resets the gate — running/teleporting = still a free suspect.
+        bool stopped = (_player.Position - _captureLastPos).Length() < 1.0f;
+        _captureLastPos = _player.Position;
+        if (nearest <= _config.CaptureRangeM && stopped && !_player.IsInVehicle)
         {
-            _confronting = false;
+            _log.Info($"Physical capture — cop at {nearest:F1} m, suspect stopped");
             OnCaptured();
         }
     }
 
-    private void ResistArrest()
+    /// <summary>S21 — G near a cop = hands up → custody (no gunfight needed).</summary>
+    private void TrySurrender()
     {
-        _confronting = false;
-        double roll = _random();
-        if (roll < _config.ResistCaptureChance)
-        {
-            // You moved — they open fire. The vanilla AI finishes the job; death
-            // while wanted → custody on respawn (the capture-by-force path)
-            _wanted.SetStars(5);
-            _notifier.Show("YOU MOVED — THE OFFICERS OPEN FIRE!");
-            _media?.News("SUSPECT RESISTS ARREST — officers open fire in " + _player.GetDistrictName());
-            _log.Info("Resisted arrest — officers opened fire (stars 5)");
-        }
-        else
-        {
-            _confrontCooldownUntilMs = (long)_confrontElapsedMs
-                + (long)(_config.ConfrontationCooldownSeconds * 1000);
-            var evt = new CrimeEvent(
-                Guid.NewGuid().ToString("N"), CrimeSeverity.Minor, "resisting_arrest",
-                DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"), _player.GetDistrictName(), true);
-            _record.Append(evt);
-            _store.SaveAtomic(_record);
-            _notifier.Show("You broke away — the chase continues. RESISTING ARREST on your record.");
-            _media?.News("SUSPECT BREAKS FREE FROM ARREST — manhunt continues");
-            _log.Info("Broke away from arrest — resisting_arrest charged");
-        }
+        if (_arrested || _crimeProbe == null) return;
+        float nearest = _crimeProbe.NearestPoliceDistanceM;
+        if (nearest > _config.SurrenderRangeM) return;
+
+        _log.Info($"Surrendered to police at {nearest:F1} m");
+        _notifier.Show("HANDS UP — the officers cuff you");
+        OnCaptured();
     }
 
     /// <summary>S19/S20 use-of-force realism: at 2★+ (S20 lowered from 3★+), a
@@ -870,7 +869,7 @@ public sealed class JusticeService
     /// drawing a weapon re-engages the chase and lifts the hold.</summary>
     private void UpdateCompliance()
     {
-        if (State != JusticeState.Wanted || _confronting)
+        if (State != JusticeState.Wanted)
         {
             _crimeProbe?.SetPoliceHoldFire(false);
             return;

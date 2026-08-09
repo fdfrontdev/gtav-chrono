@@ -143,6 +143,7 @@ public sealed class FakeCrimeProbe : ICrimeProbe
     public bool VehicleDamage { get; set; }
     public float CrosshairDistance { get; set; } = float.MaxValue;
     public int PoliceCount { get; set; }
+    public float NearestPoliceDistance { get; set; } = float.MaxValue;   // S21
     public List<bool> HoldFireCalls { get; } = new();
     public bool HoldActive => HoldFireCalls.Count > 0 && HoldFireCalls[HoldFireCalls.Count - 1];
 
@@ -162,6 +163,7 @@ public sealed class FakeCrimeProbe : ICrimeProbe
     }
     public float CrosshairPedDistanceM => CrosshairDistance;
     public int CountNearbyPolice(float radius) => PoliceCount;
+    public float NearestPoliceDistanceM => NearestPoliceDistance;
     public void SetPoliceHoldFire(bool hold) => HoldFireCalls.Add(hold);
 }
 

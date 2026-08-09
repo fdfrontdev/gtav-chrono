@@ -12,7 +12,7 @@ public class CustodyAndViewportTests
 {
     // ── 1. Custody quiet period ──
 
-    private static JusticeService BuildCaptured(out FakeWantedMonitor wanted, out FakePlayer player, out FakeRecordStore store)
+    private static JusticeService BuildCaptured(out FakeWantedMonitor wanted, out FakePlayer player, out FakeRecordStore store, out FakeCrimeProbe crimeProbe)
     {
         wanted = new FakeWantedMonitor();
         player = new FakePlayer { IsVisible = true, Money = 100000, DistrictName = "Vinewood" };
@@ -21,25 +21,26 @@ public class CustodyAndViewportTests
         store.Status.Identity = IdentityState.Burned;
         store.Status.WarrantActive = true;
         var notifier = new FakeNotifier();
+        crimeProbe = new FakeCrimeProbe();
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
             notifier, new FakeLog(), new JusticeConfig { WarrantReportSeconds = 0 }, new FakeClock(),
-            probe: new FakeProbe { NearbyCivilians = 5 }, random: () => 0.0);
+            probe: new FakeProbe { NearbyCivilians = 5 }, random: () => 0.0, crimeProbe: crimeProbe);
         return service;
     }
 
     [Fact]
     public void Custody_NoCivilianReports_DuringCourtCountdown()
     {
-        var service = BuildCaptured(out var wanted, out _, out _);
+        var service = BuildCaptured(out var wanted, out _, out _, out var crimeProbe);
         service.Tick();                    // report → 1★
         wanted.CurrentStars = 0; service.Tick(); service.Tick();   // 2★
         wanted.CurrentStars = 0; service.Tick(); service.Tick();   // 3★
         wanted.CurrentStars = 0; service.Tick(); service.Tick();   // 4★
         service.Tick();                    // S19 confrontation begins
-        service.AdvanceConfrontationTime(6.0);
+        crimeProbe.NearestPoliceDistance = 2f;
         service.Tick();                    // cuffed
         Assert.Equal(JusticeState.Captured, service.State);
         int starsAtCapture = wanted.StarSets.Count;
@@ -59,7 +60,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_ShortList_ShowsAll()
     {
-        var (first, visible) = ModernMenuRenderer.ViewportWindow(3, 5, 12);
+        var (first, visible) = MaterialMenuRenderer.ViewportWindow(3, 5, 12);
         Assert.Equal(0, first);
         Assert.Equal(5, visible);
     }
@@ -67,7 +68,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_SelectionAtStart_ClampsToTop()
     {
-        var (first, visible) = ModernMenuRenderer.ViewportWindow(0, 40, 12);
+        var (first, visible) = MaterialMenuRenderer.ViewportWindow(0, 40, 12);
         Assert.Equal(0, first);
         Assert.Equal(12, visible);
     }
@@ -75,7 +76,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_SelectionAtEnd_ClampsToBottom()
     {
-        var (first, visible) = ModernMenuRenderer.ViewportWindow(39, 40, 12);
+        var (first, visible) = MaterialMenuRenderer.ViewportWindow(39, 40, 12);
         Assert.Equal(28, first);
         Assert.Equal(12, visible);
     }
@@ -83,7 +84,7 @@ public class CustodyAndViewportTests
     [Fact]
     public void Viewport_SelectionInMiddle_Centers()
     {
-        var (first, _) = ModernMenuRenderer.ViewportWindow(20, 40, 12);
+        var (first, _) = MaterialMenuRenderer.ViewportWindow(20, 40, 12);
         Assert.Equal(14, first);           // 20 - 12/2
     }
 
@@ -92,7 +93,7 @@ public class CustodyAndViewportTests
     {
         for (int sel = 0; sel < 60; sel++)
         {
-            var (first, visible) = ModernMenuRenderer.ViewportWindow(sel, 60, 12);
+            var (first, visible) = MaterialMenuRenderer.ViewportWindow(sel, 60, 12);
             Assert.InRange(sel, first, first + visible - 1);
         }
     }

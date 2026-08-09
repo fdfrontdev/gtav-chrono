@@ -8,7 +8,7 @@ namespace Chrono.Tests;
 /// confinement; the prison outfit swaps on confinement and restores on release.</summary>
 public class PrisonChoiceTests
 {
-    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeNotifier notifier, FakeRecordStore store, FakePrisonOutfit outfit) Build(double roll = 0.99, int money = 100000)
+    private static (JusticeService service, FakeWantedMonitor wanted, FakePlayer player, FakeNotifier notifier, FakeRecordStore store, FakePrisonOutfit outfit, FakeCrimeProbe crimeProbe) Build(double roll = 0.99, int money = 100000)
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true, Money = money, DistrictName = "Bolingbroke" };
@@ -16,22 +16,23 @@ public class PrisonChoiceTests
         var notifier = new FakeNotifier();
         var outfit = new FakePrisonOutfit();
         var input = new FakeInput();
+        var crimeProbe = new FakeCrimeProbe();
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
-            notifier, new FakeLog(), new JusticeConfig(), new FakeClock(),
-            input: input, random: () => roll, outfit: outfit);
-        return (service, wanted, player, notifier, store, outfit);
+            notifier, new FakeLog(), new JusticeConfig { PrisonDayRealSeconds = 30 }, new FakeClock(),
+            input: input, random: () => roll, outfit: outfit, crimeProbe: crimeProbe);
+        return (service, wanted, player, notifier, store, outfit, crimeProbe);
     }
 
     /// S12/S13: commit a crime → prison sentence via direct 5★ (Severe) capture
-    private static JusticeService PrisonTerm(JusticeService service, FakeWantedMonitor wanted)
+    private static JusticeService PrisonTerm(JusticeService service, FakeWantedMonitor wanted, FakeCrimeProbe crimeProbe)
     {
         wanted.CurrentStars = 5;
-        service.Tick();                    // Severe crime + arrest
-                service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // S19: confrontation window expires -> cuffed
+        service.Tick();                    // Severe crime → Wanted
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // S21: cop reaches you -> cuffed
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // verdict → prison
         return service;
@@ -40,8 +41,8 @@ public class PrisonChoiceTests
     [Fact]
     public void Confinement_AppliesPrisonOutfit()
     {
-        var (service, wanted, _, _, _, outfit) = Build();
-        PrisonTerm(service, wanted);
+        var (service, wanted, _, _, _, outfit, crimeProbe) = Build();
+        PrisonTerm(service, wanted, crimeProbe);
 
         Assert.Equal(JusticeState.Prison, service.State);
         Assert.Equal(1, outfit.ApplyCount);
@@ -50,8 +51,8 @@ public class PrisonChoiceTests
     [Fact]
     public void Release_RestoresOutfit()
     {
-        var (service, wanted, _, _, _, outfit) = Build();
-        PrisonTerm(service, wanted);
+        var (service, wanted, _, _, _, outfit, crimeProbe) = Build();
+        PrisonTerm(service, wanted, crimeProbe);
         for (int i = 0; i < 40 && service.State == JusticeState.Prison; i++)
         {
             service.AdvancePrisonTime(30.0);   // one day per advance
@@ -67,8 +68,8 @@ public class PrisonChoiceTests
     {
         // S13 fix: wandering past the yard radius is NOT an escape — the guard
         // teleports you back to the cell
-        var (service, wanted, player, notifier, _, _) = Build();
-        PrisonTerm(service, wanted);
+        var (service, wanted, player, notifier, _, _, crimeProbe) = Build();
+        PrisonTerm(service, wanted, crimeProbe);
 
         player.Position = new System.Numerics.Vector3(2000f, 2700f, 46f);   // way outside
         service.Tick();
@@ -81,8 +82,8 @@ public class PrisonChoiceTests
     [Fact]
     public void YardG_OpensEscapeChoice_AndExpires()
     {
-        var (service, wanted, player, notifier, _, _) = Build();
-        PrisonTerm(service, wanted);
+        var (service, wanted, player, notifier, _, _, crimeProbe) = Build();
+        PrisonTerm(service, wanted, crimeProbe);
         service.AdvancePrisonTime(25.0);     // yard window opens (day 1, 25s of 30s)
         service.Tick();
         service.TryOpenEscapeChoice();
@@ -99,8 +100,8 @@ public class PrisonChoiceTests
     [Fact]
     public void PowersChoice_AlwaysEscapes()
     {
-        var (service, wanted, player, _, _, _) = Build(roll: 0.0);   // even bad luck
-        PrisonTerm(service, wanted);
+        var (service, wanted, player, _, _, _, crimeProbe) = Build(roll: 0.0);   // even bad luck
+        PrisonTerm(service, wanted, crimeProbe);
         service.AdvancePrisonTime(25.0);
         service.Tick();
         service.TryOpenEscapeChoice();
@@ -115,8 +116,8 @@ public class PrisonChoiceTests
     [Fact]
     public void StealthFailure_SolitaryConfinement()
     {
-        var (service, wanted, _, notifier, _, _) = Build(roll: 0.99);   // > 0.5 → fail
-        PrisonTerm(service, wanted);
+        var (service, wanted, _, notifier, _, _, crimeProbe) = Build(roll: 0.99);   // > 0.5 → fail
+        PrisonTerm(service, wanted, crimeProbe);
         int daysBefore = service.SentenceDays;
         service.AdvancePrisonTime(25.0);
         service.Tick();
@@ -132,8 +133,8 @@ public class PrisonChoiceTests
     [Fact]
     public void FightSuccess_Escapes()
     {
-        var (service, wanted, player, _, _, _) = Build(roll: 0.1);   // < 0.7 → success
-        PrisonTerm(service, wanted);
+        var (service, wanted, player, _, _, _, crimeProbe) = Build(roll: 0.1);   // < 0.7 → success
+        PrisonTerm(service, wanted, crimeProbe);
         service.AdvancePrisonTime(25.0);
         service.Tick();
         service.TryOpenEscapeChoice();
@@ -146,8 +147,8 @@ public class PrisonChoiceTests
     [Fact]
     public void Escape_RestoresOutfit()
     {
-        var (service, wanted, _, _, _, outfit) = Build(roll: 0.0);
-        PrisonTerm(service, wanted);
+        var (service, wanted, _, _, _, outfit, crimeProbe) = Build(roll: 0.0);
+        PrisonTerm(service, wanted, crimeProbe);
         service.AdvancePrisonTime(25.0);
         service.Tick();
         service.TryOpenEscapeChoice();

@@ -78,7 +78,7 @@ public class JusticeCutsceneServiceTests
 /// (no re-arrest loop); fine-only release no longer teleports to the prison.</summary>
 public class JusticeCutsceneIntegrationTests
 {
-    private static (JusticeService service, JusticeCutsceneService cutscene, FakeCutsceneRenderer renderer, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeClock clock) Build(bool burned = false)
+    private static (JusticeService service, JusticeCutsceneService cutscene, FakeCutsceneRenderer renderer, FakeWantedMonitor wanted, FakePlayer player, FakeRecordStore store, FakeClock clock, FakeCrimeProbe crimeProbe) Build(bool burned = false)
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true, Money = 100000 };
@@ -93,18 +93,19 @@ public class JusticeCutsceneIntegrationTests
         var renderer = new FakeCutsceneRenderer();
         var cutscene = new JusticeCutsceneService(renderer, player, new FakeLog());
         var probe = new FakeProbe { NearbyCivilians = 5 };
+        var crimeProbe = new FakeCrimeProbe();
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
             notifier, new FakeLog(),
-            new JusticeConfig { WarrantReportSeconds = 0 }, clock,
-            cutscene: cutscene, probe: probe, random: () => 0.0);
-        return (service, cutscene, renderer, wanted, player, store, clock);
+            new JusticeConfig { WarrantReportSeconds = 0, PrisonDayRealSeconds = 30 }, clock,
+            cutscene: cutscene, probe: probe, random: () => 0.0, crimeProbe: crimeProbe);
+        return (service, cutscene, renderer, wanted, player, store, clock, crimeProbe);
     }
 
     /// S12: 4 warrant recognitions escalate 1★→4★ → capture with NO new crimes
-    private static void EscalateToCapture(JusticeService service, FakeWantedMonitor wanted)
+    private static void EscalateToCapture(JusticeService service, FakeWantedMonitor wanted, FakeCrimeProbe crimeProbe)
     {
         for (int i = 0; i < 3; i++)
         {
@@ -113,24 +114,22 @@ public class JusticeCutsceneIntegrationTests
             service.Tick();
         }
         service.Tick();
-        service.Tick();                  // 4★ → S19 confrontation begins
-        service.AdvanceConfrontationTime(6.0);
-        service.Tick();                  // window expires → cuffed (you froze)
+        crimeProbe.NearestPoliceDistance = 2f;   // S21: a cop reaches the player
+        service.Tick();                  // stopped + cop within 3m → cuffed
     }
 
     [Fact]
     public void Capture_PlaysArrestCutscene_AndClearsStars()
     {
-        var (service, cutscene, renderer, wanted, _, _, _) = Build();
+        var (service, cutscene, renderer, wanted, _, _, _, crimeProbe) = Build();
         wanted.CurrentStars = 4;
-        service.Tick();                    // S19: confrontation begins (hands-up banner)
-        Assert.True(cutscene.IsActive);
-        Assert.Equal(1, renderer.BeginCount);
+        service.Tick();                    // Wanted state
+        Assert.False(cutscene.IsActive);   // S21: no confrontation cutscene — capture is physical
 
-        service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // window expired → cuffed → arrest cutscene
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // cop reaches you → cuffed → arrest cutscene
 
-        Assert.Equal(2, renderer.BeginCount);   // confrontation + arrest
+        Assert.Equal(1, renderer.BeginCount);   // arrest cutscene only
         Assert.Equal(0, wanted.CurrentStars);   // S11: handcuffed — chase over
         FinishArrest(cutscene);
     }
@@ -146,12 +145,12 @@ public class JusticeCutsceneIntegrationTests
     [Fact]
     public void Verdict_PlaysCourt_AndSentenceAppliesAtGavel()
     {
-        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
+        var (service, cutscene, renderer, wanted, player, store, _, crimeProbe) = Build(burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);   // reports → 4★ → arrested
+        EscalateToCapture(service, wanted, crimeProbe);   // reports → 4★ → arrested
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court session starts
@@ -175,11 +174,11 @@ public class JusticeCutsceneIntegrationTests
     [Fact]
     public void PrisonVerdict_IntakeThenConfinement()
     {
-        var (service, cutscene, renderer, wanted, player, store, clock) = Build();
+        var (service, cutscene, renderer, wanted, player, store, clock, crimeProbe) = Build();
         wanted.CurrentStars = 5;
-        service.Tick();                    // Severe episode → S19 confrontation
-        service.AdvanceConfrontationTime(6.0);
-        service.Tick();                    // cuffed → arrest
+        service.Tick();                    // Severe episode → Wanted
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // cop reaches you → cuffed → arrest
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court session
@@ -204,12 +203,12 @@ public class JusticeCutsceneIntegrationTests
     public void FineOnlyRelease_DoesNotTeleport()
     {
         // S11 fix: paying a downtown fine must NOT wake you at the prison gate
-        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
+        var (service, cutscene, renderer, wanted, player, store, _, crimeProbe) = Build(burned: true);
         wanted.CurrentStars = 2;
         service.Tick();
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);   // Minor-only charge → fine-only
+        EscalateToCapture(service, wanted, crimeProbe);   // Minor-only charge → fine-only
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court
@@ -227,12 +226,12 @@ public class JusticeCutsceneIntegrationTests
     {
         // S16 audit: posting bail during the court session would double-bill
         // (bail AND the fine) — the court refuses once the gavel is near
-        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
+        var (service, cutscene, renderer, wanted, player, store, _, crimeProbe) = Build(burned: true);
         wanted.CurrentStars = 2;
         service.Tick();
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);
+        EscalateToCapture(service, wanted, crimeProbe);
         FinishArrest(cutscene);
         service.AdvanceTrialTime(45.0);
         service.Tick();                  // court session starts (cutscene active)
@@ -247,12 +246,12 @@ public class JusticeCutsceneIntegrationTests
     public void ArrestedStarsCleared_NoImmediateRearrest()
     {
         // S11 fix: stars cleared at capture → after release the wanted level stays 0
-        var (service, cutscene, renderer, wanted, player, store, _) = Build(burned: true);
+        var (service, cutscene, renderer, wanted, player, store, _, crimeProbe) = Build(burned: true);
         wanted.CurrentStars = 2;
         service.Tick();                    // Minor crime
         wanted.CurrentStars = 0;
         service.Tick();
-        EscalateToCapture(service, wanted);   // arrest (stars → 0)
+        EscalateToCapture(service, wanted, crimeProbe);   // arrest (stars → 0)
         FinishArrest(cutscene);            // booking cinematic plays out
         service.AdvanceTrialTime(45.0);
         service.Tick();                    // court
