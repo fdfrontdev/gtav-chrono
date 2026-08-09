@@ -58,11 +58,9 @@ public sealed class JusticeService
     private Vector3 _captureLastPos;      // movement gate: you must STOP to be cuffed
     // S19 — compliance: a stationary unarmed suspect makes police stand down
     private bool _complying;
-    private bool _complied;              // S19: the episode ended by compliance, not by running
     private Vector3 _lastPos;
     private readonly Stopwatch _complianceClock = new();
     private double _complianceElapsedMs;
-    private double _lastDecayMs;
     private bool _complianceArmed;
     private readonly Stopwatch _escapeClock = Stopwatch.StartNew();   // S13: choice window
     private readonly IPrisonOutfit? _outfit;                          // S13: prison look
@@ -203,7 +201,7 @@ public sealed class JusticeService
         // CHASE ESCAPE (S10): the episode ended WITHOUT capture → the police lost
         // you. Media loves a vanishing suspect (viral). Guarded against death/capture.
         if (stars == 0 && previousStars > 0 && !dead && !_arrested
-            && _episodeSeverity != null && State == JusticeState.Wanted && !_complying && !_complied)
+            && _episodeSeverity != null && State == JusticeState.Wanted && !_complying)
         {
             _episodeSeverity = null;
             OnChaseEscaped();
@@ -295,7 +293,6 @@ public sealed class JusticeService
     private void OnStarsIncreased(int stars)
     {
         HandleBailAndParole(stars);
-        _complied = false;               // S19: a new crime starts a fresh episode
         var severity = SeverityFromStars(stars);
         _episodeSeverity ??= severity;   // sentence uses the ORIGINAL offense of the episode
         _reputation?.OnCrime(severity);  // S9: crimes build notoriety
@@ -341,7 +338,6 @@ public sealed class JusticeService
     public void RecordDetectedCrime(ClassifiedCrime crime)
     {
         HandleBailAndParole(crime.Stars);
-        _complied = false;
         _episodeSeverity ??= crime.Severity;
         _reputation?.OnCrime(crime.Severity);
         bool burned = _player.IsVisible;
@@ -863,10 +859,13 @@ public sealed class JusticeService
     }
 
     /// <summary>S19/S20 use-of-force realism: at 2★+ (S20 lowered from 3★+), a
-    /// stationary UNARMED suspect makes the officers stand down — stars decay AND
-    /// nearby police peds are put on HOLD-FIRE (S20: aim but don't shoot — the
-    /// user UAT r14: cops opened fire on a still unarmed player at 2★). Moving or
-    /// drawing a weapon re-engages the chase and lifts the hold.</summary>
+    /// stationary UNARMED suspect makes the officers stand down — hold-fire
+    /// (S20: aim but don't shoot — user UAT r14). Moving or drawing a weapon
+    /// re-engages the chase and lifts the hold.
+    /// S21 v2 (user UAT): complying = ARREST, not star decay. Standing still
+    /// with hands up lets the nearest officer (≤ surrenderRangeM) close in and
+    /// cuff you — custody → trial → verdict clears the warrant, killing the
+    /// "civilian reports → stars clear → reports again" loop.</summary>
     private void UpdateCompliance()
     {
         if (State != JusticeState.Wanted)
@@ -905,20 +904,18 @@ public sealed class JusticeService
             if (!_complying && _complianceElapsedMs >= _config.ComplianceSeconds * 1000)
             {
                 _complying = true;
-                _notifier.Show("STAY STILL — the officers stand down");
-                _log.Info("Suspect still + unarmed — officers stand down");
+                _notifier.Show("STAY STILL — hands up, the officers close in");
+                _log.Info("Suspect still + unarmed — officers close in");
             }
-            if (_complying && _complianceElapsedMs - _lastDecayMs >= 1500 && stars > 0)
+            // S21 v2: complying with a cop in reach = UNDER ARREST. No star
+            // decay, no "officers leave" — the officers cuff you (physical
+            // capture via compliance, same range as the G-surrender rule).
+            if (_complying && _crimeProbe != null
+                && _crimeProbe.NearestPoliceDistanceM <= _config.SurrenderRangeM)
             {
-                _lastDecayMs = _complianceElapsedMs;
-                _wanted.SetStars(Math.Max(0, stars - 1));
-            }
-            if (_complying && _wanted.CurrentStars == 0)
-            {
-                _complying = false;
-                _complied = true;
-                _notifier.Show("You complied — the officers leave");
-                _log.Info("Compliance complete — stars cleared");
+                _log.Info($"Compliance capture — cop at {_crimeProbe.NearestPoliceDistanceM:F1} m");
+                _notifier.Show("The officers cuff you — you are under arrest");
+                OnCaptured();
             }
         }
         else
@@ -930,7 +927,6 @@ public sealed class JusticeService
                 _notifier.Show("You moved — the chase is back on");
             }
             _complianceElapsedMs = 0;
-            _lastDecayMs = 0;
         }
     }
 

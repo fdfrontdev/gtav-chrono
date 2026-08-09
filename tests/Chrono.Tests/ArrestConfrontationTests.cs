@@ -181,13 +181,13 @@ public class ArrestConfrontationTests
         Assert.Equal(JusticeState.Captured, service.State);
     }
 
-    // ── 3. Compliance stand-down (S19/S20, unchanged) ──
+    // ── 3. S21 v2 compliance = ARREST (user UAT: comply → cuffed, no star decay) ──
 
     [Fact]
-    public void Compliance_StationaryUnarmed_StarsDecay_NoViral()
+    public void Compliance_StationaryUnarmed_Arrested_NoViral()
     {
         var (service, wanted, player, notifier, _, media, _, crimeProbe) = Build();
-        crimeProbe.NearestPoliceDistance = 5f;   // cops present (hold-fire targets)
+        crimeProbe.NearestPoliceDistance = 5f;   // cop in surrender range (12m)
 
         wanted.CurrentStars = 3;
         service.Tick();                  // Moderate crime → Wanted
@@ -196,19 +196,11 @@ public class ArrestConfrontationTests
         service.Tick();                  // settle — still now
 
         service.AdvanceComplianceTime(3.2);
-        service.Tick();                  // 3s still + unarmed → stand down + decay 3★ → 2★
-        Assert.Contains(notifier.Messages, m => m.Contains("stand down"));
-        Assert.Equal(2, wanted.CurrentStars);
+        service.Tick();                  // 3s still + unarmed → cops close in → CUFFED
 
-        service.AdvanceComplianceTime(1.6);
-        service.Tick();                  // decay → 1★
-        Assert.Equal(1, wanted.CurrentStars);
-        service.AdvanceComplianceTime(1.6);
-        service.Tick();                  // decay → 0★ — complied, no shooting
-        service.Tick();                  // state edge sees the cleared stars → Free
-
-        Assert.Equal(JusticeState.Free, service.State);
-        Assert.Contains(notifier.Messages, m => m.Contains("complied"));
+        Assert.Equal(JusticeState.Captured, service.State);   // arrested, not released
+        Assert.Equal(0, wanted.CurrentStars);                 // handcuffed — chase over
+        Assert.Contains(notifier.Messages, m => m.Contains("under arrest"));
         Assert.DoesNotContain(media.Headlines, h => h.Contains("vanishe") || h.Contains("LOSE"));
     }
 
