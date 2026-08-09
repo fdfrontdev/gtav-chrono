@@ -27,7 +27,7 @@ public sealed class MaterialHudRenderer : IHudRenderer
             state.Kind, state.Progress, state.Stars, Measure,
             hasCountdown: !string.IsNullOrEmpty(state.CountdownLine),
             hasIdentity: !string.IsNullOrEmpty(state.SecondLine),
-            countdownUrgent: state.CountdownLine.Contains("YARD OPEN"));
+            countdownUrgent: state.CountdownLine.Contains("YARD OPEN") || state.StatusLine.Contains("MANHUNT"));
 
         // ── Elevation: shadow → surface ──
         var s = layout.Shadow;
@@ -59,7 +59,12 @@ public sealed class MaterialHudRenderer : IHudRenderer
             Rect(track.X + track.W / 2f, track.Y, track.W, track.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 255);
             var fill = layout.ProgressFill;
             if (fill.W > 0.001f)
-                Rect(fill.X + fill.W / 2f, fill.Y, fill.W, fill.H, Primary.R, Primary.G, Primary.B, 255);
+            {
+                // S21 v3: manhunt heat bar in crimson, court/prison in primary blue
+                var kc = state.Kind == JusticeStatusKind.Manhunt
+                    ? HudLayoutEngine.KindColor(JusticeStatusKind.Manhunt) : Primary;
+                Rect(fill.X + fill.W / 2f, fill.Y, fill.W, fill.H, kc.R, kc.G, kc.B, 255);
+            }
         }
 
         // ── Feed block ──

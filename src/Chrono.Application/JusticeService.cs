@@ -407,10 +407,21 @@ public sealed class JusticeService
         _trialClock.Restart();
         _reportStreak = 0;                // justice pipeline takes over (S12)
         _wanted.SetStars(0);              // handcuffed — the chase is OVER (S11: no re-arrest loop)
+        bool manhuntEnded = IsManhunt;
+        _manhuntUntilDay = 0;             // S21 v3: recaptured — the manhunt is OVER
         _vfx?.ScreenFadeOut(300);
         _vfx?.ScreenFlash(300);
-        _notifier.Show($"ARRESTED — bail {BailCost():$#,##0} (press G) or face the court");
-        _media?.News($"BREAKING: super-powered suspect taken into custody in {_player.GetDistrictName()}");
+        if (manhuntEnded)
+        {
+            // prison-break vibe (user UAT): a manhunt ends with a RECAPTURE, not a routine arrest
+            _notifier.Show("RECAPTURED! The manhunt is over — back to the system");
+            _media?.News("MANHUNT OVER: escaped fugitive recaptured in " + _player.GetDistrictName());
+        }
+        else
+        {
+            _notifier.Show($"ARRESTED — bail {BailCost():$#,##0} (press G) or face the court");
+            _media?.News($"BREAKING: super-powered suspect taken into custody in {_player.GetDistrictName()}");
+        }
         _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
         _log.Info("Captured at 4★+ — custody started");
     }
@@ -652,6 +663,10 @@ public sealed class JusticeService
     public bool IsOnBail => _onBail;                        // S15
     /// <summary>S21 v3: yard time is open — the escape prompt (G) is live (widget hint).</summary>
     public bool IsYardPhase => _isYardPhase;
+    /// <summary>S21 v3 (prison-break vibe): manhunt active after an escape — the
+    /// whole state is looking for you until the heat dies down.</summary>
+    public bool IsManhunt => _manhuntUntilDay > 0 && _clock.CurrentGameDay < _manhuntUntilDay;
+    public int ManhuntUntilDay => _manhuntUntilDay;
     public int ParoleDaysLeft => Math.Max(0, _paroleUntilDay - _clock.CurrentGameDay);   // S15
 
     public void TryOpenEscapeChoice()
@@ -767,6 +782,7 @@ public sealed class JusticeService
             _ => "You froze the guards and walked out!"
         };
         _notifier.Show($"{flavor} ESCAPED — the whole state is looking for you");
+        _media?.News("PRISON BREAK: super-powered inmate escapes Bolingbroke — MANHUNT underway");
         _log.Info($"Prison escape via {kind} — manhunt until game-day {_manhuntUntilDay}");
     }
 

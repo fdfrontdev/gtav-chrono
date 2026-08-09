@@ -94,15 +94,19 @@ public static class Program
         // status / countdown / identity
         AppendText(sb, layout.Status.Text.Text, layout.Status.Text.X, layout.Status.Text.Y, layout.Status.Text.Scale,
             layout.Status.Color.R, layout.Status.Color.G, layout.Status.Color.B, layout.Status.Text.Bold);
+        var cdColor = wp.Status.Contains("MANHUNT") ? (255, 179, 64) : (layout.Countdown.Color.R, layout.Countdown.Color.G, layout.Countdown.Color.B);
         AppendText(sb, layout.Countdown.Text.Text, layout.Countdown.Text.X, layout.Countdown.Text.Y, layout.Countdown.Text.Scale,
-            layout.Countdown.Color.R, layout.Countdown.Color.G, layout.Countdown.Color.B, layout.Countdown.Text.Bold);
+            cdColor.Item1, cdColor.Item2, cdColor.Item3, layout.Countdown.Text.Bold);
         AppendText(sb, layout.Identity.Text.Text, layout.Identity.Text.X, layout.Identity.Text.Y, layout.Identity.Text.Scale,
             layout.Identity.Color.R, layout.Identity.Color.G, layout.Identity.Color.B, layout.Identity.Text.Bold);
 
         // progress bar
         AppendRect(sb, layout.ProgressTrack, 44, 44, 44, 1f);
         if (layout.ProgressFill.W > 0.001f)
-            AppendRect(sb, layout.ProgressFill, 24, 103, 192, 1f);
+        {
+            var fill = wp.Kind == JusticeStatusKind.Manhunt ? (198, 40, 40) : (24, 103, 192);
+            AppendRect(sb, layout.ProgressFill, fill.Item1, fill.Item2, fill.Item3, 1f);
+        }
 
         // feed block
         AppendText(sb, layout.FeedLabel.Text, layout.FeedLabel.X, layout.FeedLabel.Y, layout.FeedLabel.Scale, 190, 190, 190, true);
@@ -276,6 +280,12 @@ public static class Program
             Feed: new[] {
                 new HudFeedItem("Day 2 of 14 — yard time at dusk", FeedKind.Message, "12:30:00"),
             }, JusticeStatusKind.Prison, 0.4f)));
+        screens.Add(("WIDGET: MANHUNT", new WidgetPreview(
+            Status: "MANHUNT — PRISON BREAK 4*", Countdown: "HEAT UNTIL DAY 12", Identity: "WARRANT ACTIVE — FACE ON FILE",
+            Feed: new[] {
+                new HudFeedItem("PRISON BREAK: super-powered inmate escapes Bolingbroke — MANHUNT underway", FeedKind.Viral, "21:30:02"),
+                new HudFeedItem("A civilian recognized you — police dispatched (4★)", FeedKind.Message, "21:31:14"),
+            }, JusticeStatusKind.Manhunt, 1f, Stars: 4)));
 
         return screens;
     }

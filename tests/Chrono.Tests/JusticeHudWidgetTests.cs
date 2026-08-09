@@ -18,7 +18,7 @@ public class JusticeHudWidgetTests
         public void DrawJusticeHud(JusticeHudState state) => Last = state;
     }
 
-    private static (JusticeHudWidget widget, FakeHudRenderer renderer, JusticeService justice, FakeWantedMonitor wanted, FakeCrimeProbe probe) Build()
+    private static (JusticeHudWidget widget, FakeHudRenderer renderer, JusticeService justice, FakeWantedMonitor wanted, FakeCrimeProbe probe, FakeNotifier notifier) Build()
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true, Money = 100000, DistrictName = "Vinewood" };
@@ -26,21 +26,22 @@ public class JusticeHudWidgetTests
         var clock = new FakeClock();
         var probe = new FakeCrimeProbe();
         var config = new JusticeConfig { TrialDelaySeconds = 60, PrisonDayRealSeconds = 30 };
+        var notifier = new FakeNotifier();
         var justice = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
-            new FakeNotifier(), new FakeLog(), config, clock,
+            notifier, new FakeLog(), config, clock,
             input: new FakeInput(), crimeProbe: probe);
         var renderer = new FakeHudRenderer();
         var widget = new JusticeHudWidget(justice, renderer, config);
-        return (widget, renderer, justice, wanted, probe);
+        return (widget, renderer, justice, wanted, probe, notifier);
     }
 
     [Fact]
     public void FreeState_ShowsCleanIdentity()
     {
-        var (widget, renderer, _, _, _) = Build();
+        var (widget, renderer, _, _, _, _) = Build();
         widget.Tick();
 
         Assert.NotNull(renderer.Last);
@@ -53,7 +54,7 @@ public class JusticeHudWidgetTests
     [Fact]
     public void WantedState_ShowsStars()
     {
-        var (widget, renderer, justice, wanted, _) = Build();
+        var (widget, renderer, justice, wanted, _, _) = Build();
         wanted.CurrentStars = 3;
         justice.Tick();                  // enter Wanted state
         widget.Tick();
@@ -65,7 +66,7 @@ public class JusticeHudWidgetTests
     [Fact]
     public void CapturedState_ShowsCourtCountdown()
     {
-        var (widget, renderer, justice, wanted, probe) = Build();
+        var (widget, renderer, justice, wanted, probe, _) = Build();
         wanted.CurrentStars = 4;
         justice.Tick();
         probe.NearestPoliceDistance = 2f;
@@ -81,7 +82,7 @@ public class JusticeHudWidgetTests
     [Fact]
     public void PrisonState_ShowsDayCounter()
     {
-        var (widget, renderer, justice, wanted, probe) = Build();
+        var (widget, renderer, justice, wanted, probe, _) = Build();
         wanted.CurrentStars = 5;
         justice.Tick();
         probe.NearestPoliceDistance = 2f;
@@ -99,7 +100,7 @@ public class JusticeHudWidgetTests
     [Fact]
     public void YardPhase_ShowsEscapePrompt()   // S21 v3: "how do I escape?" — the widget must SAY it
     {
-        var (widget, renderer, justice, wanted, probe) = Build();
+        var (widget, renderer, justice, wanted, probe, _) = Build();
         wanted.CurrentStars = 5;
         justice.Tick();
         probe.NearestPoliceDistance = 2f;
@@ -119,9 +120,66 @@ public class JusticeHudWidgetTests
     }
 
     [Fact]
+    public void Manhunt_ShowsPrisonBreakStatus()   // S21 v3: prison-break vibe (user UAT)
+    {
+        var (widget, renderer, justice, wanted, probe, _) = Build();
+        wanted.CurrentStars = 5;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();
+        justice.AdvanceTrialTime(60.0);
+        justice.Tick();                  // verdict → prison
+        justice.Tick();                  // confinement starts
+
+        // escape via powers (yard open → choose)
+        justice.AdvancePrisonTime(20.0);
+        justice.Tick();                  // yard phase
+        justice.TryOpenEscapeChoice();
+        justice.ChooseEscape(EscapeKind.Dash);
+
+        Assert.True(justice.IsManhunt);
+        widget.Tick();
+
+        Assert.Contains("MANHUNT — PRISON BREAK", renderer.Last!.StatusLine);
+        Assert.Contains("HEAT UNTIL DAY", renderer.Last.CountdownLine);
+        Assert.Equal(JusticeStatusKind.Manhunt, renderer.Last.Kind);
+        Assert.True(renderer.Last.PrisonCountdown);   // countdown line active (heat timer)
+    }
+
+    [Fact]
+    public void Recapture_EndsManhunt_ShowsRecaptured()   // S21 v3
+    {
+        var (widget, renderer, justice, wanted, probe, notifier) = Build();
+        wanted.CurrentStars = 5;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();
+        justice.AdvanceTrialTime(60.0);
+        justice.Tick();
+        justice.Tick();                  // prison
+
+        justice.AdvancePrisonTime(20.0);
+        justice.Tick();
+        justice.TryOpenEscapeChoice();
+        justice.ChooseEscape(EscapeKind.Dash);   // escape → manhunt
+        Assert.True(justice.IsManhunt);
+
+        // caught during the manhunt → recapture
+        wanted.CurrentStars = 4;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();                  // physical capture
+
+        Assert.Equal(JusticeState.Captured, justice.State);
+        Assert.False(justice.IsManhunt, "recapture must END the manhunt");
+        widget.Tick();   // renderer.Last reflects the recaptured state
+        Assert.Contains(notifier.Messages, m => m.Contains("RECAPTURED"));
+    }
+
+    [Fact]
     public void ToggleOff_HidesWidget()
     {
-        var (widget, renderer, _, _, _) = Build();
+        var (widget, renderer, _, _, _, _) = Build();
         widget.Enabled = false;
         widget.Tick();
 

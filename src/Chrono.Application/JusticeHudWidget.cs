@@ -91,8 +91,20 @@ public sealed class JusticeHudWidget
             JusticeState.Captured => JusticeStatusKind.Captured,
             JusticeState.Wanted   => JusticeStatusKind.Wanted,
             _ when j.IsOnBail     => JusticeStatusKind.OnBail,
+            _ when j.IsManhunt    => JusticeStatusKind.Manhunt,   // S21 v3: prison-break heat
             _                     => JusticeStatusKind.Free,
         };
+
+        // S21 v3 (prison-break vibe, user UAT): an active manhunt overrides the
+        // status line — "MANHUNT — PRISON BREAK" reads like a TV-series manhunt,
+        // with the heat countdown on the countdown line.
+        if (j.IsManhunt)
+        {
+            status = $"MANHUNT — PRISON BREAK {stars}*";
+            countdown = $"HEAT UNTIL DAY {j.ManhuntUntilDay}";
+            progress = 1f;
+            prison = true;   // reuse the countdown bar + urgent color for the heat timer
+        }
 
         string second = "";
         if (j.Warrant.IsActive && j.Identity.IsBurned)
