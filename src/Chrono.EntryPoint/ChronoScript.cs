@@ -69,7 +69,9 @@ public class ChronoScript : Script
             var menuFramework = new MenuFramework(renderer);
 
             // Justice layer (v0.9.0) — S1..S8 + S9 reputation
-            var recordStore = new JsonRecordStore(BaseDirectory, _log);
+                        // S22: relational storage — SQLite (idempotency + integrity). The
+                        // legacy JSON files are migrated to chrono.db on first boot.
+                        var recordStore = new SqliteRecordStore(BaseDirectory, _log);
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
             var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice, hudFeed,

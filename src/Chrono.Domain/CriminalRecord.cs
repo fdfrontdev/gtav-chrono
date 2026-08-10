@@ -15,8 +15,10 @@ public sealed record CrimeEvent(
     bool Burned,          // face seen? (FR-1.4)
     bool Charged = false); // S12: charged in a past court session?
 
-/// <summary>A court judgment (FR-8.4).</summary>
-public sealed record Conviction(int Fine, int PrisonDays, string GameTime);
+/// <summary>A court judgment (FR-8.4). <see cref="Id"/> is the relational key for the
+/// conviction↔events junction (S22: SQLite — idempotent conviction rows, the
+/// sequence of what each verdict sentenced is recoverable).</summary>
+public sealed record Conviction(string Id, int Fine, int PrisonDays, string GameTime);
 
 /// <summary>Sentencing result (FR-8.3).</summary>
 public sealed record Sentence(int Fine, int PrisonDays);
@@ -42,7 +44,6 @@ public sealed class CriminalRecord
     }
 
     public void AddConviction(Conviction c) => Convictions.Add(c);
-
     /// <summary>Erase everything (police-DB hack, FR-6.2).</summary>
     public void Purge()
     {

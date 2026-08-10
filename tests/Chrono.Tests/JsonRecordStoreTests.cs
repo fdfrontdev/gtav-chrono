@@ -35,7 +35,7 @@ public class JsonRecordStoreTests : IDisposable
         var store = CreateStore();
         var record = new CriminalRecord();
         record.Append(new CrimeEvent("e1", CrimeSeverity.Severe, "murder", "2026-08-08T12:00:00", "Vinewood", true));
-        record.AddConviction(new Conviction(25000, 30, "2026-08-08"));
+        record.AddConviction(new Conviction("c" + 25000, 25000, 30, "2026-08-08"));
         store.SaveAtomic(record);
 
         var profile = new CharacterProfile();
