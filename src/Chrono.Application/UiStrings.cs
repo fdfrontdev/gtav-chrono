@@ -38,8 +38,8 @@ public static class UiStrings
     public const string WarpArrived = "Arrived";
     public const string WarpCancelled = "Warp cancelled";
     public const string NoWaypoint = "Set a waypoint on the map first";
-    public const string FlyHint = "Fly: WASD move | Space up | Ctrl down | F9 menu";
+    public const string FlyHint = "Fly: WASD move | Space up | Ctrl down | {0} menu";
     public const string ConfigError = "Chrono: config issue - defaults loaded (see log)";
     public const string BugError = "Chrono error - see chrono.log";
-    public const string FirstRun = "Chrono ready - press F9";
+    public const string FirstRun = "Chrono ready - press {0}";
 }

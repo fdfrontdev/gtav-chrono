@@ -444,7 +444,7 @@ public sealed class PowerMenuService
 
         // Persistent fly-controls hint while flying (user request v0.3.0: "no instructions on screen")
         if (_fly.IsEnabled && !_menu.IsOpen)
-            _menu.DrawHint(UiStrings.FlyHint);
+            _menu.DrawHint(string.Format(UiStrings.FlyHint, _config.MenuKey));
 
         // Invisibility = PERSISTENT perception suppression (reasserted every tick —
         // the game can reset the ignore flags). When not invisible, the timed
@@ -610,7 +610,7 @@ public sealed class PowerMenuService
                 new MenuItem
                 {
                     Title = UiStrings.ItemHotkeys,
-                    Value = $"F9 menu | {_config.Dash.Hotkey} dash | {_config.TimeStop.Hotkey} stop | {_config.Invisible.Hotkey} invis"
+                    Value = $"{_config.MenuKey} menu | {_config.Dash.Hotkey} dash | {_config.TimeStop.Hotkey} stop | {_config.Invisible.Hotkey} invis"
                 },
                 new MenuItem
                 {
@@ -691,7 +691,10 @@ public sealed class PowerMenuService
         if (settings == null) return;
         foreach (var item in settings.Items)
         {
-            if (item.Title == UiStrings.ItemDashRange) item.Value = $"{_config.Dash.Range:0.0} m";
+            if (item.Title == UiStrings.ItemModToggle) item.Value = _config.ModEnabled ? "ON" : "OFF";       // S22 v2
+            else if (item.Title == UiStrings.ItemPowersToggle) item.Value = _config.PowersEnabled ? "ON" : "OFF";  // S22 v2
+            else if (item.Title == UiStrings.ItemJusticeToggle) item.Value = _config.JusticeEnabled ? "ON" : "OFF"; // S22 v2
+            else if (item.Title == UiStrings.ItemDashRange) item.Value = $"{_config.Dash.Range:0.0} m";
             else if (item.Title == UiStrings.ItemFlySpeed) item.Value = $"{_config.Fly.Speed:0.0}";
             else if (item.Title == UiStrings.ItemFreezeProps) item.Value = _config.TimeStop.FreezeProps ? "ON" : "OFF";
             else if (item.Title == UiStrings.ItemPauseClock) item.Value = _config.TimeStop.PauseClock ? "ON" : "OFF";

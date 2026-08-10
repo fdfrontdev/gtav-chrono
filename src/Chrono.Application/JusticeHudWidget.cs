@@ -20,6 +20,12 @@ public sealed class JusticeHudWidget
 
     public bool Enabled { get; set; }   // menu toggle — Settings → Show HUD
 
+    /// <summary>S22 v2: mod master toggle OFF — the widget draws nothing.</summary>
+    public bool ModOff { get; set; }
+
+    /// <summary>S22 v2: justice toggle OFF — the widget shows a suspended status.</summary>
+    public bool JusticeOff { get; set; }
+
     public JusticeHudWidget(JusticeService justice, IHudRenderer renderer, JusticeConfig config,
         HudFeedBuffer? feed = null)
     {
@@ -36,6 +42,26 @@ public sealed class JusticeHudWidget
     /// <summary>Per-tick: rebuild + draw the widget (cheap — a few text draws).</summary>
     public void Tick()
     {
+        // S22 v4 (user UAT: "the toggle on/off didn't work"): the toggles
+        // short-circuit FIRST — Mod OFF draws nothing, Justice OFF draws the
+        // suspended card — without touching the (possibly suspended) service.
+        if (ModOff) return;
+        if (JusticeOff)
+        {
+            _renderer.DrawJusticeHud(new JusticeHudState(
+                Visible: Enabled,
+                Stars: 0,
+                StatusLine: "JUSTICE OFF — LAWS SUSPENDED",
+                CountdownLine: "Toggle ON in Settings",
+                SecondLine: "",
+                CourtCountdown: false,
+                PrisonCountdown: false,
+                Kind: JusticeStatusKind.Free,
+                Progress: 0f,
+                Feed: _feed.Snapshot()));
+            return;
+        }
+
         var j = _justice;
         var state = j.State;
 
