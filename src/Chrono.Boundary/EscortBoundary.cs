@@ -47,6 +47,18 @@ public sealed class EscortBoundary : IEscortBoundary
 
             _skipped = false;
 
+            // Driver into the DRIVER seat FIRST (seat -1) — the S22 v8 r2 bug
+            // (user UAT r39 screenshot: "police go out, not drive"): the drive
+            // task was issued to a ped standing BESIDE the car, which GTA's AI
+            // can't honor — the officer walked away and the ride never moved.
+            Function.Call(Hash.SET_PED_INTO_VEHICLE, _driver.Handle, _cruiser.Handle, -1);
+            // Then the long-range drive task: ~108 km/h — an escort runs hot
+            // (the lawful 65 km/h made the cross-city trip an eternity).
+            Function.Call(Hash.TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE,
+                _driver.Handle, _cruiser.Handle,
+                destination.X, destination.Y, destination.Z,
+                30f, 786603, 10f);   // speed 30 m/s, driving flags, arrival radius
+
             // Player into the rear seat (seat index 2 = rear left) — cuffed, no control
             var playerPed = Game.Player.Character;
             if (playerPed != null && playerPed.Exists())
@@ -57,13 +69,7 @@ public sealed class EscortBoundary : IEscortBoundary
             }
             Game.Player.SetControlState(false, SetPlayerControlFlags.AllowPlayerDamage | SetPlayerControlFlags.DontStopOtherCarsAroundPlayer);
 
-            // Driver: route to Bolingbroke — long-range drive task, max speed, arrive exactly
-            Function.Call(Hash.TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE,
-                _driver.Handle, _cruiser.Handle,
-                destination.X, destination.Y, destination.Z,
-                18f, 786603, 10f);   // speed 18 m/s (~65 km/h — a lawful prison run), driving flags, radius
-
-            _log?.Info("Escort ride started → Bolingbroke");
+            _log?.Info("Escort ride started → Bolingbroke (driver seated, en route)");
         }
         catch (Exception ex)
         {

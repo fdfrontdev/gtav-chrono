@@ -104,7 +104,7 @@ public class ChronoScript : Script
             // S22 v8: police escort ride (reverse-engineered from the Prison Mod's
             // "full ride") — custody drives you to Bolingbroke in a cruiser.
             var escort = new EscortService(
-                new EscortBoundary(_log), player, input, notifier, _log);
+                new EscortBoundary(_log), player, input, notifier, _log, config.Justice);
             _escort = escort;
             var prisonOutfit = new PrisonOutfit(msg => _log.Info(msg));
             _justice = new JusticeService(
