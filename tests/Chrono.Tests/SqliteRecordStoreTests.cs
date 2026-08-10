@@ -160,4 +160,37 @@ public class SqliteRecordStoreTests : IDisposable
         Assert.True(File.Exists(recordJson + ".bak"));
         Assert.Equal(5, store.LoadStatus().Notoriety);
     }
+
+    // ── S22 v5: new-game isolation (user UAT: "new game shows old record") ──
+
+    [Fact]
+    public void ArchiveAndReset_ClearsRecord_AndWritesArchive()
+    {
+        var store = NewStore();
+        var record = new CriminalRecord();
+        record.Append(new CrimeEvent("e1", CrimeSeverity.Moderate, "armed robbery", "2026-08-09T10:00:00", "D1", false, false));
+        record.AddConviction(new Conviction("c1", 25000, 30, "2026-08-01T00:00:00"));
+        store.SaveAtomic(record);
+        Assert.True(store.HasRecord());
+
+        store.ArchiveAndReset();
+
+        Assert.False(store.HasRecord(), "record must be cleared after reset");
+        var fresh = store.Load();
+        Assert.Empty(fresh.Events);
+        Assert.Empty(fresh.Convictions);
+        var archives = Directory.GetFiles(_dir, "chrono.archive-*.db");
+        Assert.Single(archives);   // the old record is preserved, never lost
+    }
+
+    [Fact]
+    public void HasRecord_TrueOnlyWhenDataExists()
+    {
+        var store = NewStore();
+        Assert.False(store.HasRecord());
+        var record = new CriminalRecord();
+        record.Append(new CrimeEvent("e1", CrimeSeverity.Minor, "joyriding", "2026-08-09T10:00:00", "D2", false, false));
+        store.SaveAtomic(record);
+        Assert.True(store.HasRecord());
+    }
 }
