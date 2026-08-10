@@ -31,7 +31,7 @@ public class CriminalRecordTests
     {
         var record = new CriminalRecord();
         record.Append(Event(CrimeSeverity.Severe));
-        record.AddConviction(new Conviction(1000, 7, "2026-08-08"));
+        record.AddConviction(new Conviction("c" + 1000, 1000, 7, "2026-08-08"));
 
         record.Purge();
 

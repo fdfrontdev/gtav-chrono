@@ -15,6 +15,10 @@ echo "== Deploying to $TARGET =="
 mkdir -p "$TARGET"
 # All runtime DLLs (includes NuGet deps: System.Text.Json, System.Memory, etc.)
 cp "$SRC"/*.dll "$TARGET/"
+# S22: SQLite native interop lives in x64/x86 subfolders — copy them so
+# System.Data.SQLite can resolve SQLite.Interop.dll at runtime (64-bit game).
+cp -r "$SRC"/x64 "$TARGET/" 2>/dev/null || true
+cp -r "$SRC"/x86 "$TARGET/" 2>/dev/null || true
 # ScriptHookVDotNet3.dll is a build-time reference only — the game loads its own copy from the game root
 rm -f "$TARGET/ScriptHookVDotNet3.dll"
 [ -f "$TARGET/config.json" ] || cp scripts/config.example.json "$TARGET/config.json"

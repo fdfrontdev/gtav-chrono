@@ -552,7 +552,8 @@ public sealed class JusticeService
         int days = sentence.PrisonDays
             + (int)Math.Ceiling(shortfall / (double)Math.Max(1, _config.FineToPrisonRate));
 
-        _record.AddConviction(new Conviction(paid, days,
+        _record.AddConviction(new Conviction(
+            Guid.NewGuid().ToString("N"), paid, days,
             DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss")));
         _store.SaveAtomic(_record);
         _reputation?.OnConviction();   // S9: debt paid

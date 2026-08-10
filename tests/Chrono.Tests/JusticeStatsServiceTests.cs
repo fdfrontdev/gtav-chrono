@@ -52,8 +52,8 @@ public class JusticeStatsServiceTests
         store.Status.WarrantActive = true;
         store.Profile = new CharacterProfile { AgeDays = 27 * 365 + 40 };
         store.Profile.DaysServed = 30;
-        store.Record.AddConviction(new Conviction(2000, 0, "t"));
-        store.Record.AddConviction(new Conviction(8000, 7, "t"));
+        store.Record.AddConviction(new Conviction("c" + 2000, 2000, 0, "t"));
+        store.Record.AddConviction(new Conviction("c" + 8000, 8000, 7, "t"));
 
         var s = stats.GetStats();
 
