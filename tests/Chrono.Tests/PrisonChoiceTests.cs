@@ -147,6 +147,72 @@ public class PrisonChoiceTests
     }
 
     [Fact]
+    public void Recapture_ServesRemainingDays_PlusEscapeCharge()   // S21 v3 (user UAT)
+    {
+        var (service, wanted, player, notifier, _, _, crimeProbe) = Build(roll: 0.0, money: 1000000);
+        PrisonTerm(service, wanted, crimeProbe);       // 5★ severe → 30d sentence
+        service.AdvancePrisonTime(30.0);               // serve ONE full day (day = 30s)
+        service.Tick();
+        service.AdvancePrisonTime(20.0);               // yard opens (yard at 20s of the next day)
+        service.Tick();
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.Dash);         // escape with 29 days remaining
+        Assert.True(service.IsManhunt);
+        Assert.Equal(JusticeState.Free, service.State);
+
+        // Manhunt: commit ANOTHER severe crime while on the run
+        wanted.CurrentStars = 5;
+        service.Tick();
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                                // S21: physical capture
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.False(service.IsManhunt);
+
+        // Trial: (severe 30d + escape 7d) × recidivism 1.5 = 56 + remaining 29 = 85
+        service.AdvanceTrialTime(60.0);
+        service.Tick();                                // verdict → prison
+        service.Tick();                                // intake done → confinement
+
+        Assert.Equal(JusticeState.Prison, service.State);
+        int expected = (int)Math.Round((30 + 7) * 1.5) + 29;   // 56 + 29 = 85
+        Assert.Equal(expected, service.SentenceDays);
+        Assert.Contains(notifier.Messages, m => m.Contains($"{expected} days"));   // SENTENCED line totals all three
+    }
+
+    [Fact]
+    public void WastedDuringManhunt_Recaptured_BackToPrison()   // S21 v3: "busted, wasted, captured → back to prison"
+    {
+        var (service, wanted, player, notifier, _, _, crimeProbe) = Build(roll: 0.0, money: 1000000);
+        PrisonTerm(service, wanted, crimeProbe);       // 30d sentence
+        service.AdvancePrisonTime(30.0);               // serve 1 day
+        service.Tick();
+        service.AdvancePrisonTime(20.0);               // yard opens
+        service.Tick();
+        service.TryOpenEscapeChoice();
+        service.ChooseEscape(EscapeKind.Dash);         // escape → manhunt
+        Assert.True(service.IsManhunt);
+
+        // WASTED: die during the manhunt (wanted episode) → custody on respawn
+        wanted.CurrentStars = 4;                       // manhunt stars
+        service.Tick();
+        player.IsDead = true;
+        service.Tick();                                // death edge
+        player.IsDead = false;
+        service.Tick();                                // respawn → custody
+
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.False(service.IsManhunt);
+        Assert.Contains(notifier.Messages, m => m.Contains("RECAPTURED"));
+
+        // trial → back to prison with remaining 29d + escape charge (7d ×1.5)
+        service.AdvanceTrialTime(60.0);
+        service.Tick();
+        service.Tick();
+        Assert.Equal(JusticeState.Prison, service.State);
+        Assert.True(service.SentenceDays >= 29 + 7, "wasted recapture must still serve remaining days + escape charge");
+    }
+
+    [Fact]
     public void Escape_RestoresOutfit()
     {
         var (service, wanted, _, _, _, outfit, crimeProbe) = Build(roll: 0.0);

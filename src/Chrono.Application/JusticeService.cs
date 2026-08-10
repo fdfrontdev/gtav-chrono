@@ -80,6 +80,13 @@ public sealed class JusticeService
     private bool _cellAnimPlaying;
     private int _cellAnimStartedMs;   // S21 v3: one-shot idle re-arm clock
     private int _manhuntUntilDay;
+    /// <summary>
+    /// S21 v3 — sentence days REMAINING when the player escaped. Carried across
+    /// the manhunt so a recapture = original remaining days + new charges
+    /// (user UAT: "the escapee will be back to prison + court will add more
+    /// sentence"). Cleared when the new verdict applies.
+    /// </summary>
+    private int _remainingDaysAtEscape;
     private bool _wasDead;
     private bool _diedWanted;         // died during a wanted episode → custody on respawn
     private int _deathMoneySnapshot;  // hospital fee refund (justice, not GTA's $5k)
@@ -286,7 +293,15 @@ public sealed class JusticeService
         _trialElapsedMs = 0;
         _trialClock.Restart();
         _wanted.SetStars(0);              // custody — no wanted chase (S11)
-        _notifier.Show("You wake up in POLICE CUSTODY — the court date is set");
+        bool manhuntEnded = IsManhunt;
+        _manhuntUntilDay = 0;             // S21 v3: recaptured — the manhunt is OVER
+        // S21 v3 (user UAT: "busted, wasted, captured → back to prison + more
+        // sentence"): a manhunt death reads as a RECAPTURE — the escape charge
+        // + remaining sentence await at trial.
+        if (manhuntEnded)
+            _notifier.Show("WASTED during the manhunt — RECAPTURED. The court adds the escape charge");
+        else
+            _notifier.Show("You wake up in POLICE CUSTODY — the court date is set");
         _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
         _log.Info("Death-capture: custody started, hospital fee refunded");
     }
@@ -449,6 +464,11 @@ public sealed class JusticeService
         double multiplier = 1 + 0.5 * Math.Max(0, _record.ConvictionCount);
         int totalFine = (int)Math.Round(charges.Sum(c => SentencingPolicy.BaseSentence(c.Severity).Fine) * multiplier);
         int totalDays = (int)Math.Round(charges.Sum(c => SentencingPolicy.BaseSentence(c.Severity).PrisonDays) * multiplier);
+        // S21 v3: a recaptured escapee serves the REMAINING original sentence
+        // PLUS the new charges ("court will add more sentence" — user UAT)
+        int carried = Math.Max(0, _remainingDaysAtEscape);
+        _remainingDaysAtEscape = 0;
+        if (carried > 0) totalDays += carried;
         var sentence = new Sentence(totalFine, totalDays);
 
         // Mark every charge as sentenced (they stay visible in the record, flagged)
@@ -461,7 +481,8 @@ public sealed class JusticeService
 
         // Court cinematic first (S11): the sentence applies when the gavel falls
         string chargeLine = $"{charges.Count} CHARGE{(charges.Count > 1 ? "S" : "")} — {ChargeSummary(charges)}";
-        string verdictLine = $"GUILTY — ${sentence.Fine} fine · {sentence.PrisonDays} day{(sentence.PrisonDays == 1 ? "" : "s")}";
+        string carriedNote = carried > 0 ? $" + {carried} remaining" : "";
+        string verdictLine = $"GUILTY — ${sentence.Fine} fine · {sentence.PrisonDays} day{(sentence.PrisonDays == 1 ? "" : "s")}{carriedNote}";
         _media?.News($"COURT: {_player.GetCharacterName().ToUpperInvariant()} sentenced — ${sentence.Fine} fine · {sentence.PrisonDays} days");
         if (_cutscene != null)
         {
@@ -766,6 +787,8 @@ public sealed class JusticeService
 
         State = JusticeState.Free;
         _arrested = false;
+        // S21 v3: keep the UNSERVED remainder — recapture = remaining + new charges
+        _remainingDaysAtEscape = Math.Max(0, _sentenceDays - _servedDays);
         _sentenceDays = 0;
         _servedDays = 0;
 
