@@ -83,5 +83,8 @@
   },
   "Justice": {
     "PauseDuringMissions": true
-  }
+  },
+  "ModEnabled": true,
+  "PowersEnabled": true,
+  "JusticeEnabled": true
 }

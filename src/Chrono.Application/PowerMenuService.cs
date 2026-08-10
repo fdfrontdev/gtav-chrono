@@ -318,6 +318,34 @@ public sealed class PowerMenuService
     /// <summary>Time Stop state — exposed for tests and diagnostics.</summary>
     public bool IsTimeStopActive => _timeStop.IsActive;
 
+    /// <summary>S22 v2: master mod switch (menu toggle). Powers + justice freeze.</summary>
+    public void SetModEnabled(bool enabled)
+    {
+        _config.ModEnabled = enabled;
+        if (!enabled)
+        {
+            _timeStop.Deactivate();
+            _invisible.SetEnabled(false);
+            _fly.SetEnabled(false);
+            _godMode.SetEnabled(false);
+        }
+        PersistConfig();
+    }
+
+    /// <summary>S22 v2: superpowers switch (menu toggle). Active powers force-off.</summary>
+    public void SetPowersEnabled(bool enabled)
+    {
+        _config.PowersEnabled = enabled;
+        if (!enabled)
+        {
+            _timeStop.Deactivate();
+            _invisible.SetEnabled(false);
+            _fly.SetEnabled(false);
+            _godMode.SetEnabled(false);
+        }
+        PersistConfig();
+    }
+
     /// <summary>Per-frame update: warp progression, menu input, time-stop maintenance.</summary>
     public void Tick(long nowMs)
     {
@@ -373,16 +401,33 @@ public sealed class PowerMenuService
         else
         {
             if (_input.IsMenuKeyJustPressed) ToggleMenu();
-            if (_input.IsDashHotkeyPressed) ExecuteDash();
-            if (_input.IsTimeStopHotkeyJustPressed) ToggleTimeStop();       // Z
-            if (_input.IsInvisibleHotkeyJustPressed) ToggleInvisible();     // B
+            // S22 (user UAT: superpowers on/off): hotkeys freeze when powers
+            // are disabled (or the whole mod is off)
+            if (_config.PowersEnabled && _config.ModEnabled)
+            {
+                if (_input.IsDashHotkeyPressed) ExecuteDash();
+                if (_input.IsTimeStopHotkeyJustPressed) ToggleTimeStop();       // Z
+                if (_input.IsInvisibleHotkeyJustPressed) ToggleInvisible();     // B
+            }
         }
 
-        _timeStop.Tick(nowMs);
-        _vfx.Tick();
-        _godMode.Tick();
-        _invisible.Tick();
-        _fly.Tick();
+        // S22: powers freeze when disabled — AND any active power is force-off
+        // (time-stop left running would lock the world forever)
+        if (_config.PowersEnabled && _config.ModEnabled)
+        {
+            _timeStop.Tick(nowMs);
+            _vfx.Tick();
+            _godMode.Tick();
+            _invisible.Tick();
+            _fly.Tick();
+        }
+        else
+        {
+            _timeStop.Deactivate();
+            _invisible.SetEnabled(false);
+            _fly.SetEnabled(false);
+            _godMode.SetEnabled(false);
+        }
 
         // Criminal Record screen refresh while the Justice screen is open (S7)
         if (_menu.IsOpen && _menu.CurrentScreen == _justiceScreen)
@@ -419,6 +464,13 @@ public sealed class PowerMenuService
 
     private void ToggleInvisible()
     {
+        // S22 (user UAT: superpowers on/off): menu activation respects the toggle
+        if (!_config.PowersEnabled || !_config.ModEnabled)
+        {
+            _notifier.Show("Superpowers are disabled — toggle ON in Settings");
+            return;
+        }
+
         bool wasOn = _invisible.IsEnabled;
         _invisible.Toggle();
         RefreshPowerLabels();
@@ -433,6 +485,13 @@ public sealed class PowerMenuService
 
     private void ToggleTimeStop()
     {
+        // S22 (user UAT: superpowers on/off): menu activation respects the toggle
+        if (!_config.PowersEnabled || !_config.ModEnabled)
+        {
+            _notifier.Show("Superpowers are disabled — toggle ON in Settings");
+            return;
+        }
+
         try
         {
             if (_timeStop.IsActive)
@@ -461,6 +520,13 @@ public sealed class PowerMenuService
 
     private void ExecuteDash()
     {
+        // S22 (user UAT: superpowers on/off): menu activation respects the toggle
+        if (!_config.PowersEnabled || !_config.ModEnabled)
+        {
+            _notifier.Show("Superpowers are disabled — toggle ON in Settings");
+            return;
+        }
+
         try
         {
             _menu.Close();
@@ -489,6 +555,13 @@ public sealed class PowerMenuService
 
     private void ExecuteMapTeleport()
     {
+        // S22 (user UAT: superpowers on/off): menu activation respects the toggle
+        if (!_config.PowersEnabled || !_config.ModEnabled)
+        {
+            _notifier.Show("Superpowers are disabled — toggle ON in Settings");
+            return;
+        }
+
         try
         {
             _menu.Close();
@@ -515,6 +588,25 @@ public sealed class PowerMenuService
             Title = UiStrings.ItemSettings,
             Items = new[]
             {
+                // S22 (user UAT: toggle mod / superpowers / justice on-off)
+                new MenuItem
+                {
+                    Title = UiStrings.ItemModToggle,
+                    Value = _config.ModEnabled ? "ON" : "OFF",
+                    OnActivate = () => SetModEnabled(!_config.ModEnabled)
+                },
+                new MenuItem
+                {
+                    Title = UiStrings.ItemPowersToggle,
+                    Value = _config.PowersEnabled ? "ON" : "OFF",
+                    OnActivate = () => SetPowersEnabled(!_config.PowersEnabled)
+                },
+                new MenuItem
+                {
+                    Title = UiStrings.ItemJusticeToggle,
+                    Value = _config.JusticeEnabled ? "ON" : "OFF",
+                    OnActivate = () => { _config.JusticeEnabled = !_config.JusticeEnabled; PersistConfig(); }
+                },
                 new MenuItem
                 {
                     Title = UiStrings.ItemHotkeys,

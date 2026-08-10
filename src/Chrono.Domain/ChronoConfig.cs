@@ -6,6 +6,16 @@ namespace Chrono.Domain;
 public sealed class ChronoConfig
 {
     public string MenuKey { get; set; } = "Shift+0";   // S8: F9 collided with other bindings
+
+    /// <summary>
+    /// S22 (user UAT: "add a setting to toggle the mod on/off, superpowers
+    /// on/off, justice on/off"): master switches. The MENU itself always works
+    /// (it's the only way back in). Powers and justice freeze when disabled.
+    /// </summary>
+    public bool ModEnabled { get; set; } = true;
+    public bool PowersEnabled { get; set; } = true;
+    public bool JusticeEnabled { get; set; } = true;
+
     public DashConfig Dash { get; set; } = new();
     public TimeStopConfig TimeStop { get; set; } = new();
     public InvisibleConfig Invisible { get; set; } = new();

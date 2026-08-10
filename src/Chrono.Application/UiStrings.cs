@@ -17,6 +17,9 @@ public static class UiStrings
     public const string ItemCriminalRecord = "Criminal Record";
     public const string ItemWebnet = "WEBNET News";   // S14: feed lives in the menu
     public const string ItemSettings = "Settings";
+    public const string ItemModToggle = "Mod Enabled";        // S22
+    public const string ItemPowersToggle = "Superpowers";     // S22
+    public const string ItemJusticeToggle = "Justice System"; // S22
     public const string ItemHotkeys = "Hotkeys";
     public const string ItemShowHud = "Show HUD";
     public const string ItemDashRange = "Dash Range";
