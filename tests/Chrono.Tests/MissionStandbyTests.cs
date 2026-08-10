@@ -135,6 +135,81 @@ public class MissionStandbyTests
         Assert.Equal(1, renderer.EndCount);
     }
 
+    // ── S22 v2 (user UAT: toggle mod / superpowers / justice on-off) ──
+
+    [Fact]
+    public void PowersDisabled_HotkeysDoNothing()
+    {
+        var service = BuildMenu(out var input, out var notifier, out _);
+        input.TimeStopHotkey = true;
+        service.Tick(0);                 // powers ON — time stop activates
+        Assert.True(service.IsTimeStopActive);
+
+        service.SetPowersEnabled(false); // powers OFF → force-off + freeze hotkeys
+        Assert.False(service.IsTimeStopActive, "disabling powers force-offs active powers");
+
+        input.TimeStopHotkey = false;
+        service.Tick(16);
+        input.TimeStopHotkey = true;
+        service.Tick(32);                // hotkey pressed again — must NOT re-activate
+
+        Assert.False(service.IsTimeStopActive, "hotkeys freeze when powers are disabled");
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("TIME STOP ON"));
+    }
+
+    [Fact]
+    public void PowersDisabled_ActivePower_IsForceOff()
+    {
+        var service = BuildMenu(out var input, out _, out _);
+        input.TimeStopHotkey = true;
+        service.Tick(0);
+        Assert.True(service.IsTimeStopActive);
+
+        service.SetPowersEnabled(false); // powers OFF while active
+        service.Tick(16);
+
+        Assert.False(service.IsTimeStopActive, "active powers must force-off when disabled");
+    }
+
+    [Fact]
+    public void ModDisabled_EverythingFreezes_MenuStillOpens()
+    {
+        var service = BuildMenu(out var input, out _, out _);
+        input.MenuKeyPressed = true;
+        service.Tick(0);                 // menu opens even with mod OFF
+        Assert.True(service.IsMenuOpen);
+
+        service.SetModEnabled(false);
+        service.Tick(16);
+        Assert.True(service.IsMenuOpen, "the menu stays open with mod OFF — it's the only way back in");
+        input.MenuKeyPressed = false;
+        service.Tick(32);                // no edge
+        input.MenuKeyPressed = true;
+        service.Tick(48);                // fresh edge → close the menu
+        Assert.False(service.IsMenuOpen);
+
+        input.TimeStopHotkey = true;
+        service.Tick(64);                // hotkey — frozen
+        Assert.False(service.IsTimeStopActive);
+    }
+
+    private static PowerMenuService BuildMenu(out FakeInput input, out FakeNotifier notifier, out FakePlayer player)
+    {
+        input = new FakeInput();
+        notifier = new FakeNotifier();
+        player = new FakePlayer { IsVisible = true, Money = 100000 };
+        var config = new ChronoConfig();
+        var menu = new MenuFramework(new FakeRenderer());
+        var timeStop = new TimeStopService(new FakeRepository(), new FakeFreezer(), new FakeClock(), player,
+            notifier, new FakeLog(), config.TimeStop);
+        var teleport = new TeleportService(player, new FakeProbe(), notifier, new FakeLog(), config.Dash, config.Teleport);
+        var vfx = new VfxService(new FakeVfx(), new FakeLog(), config.Visual);
+        var service = new PowerMenuService(menu, timeStop, teleport, vfx, input, player,
+            notifier, new FakeLog(), config, new FakeConfigStore());
+        service.BuildMenu();
+        return service;
+    }
+
     private sealed class FakeHudRenderer : IHudRenderer
     {
         public JusticeHudState? Last { get; private set; }

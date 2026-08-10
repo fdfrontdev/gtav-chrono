@@ -142,7 +142,10 @@ public class ChronoScript : Script
             // during scripted missions the justice pipeline FREEZES — story
             // missions own the wanted level. The menu + superpowers keep
             // working; the widget announces the standby.
-            bool mission = _config?.Justice.PauseDuringMissions == true && Game.IsMissionActive;
+            // S22 v2 (user UAT: mod/justice on-off): the pipeline also freezes
+            // when the user toggles the mod or the justice system off.
+            bool justiceOn = _config?.ModEnabled == true && _config.JusticeEnabled == true;
+            bool mission = justiceOn && _config != null && _config.Justice.PauseDuringMissions == true && Game.IsMissionActive;
             if (mission && !_wasMissionActive)
             {
                 _cutscene?.Abort();              // mission takeover — drop our camera/anim
@@ -151,7 +154,7 @@ public class ChronoScript : Script
             _wasMissionActive = mission;
             if (_justice != null) _justice.MissionStandby = mission;
 
-            if (!mission)
+            if (justiceOn && !mission)
             {
                 _crimeDetection?.Tick(_clock.ElapsedMilliseconds);
                 _justice?.Tick();
