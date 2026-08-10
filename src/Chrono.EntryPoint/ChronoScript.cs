@@ -25,6 +25,7 @@ public class ChronoScript : Script
     private CrimeDetectionService? _crimeDetection;   // S20: act-based crime detection
     private CrimeProbe? _crimeProbe;                  // S20: concrete — Poll() runs from OnTick
     private JusticeHudWidget? _hud;                   // S21: persistent HUD widget
+    private EscortService? _escort;                    // S22 v8: police escort ride
     private bool _wasMissionActive;                    // S22: mission edge for cutscene abort
     private ChronoConfig? _config;                     // S22: mission gate reads PauseDuringMissions
     private readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -99,11 +100,16 @@ public class ChronoScript : Script
             var cutscene = new JusticeCutsceneService(new CutsceneRenderer(), player, _log,
                 notifier: notifier);   // S21 v3: banners route into the widget feed
             _cutscene = cutscene;
+            // S22 v8: police escort ride (reverse-engineered from the Prison Mod's
+            // "full ride") — custody drives you to Bolingbroke in a cruiser.
+            var escort = new EscortService(
+                new EscortBoundary(_log), player, input, notifier, _log);
+            _escort = escort;
             var prisonOutfit = new PrisonOutfit(msg => _log.Info(msg));
             _justice = new JusticeService(
                 wantedMonitor, player, recordStore,
                 identity, warrant, notifier, _log, config.Justice, clock, media, vfxService, input,
-                reputation, probe, null, cutscene, prisonOutfit, crimeProbe);
+                reputation, probe, null, cutscene, prisonOutfit, crimeProbe, escort);
             _crimeDetection = new CrimeDetectionService(
                 crimeProbe, probe, player, _justice, _log, config.Justice);
             _hud = new JusticeHudWidget(_justice, hudRenderer, config.Justice, hudFeed);   // S21 v2: live feed
@@ -165,6 +171,7 @@ public class ChronoScript : Script
             if (storyTime && !_wasMissionActive)
             {
                 _cutscene?.Abort();              // mission takeover — drop our camera/anim
+                _escort?.Abort();                // S22 v8: no scripted ride mid-mission
                 _log?.Info("Story sequence active — justice on standby");
             }
             _wasMissionActive = storyTime;
