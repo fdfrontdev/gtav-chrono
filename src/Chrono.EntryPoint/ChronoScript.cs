@@ -77,7 +77,8 @@ public class ChronoScript : Script
             var reputation = new ReputationService(recordStore, clock, media, config.Justice,
                 characterName: player.GetCharacterName);   // S21 v3
             var wantedMonitor = new WantedMonitor();
-            var cutscene = new JusticeCutsceneService(new CutsceneRenderer(), player, _log);
+            var cutscene = new JusticeCutsceneService(new CutsceneRenderer(), player, _log,
+                notifier: notifier);   // S21 v3: banners route into the widget feed
             _cutscene = cutscene;
             var prisonOutfit = new PrisonOutfit(msg => _log.Info(msg));
             _justice = new JusticeService(

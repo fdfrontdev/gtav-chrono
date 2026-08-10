@@ -87,6 +87,8 @@ public sealed class JusticeService
     /// sentence"). Cleared when the new verdict applies.
     /// </summary>
     private int _remainingDaysAtEscape;
+    /// <summary>S21 v3: died INSIDE prison (escape attempt / yard) → respawn in the cell.</summary>
+    private bool _diedInPrison;
     private bool _wasDead;
     private bool _diedWanted;         // died during a wanted episode → custody on respawn
     private int _deathMoneySnapshot;  // hospital fee refund (justice, not GTA's $5k)
@@ -185,15 +187,29 @@ public sealed class JusticeService
         bool dead = _player.IsDead;
         if (dead && !_wasDead)
         {
+            // S21 v3 (user UAT: "shot dead during escape → respawn at HOSPITAL,
+            // expected prison"): dying INSIDE prison (yard/escape attempt, stars=0)
+            // is a death-in-custody — flag it so the respawn puts you back in the
+            // cell, never the hospital.
+            _diedInPrison = State == JusticeState.Prison;
             _diedWanted = stars > 0 || _episodeSeverity != null || State == JusticeState.Wanted;
             _deathMoneySnapshot = _player.GetMoney();
-            _log.Info(_diedWanted ? "Player died while wanted — custody on respawn"
-                                  : "Player died (no wanted episode — no custody)");
+            _log.Info(_diedInPrison ? "Player died INSIDE prison — respawn in the cell"
+                      : _diedWanted ? "Player died while wanted — custody on respawn"
+                                    : "Player died (no wanted episode — no custody)");
         }
-        else if (!dead && _wasDead && _diedWanted)
+        else if (!dead && _wasDead)
         {
-            _diedWanted = false;
-            OnDeathCapture();
+            if (_diedInPrison)
+            {
+                _diedInPrison = false;
+                OnPrisonDeathRespawn();
+            }
+            else if (_diedWanted)
+            {
+                _diedWanted = false;
+                OnDeathCapture();
+            }
         }
         _wasDead = dead;
 
@@ -280,11 +296,27 @@ public sealed class JusticeService
         _log.Info($"Warrant report #{_reportStreak}: police dispatched ({escalate}★)");
     }
 
+    /// <summary>
+    /// S21 v3 (user UAT: "shot dead during escape → respawn at hospital,
+    /// expected prison") — died INSIDE the prison (yard time / escape attempt).
+    /// The sentence CONTINUES: back to the cell, yard closed, no hospital.
+    /// </summary>
+    private void OnPrisonDeathRespawn()
+    {
+        _player.Teleport(PrisonCenter);
+        _isYardPhase = false;
+        _yardNotified = false;
+        _escapeChoiceOpen = false;
+        _escapeChoiceDeadlineMs = 0;
+        _player.PlayAnimationOnce(CuffedDict, CuffedAnim, 1500);
+        _notifier.Show("WASTED during the escape — the guards drag you back to your cell");
+        _log.Info("Prison death respawn — back in the cell, sentence continues");
+    }
+
     /// <summary>Death while wanted → you wake up in POLICE CUSTODY (S7). GTA's $5k
     /// hospital fee is refunded — the court fine replaces it (one justice bill, not two).</summary>
     private void OnDeathCapture()
     {
-        // Refund GTA's hospital fee so the sentence fine is the ONLY charge
         int delta = _deathMoneySnapshot - _player.GetMoney();
         if (delta != 0) _player.AddMoney(delta);
 
@@ -293,6 +325,11 @@ public sealed class JusticeService
         _trialElapsedMs = 0;
         _trialClock.Restart();
         _wanted.SetStars(0);              // custody — no wanted chase (S11)
+        // S21 v3 (user UAT: "respawn at hospital — I expect prison"): death
+        // capture wakes you AT the prison holding area, not the hospital —
+        // the court scene + verdict play there (a recaptured fugitive doesn't
+        // come back from the morgue, they come back in cuffs).
+        _player.Teleport(PrisonCenter);
         bool manhuntEnded = IsManhunt;
         _manhuntUntilDay = 0;             // S21 v3: recaptured — the manhunt is OVER
         // S21 v3 (user UAT: "busted, wasted, captured → back to prison + more
