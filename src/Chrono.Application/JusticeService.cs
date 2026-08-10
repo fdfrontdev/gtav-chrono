@@ -442,10 +442,13 @@ public sealed class JusticeService
         if (State != JusticeState.Captured)
             State = JusticeState.Wanted;
 
-        // Drive the wanted level from the ACT (ADR-04 D1) — and suppress the
-        // star-proxy edge at this level so the same act doesn't record twice.
-        _wanted.SetStars(crime.Stars);
-        _suppressStars = crime.Stars;
+        // Drive the wanted level from the ACT (ADR-04 D1) — but ONLY EVER UP:
+        // a Minor act (1★) committed during a 5★ chase/manhunt must NOT regress
+        // the heat (user UAT r38: "star regress from 5 to 1 — didn't make sense").
+        // The act raises the level or holds it; the chase level is never lowered.
+        int targetStars = Math.Max(_wanted.CurrentStars, crime.Stars);
+        _wanted.SetStars(targetStars);
+        _suppressStars = targetStars;
 
         _log.Info($"Crime detected: {crime.Name} ({crime.Severity}) burned={burned} in {evt.District}");
         _notifier.Show(burned
@@ -468,7 +471,10 @@ public sealed class JusticeService
         }
         if (_paroleUntilDay > 0 && _clock.CurrentGameDay < _paroleUntilDay)
         {
-            _wanted.SetStars(Math.Max(stars, 3));
+            // S22 v8 r2 (UAT r38): a parole violation sets a MINIMUM of 3★ —
+            // but must never LOWER an already-higher chase level (5★ → 3★
+            // regression was reported).
+            _wanted.SetStars(Math.Max(_wanted.CurrentStars, Math.Max(stars, 3)));
             _paroleUntilDay = 0;
             _media?.News("PAROLE VIOLATION — warrant issued");
             _notifier.Show("PAROLE VIOLATION — the state was watching");
