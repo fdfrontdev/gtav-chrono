@@ -7,18 +7,19 @@ namespace Chrono.Tests;
 /// sequences with camera beats + banners; the sentence applies when the gavel falls.</summary>
 public class JusticeCutsceneServiceTests
 {
-    private static (JusticeCutsceneService service, FakeCutsceneRenderer renderer, FakePlayer player) Build()
+    private static (JusticeCutsceneService service, FakeCutsceneRenderer renderer, FakePlayer player, FakeNotifier notifier) Build()
     {
         var renderer = new FakeCutsceneRenderer();
         var player = new FakePlayer { Position = new System.Numerics.Vector3(100, 200, 30) };
-        var service = new JusticeCutsceneService(renderer, player, new FakeLog());
-        return (service, renderer, player);
+        var notifier = new FakeNotifier();
+        var service = new JusticeCutsceneService(renderer, player, new FakeLog(), notifier);
+        return (service, renderer, player, notifier);
     }
 
     [Fact]
     public void Arrest_PhasesAdvance_AndEnd()
     {
-        var (service, renderer, _) = Build();
+        var (service, renderer, _, notifier) = Build();
 
         service.Play(CutsceneKind.Arrest);
         service.Tick(0);        // phase 1 enter
@@ -26,10 +27,10 @@ public class JusticeCutsceneServiceTests
         Assert.Contains(renderer.Anims, a => a.StartsWith("anim@move_m@prisoner_cuffed"));
 
         service.Tick(2500);     // phase 2
-        Assert.Contains(renderer.Banners, b => b.Contains("POLICE CUSTODY"));
+        Assert.Contains(notifier.Messages, m => m.Contains("POLICE CUSTODY"));
 
         service.Tick(5500);     // phase 3
-        Assert.Contains(renderer.Banners, b => b.Contains("BOOKING"));
+        Assert.Contains(notifier.Messages, m => m.Contains("BOOKING"));
 
         service.Tick(8500);     // end
         Assert.False(service.IsActive);
@@ -39,7 +40,7 @@ public class JusticeCutsceneServiceTests
     [Fact]
     public void Trial_Completes_CallsOnComplete()
     {
-        var (service, renderer, _) = Build();
+        var (service, renderer, _, notifier) = Build();
         bool completed = false;
 
         service.Play(CutsceneKind.Trial, () => completed = true, "Murder", "GUILTY — $25,000 · 30 days");
@@ -50,7 +51,7 @@ public class JusticeCutsceneServiceTests
 
         Assert.False(service.IsActive);
         Assert.True(completed, "onComplete must fire when the gavel falls");
-        Assert.Contains(renderer.Banners, b => b.Contains("GUILTY"));
+        Assert.Contains(notifier.Messages, m => m.Contains("GUILTY"));
     }
 
     // ── S21 v3 regression: "FREE but still handcuffed, can't move" ──
@@ -61,7 +62,7 @@ public class JusticeCutsceneServiceTests
     [Fact]
     public void Release_End_ClearsCuffedAnimation()
     {
-        var (service, renderer, player) = Build();
+        var (service, renderer, player, notifier) = Build();
 
         service.Play(CutsceneKind.Release);
         service.Tick(0);            // enter
@@ -76,7 +77,7 @@ public class JusticeCutsceneServiceTests
     [Fact]
     public void Arrest_End_KeepsCuffedAnimation()
     {
-        var (service, renderer, player) = Build();
+        var (service, renderer, player, notifier) = Build();
 
         service.Play(CutsceneKind.Arrest);
         service.Tick(0);            // enter
@@ -91,20 +92,20 @@ public class JusticeCutsceneServiceTests
     [Fact]
     public void Intake_AndRelease_RunTheirBeats()
     {
-        var (service, renderer, _) = Build();
+        var (service, renderer, _, notifier) = Build();
 
         service.Play(CutsceneKind.Intake);
         service.Tick(0);        // intake p1
         service.Tick(2700);     // p2
         service.Tick(5200);     // end
         Assert.False(service.IsActive);
-        Assert.Contains(renderer.Banners, b => b.Contains("BOLINGBROKE"));
+        Assert.Contains(notifier.Messages, m => m.Contains("BOLINGBROKE"));
 
         service.Play(CutsceneKind.Release);
         service.Tick(0);
         service.Tick(2700);
         Assert.False(service.IsActive);
-        Assert.Contains(renderer.Banners, b => b.Contains("RELEASED"));
+        Assert.Contains(notifier.Messages, m => m.Contains("RELEASED"));
     }
 }
 

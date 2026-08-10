@@ -23,6 +23,7 @@ public sealed class JusticeCutsceneService
     private readonly ICutsceneRenderer _renderer;
     private readonly IPlayerContext _player;
     private readonly ILogSink _log;
+    private readonly INotifier? _notifier;   // S21 v3: banners route into the widget feed
     private CutsceneKind _kind = CutsceneKind.None;
     private Vector3 _anchor;
     private long _phaseStartMs;
@@ -34,11 +35,13 @@ public sealed class JusticeCutsceneService
     private const string CuffedDict = "anim@move_m@prisoner_cuffed";
     private const string CuffedIdle = "idle";
 
-    public JusticeCutsceneService(ICutsceneRenderer renderer, IPlayerContext player, ILogSink log)
+    public JusticeCutsceneService(ICutsceneRenderer renderer, IPlayerContext player, ILogSink log,
+        INotifier? notifier = null)   // S21 v3
     {
         _renderer = renderer;
         _player = player;
         _log = log;
+        _notifier = notifier;
     }
 
     public bool IsActive => _kind != CutsceneKind.None;
@@ -87,7 +90,12 @@ public sealed class JusticeCutsceneService
 
     private void EnterPhase()
     {
-        _renderer.ShowBanner(PhaseBanner(_kind, _phaseIndex));
+        string banner = PhaseBanner(_kind, _phaseIndex);
+        // S21 v3 (user UAT: "mid-screen white text on black — what is that?
+        // we already have the widget"): banners route into the WIDGET feed;
+        // the mid-screen band is no longer drawn.
+        _notifier?.Show(banner);
+        _renderer.ShowBanner("");
         switch (_kind)
         {
             case CutsceneKind.Confrontation:

@@ -213,6 +213,45 @@ public class PrisonChoiceTests
     }
 
     [Fact]
+    public void DeathInsidePrison_RespawnsInCell_NotHospital()   // S21 v3 (user UAT)
+    {
+        var (service, wanted, player, notifier, _, _, crimeProbe) = Build(roll: 0.0, money: 1000000);
+        PrisonTerm(service, wanted, crimeProbe);       // 30d sentence
+        service.Tick();                                // confinement starts
+
+        // die INSIDE the prison (yard / escape attempt — stars are 0 in prison)
+        player.IsDead = true;
+        service.Tick();                                // death edge
+        player.IsDead = false;
+        service.Tick();                                // respawn
+
+        Assert.Equal(JusticeState.Prison, service.State);   // sentence CONTINUES — still serving
+        Assert.Contains(notifier.Messages, m => m.Contains("back to your cell"));
+        Assert.Equal(new System.Numerics.Vector3(1826f, 2635f, 46f), player.TeleportCalls.Last());   // PrisonCenter
+    }
+
+    [Fact]
+    public void DeathCapture_RespawnsAtPrisonHolding()   // S21 v3 (user UAT: "respawn at hospital — expected prison")
+    {
+        var (service, wanted, player, _, _, _, crimeProbe) = Build(roll: 0.0, money: 1000000);
+        wanted.CurrentStars = 5;
+        service.Tick();                    // wanted episode (manhunt-style)
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                    // busted → custody (stars cleared)
+
+        // die during a wanted episode → death capture on respawn
+        wanted.CurrentStars = 5;
+        service.Tick();
+        player.IsDead = true;
+        service.Tick();                    // death edge (wanted)
+        player.IsDead = false;
+        service.Tick();                    // respawn → death capture
+
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.Equal(new System.Numerics.Vector3(1826f, 2635f, 46f), player.TeleportCalls.Last());   // PrisonCenter holding
+    }
+
+    [Fact]
     public void Escape_RestoresOutfit()
     {
         var (service, wanted, _, _, _, outfit, crimeProbe) = Build(roll: 0.0);
