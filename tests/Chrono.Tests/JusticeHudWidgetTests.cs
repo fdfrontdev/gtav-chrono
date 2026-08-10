@@ -186,4 +186,95 @@ public class JusticeHudWidgetTests
         Assert.NotNull(renderer.Last);
         Assert.False(renderer.Last.Visible);
     }
+
+    // S22 v7 (user UAT: "I'm in the manhunt, but HUD still shows WANTED —
+    // the glitch happens on the 2ND ESCAPEE"): escape #1 → recapture → re-trial
+    // → re-prison → escape #2 must re-arm the manhunt. The widget must show
+    // MANHUNT — PRISON BREAK, never fall back to generic WANTED.
+    [Fact]
+    public void SecondEscapee_ManhuntReArms_WidgetShowsManhunt()
+    {
+        var (widget, renderer, justice, wanted, probe, _) = Build();
+
+        // ── escape #1 ──
+        wanted.CurrentStars = 5;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();
+        justice.AdvanceTrialTime(60.0);
+        justice.Tick();
+        justice.Tick();                  // prison
+        justice.AdvancePrisonTime(20.0);
+        justice.Tick();                  // yard
+        justice.TryOpenEscapeChoice();
+        justice.ChooseEscape(EscapeKind.Dash);
+        Assert.True(justice.IsManhunt, "escape #1 arms the manhunt");
+
+        // ── recapture #1 (ends the manhunt) ──
+        wanted.CurrentStars = 4;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();
+        Assert.Equal(JusticeState.Captured, justice.State);
+        Assert.False(justice.IsManhunt);
+
+        // ── re-trial → re-prison (the court adds the escape charge) ──
+        justice.AdvanceTrialTime(60.0);
+        justice.Tick();                  // verdict #2 → prison again
+        justice.Tick();                  // confinement #2 starts
+        Assert.Equal(JusticeState.Prison, justice.State);
+
+        // ── escape #2 — THE GLITCH: manhunt must re-arm ──
+        justice.AdvancePrisonTime(20.0);
+        justice.Tick();                  // yard phase #2
+        justice.TryOpenEscapeChoice();
+        justice.ChooseEscape(EscapeKind.Dash);
+
+        Assert.True(justice.IsManhunt, "escape #2 must RE-ARM the manhunt (2nd escapee bug)");
+        widget.Tick();
+        Assert.Contains("MANHUNT — PRISON BREAK", renderer.Last!.StatusLine);
+        Assert.Equal(JusticeStatusKind.Manhunt, renderer.Last.Kind);
+    }
+
+    // S22 v7: the manhunt must SURVIVE a game-day rollover while the player is
+    // still actively wanted (5★ chase) — heat fades only after the stars clear.
+    [Fact]
+    public void Manhunt_SurvivesDayRollover_WhileStillWanted()
+    {
+        var (widget, renderer, justice, wanted, probe, _) = Build();
+
+        wanted.CurrentStars = 5;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();
+        justice.AdvanceTrialTime(60.0);
+        justice.Tick();
+        justice.Tick();                  // prison
+        justice.AdvancePrisonTime(20.0);
+        justice.Tick();                  // yard
+        justice.TryOpenEscapeChoice();
+        justice.ChooseEscape(EscapeKind.Dash);
+        Assert.True(justice.IsManhunt);
+
+        // the game day rolls while the chase is STILL live (5★)
+        FakeClockAdvanceDay(justice);
+        justice.Tick();                  // UpdateManhunt runs
+
+        Assert.True(justice.IsManhunt, "manhunt survives the day roll while still wanted");
+        widget.Tick();
+        Assert.Contains("MANHUNT — PRISON BREAK", renderer.Last!.StatusLine);
+
+        // now the player loses the cops (stars → 0) → day rolls → heat fades
+        wanted.CurrentStars = 0;
+        FakeClockAdvanceDay(justice);
+        justice.Tick();
+        Assert.False(justice.IsManhunt, "heat fades once off the street + day rolls");
+    }
+
+    private static void FakeClockAdvanceDay(JusticeService justice)
+    {
+        var clock = (FakeClock)justice.GetType().GetField("_clock",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(justice)!;
+        clock.CurrentGameDay++;
+    }
 }

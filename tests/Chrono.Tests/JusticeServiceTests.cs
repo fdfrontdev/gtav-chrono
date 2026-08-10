@@ -455,7 +455,7 @@ public class JusticeServiceTests
     }
 
     [Fact]
-    public void Manhunt_ExpiresAfterOneGameDay()
+    public void Manhunt_ExpiresAfterOneGameDay_OnceStarsClear()
     {
         var (service, wanted, player, _, notifier, clock, input, crimeProbe) = Build();
         player.IsVisible = true;
@@ -471,9 +471,16 @@ public class JusticeServiceTests
         service.TryOpenEscapeChoice();
         service.ChooseEscape(EscapeKind.TimeStop);   // escape — manhunt until day + 1
 
+        // S22 v7 (user UAT): the manhunt must NOT die on the calendar while the
+        // chase is live — it fades only once the player is OFF the street.
         clock.CurrentGameDay = clock.CurrentGameDay + 1;
         service.Tick();
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("heat dies down"));
+        Assert.True(service.IsManhunt, "still chased at 4★ — the manhunt holds");
 
+        wanted.CurrentStars = 0;           // lost the cops
+        clock.CurrentGameDay = clock.CurrentGameDay + 1;
+        service.Tick();
         Assert.Contains(notifier.Messages, m => m.Contains("heat dies down"));
     }
 

@@ -81,4 +81,38 @@ public class WarrantRecognitionRangeTests
         Assert.True(wanted.CurrentStars >= 1, "a nearby witness calls the police");
         Assert.Contains(notifier.Messages, m => m.Contains("recognized"));
     }
+
+    // S22 v7 (user UAT: manhunt showed "WANTED 2*" while vanilla was 5★) —
+    // a warrant report must NEVER downgrade the heat during a manhunt.
+
+    [Fact]
+    public void Report_WhileActivelyWanted_DoesNotFire_DowngradeImpossible()
+    {
+        // During an active chase (State=Wanted) warrant reports are BLOCKED —
+        // they cannot overwrite the 5★ heat down to a report-streak level.
+        var (service, wanted, _, notifier, _, probe) = Build(recognitionRangeM: 6f, roll: 0.0);
+        probe.NearbyCivilians = 3;
+        wanted.CurrentStars = 5;         // manhunt at max heat → State becomes Wanted
+
+        service.Tick();                  // star edge: records the crime, State → Wanted
+        Assert.Equal(JusticeState.Wanted, service.State);
+        service.Tick();                  // report path runs — but the gate blocks it
+
+        Assert.Equal(5, wanted.CurrentStars);   // heat untouched
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("recognized"));
+    }
+
+    [Fact]
+    public void Report_EscalatesFromCurrentHeat_NotFromZero()
+    {
+        // When a report DOES fire (free + warrant + witness within range), the
+        // escalation holds or rises from the current heat — never drops it.
+        var (service, wanted, _, _, _, probe) = Build(recognitionRangeM: 6f, roll: 0.0);
+        probe.NearbyCivilians = 3;
+        wanted.CurrentStars = 4;         // mid-manhunt heat already set
+
+        service.Tick();                  // streak #1 would suggest 2★ — must not drop to it
+
+        Assert.True(wanted.CurrentStars >= 4, "escalation holds or rises — never drops");
+    }
 }

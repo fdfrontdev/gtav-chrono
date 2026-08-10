@@ -293,7 +293,10 @@ public sealed class JusticeService
         // S12 escalation: recognition #1 → 1★, #2 → 2★ ... capped at 5★. A wanted
         // felon on the street draws a heavier response each time — capture (4★+) is
         // REACHABLE from reports alone, so the loop ends in a trial, not in limbo.
-        int escalate = Math.Min(5, 1 + _reportStreak++);
+        // S22 v7 (user UAT screenshot: vanilla 5★ but widget showed "WANTED 2*"):
+        // NEVER downgrade the heat — a report during an active manhunt (4-5★) must
+        // escalate UP or hold, not overwrite 5★ down to 2★.
+        int escalate = Math.Min(5, Math.Max(CurrentStars, 1 + _reportStreak++));
         _suppressStars = escalate;
         _wanted.SetStars(escalate);
         _notifier.Show($"A civilian recognized you — police dispatched ({escalate}★)");
@@ -736,8 +739,13 @@ public sealed class JusticeService
     /// <summary>S21 v3: yard time is open — the escape prompt (G) is live (widget hint).</summary>
     public bool IsYardPhase => _isYardPhase;
     /// <summary>S21 v3 (prison-break vibe): manhunt active after an escape — the
-    /// whole state is looking for you until the heat dies down.</summary>
-    public bool IsManhunt => _manhuntUntilDay > 0 && _clock.CurrentGameDay < _manhuntUntilDay;
+    /// whole state is looking for you until the heat dies down. S22 v7 (user UAT:
+    /// "manhunt showed WANTED 2*"): the manhunt stays live while the player is
+    /// STILL wanted — the strict day compare was killing it at the first day
+    /// roll even mid-chase. It only ends via recapture or UpdateManhunt (stars
+    /// cleared + day rolled).</summary>
+    public bool IsManhunt => _manhuntUntilDay > 0
+        && (_clock.CurrentGameDay < _manhuntUntilDay || _wanted.CurrentStars > 0);
     public int ManhuntUntilDay => _manhuntUntilDay;
     public int ParoleDaysLeft => Math.Max(0, _paroleUntilDay - _clock.CurrentGameDay);   // S15
 
@@ -1049,7 +1057,13 @@ public sealed class JusticeService
 
     private void UpdateManhunt()
     {
-        if (_manhuntUntilDay > 0 && _clock.CurrentGameDay >= _manhuntUntilDay)
+        // S22 v7 (user UAT: "I'm in the manhunt, but HUD still shows WANTED"):
+        // the manhunt must NOT expire on a calendar while the player is STILL
+        // actively wanted — a 5★ chase at the game-day boundary dying into
+        // "WANTED 2*" is exactly the glitch. Heat fades only when the heat is
+        // OFF the street (stars cleared) AND the day rolls.
+        if (_manhuntUntilDay > 0 && _clock.CurrentGameDay >= _manhuntUntilDay
+            && _wanted.CurrentStars <= 0)
         {
             _manhuntUntilDay = 0;
             _notifier.Show("The heat dies down... but your warrant is still active");
