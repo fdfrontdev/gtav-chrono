@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Chrono.Application.Ports;
 using Chrono.Domain;
 
@@ -196,6 +197,15 @@ public sealed class JusticeHudWidget
         else
             kpis.Add(("FAME", $"{j.Fame}"));
 
+        // S22 v8 r3 (user: "feed seems too quiet"): priority tiers — viral and
+        // WEBNET headlines float to the TOP (a manhunt must never be buried
+        // under a parking-dispute blotter), ambient city lines sink to the
+        // bottom. 4 rows (duplicates killed, ambient added).
+        var tiered = _feed.Items
+            .OrderByDescending(i => i.Kind == FeedKind.Viral ? 2 : i.Kind == FeedKind.Webnet ? 1 : 0)
+            .Take(HudLayoutEngine.MaxFeedRows)
+            .ToList();
+
         _renderer.DrawJusticeHud(new JusticeHudState(
             Visible: Enabled,
             Stars: stars,
@@ -204,7 +214,7 @@ public sealed class JusticeHudWidget
             SecondLine: second,
             CourtCountdown: court,
             PrisonCountdown: prison,
-            Feed: _feed.Items,
+            Feed: tiered,
             Kind: kind,
             Progress: progress,
             Kpis: kpis));   // S22 v8: dashboard KPI tiles

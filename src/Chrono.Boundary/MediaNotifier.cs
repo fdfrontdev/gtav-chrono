@@ -11,16 +11,12 @@ namespace Chrono.Boundary;
 /// </summary>
 public sealed class MediaNotifier : IMediaNotifier
 {
-    private readonly INotifier _notifier;
-
-    public MediaNotifier(INotifier notifier)
-    {
-        _notifier = notifier;
-    }
-
     public void News(string headline)
     {
-        _notifier.Show(headline);
+        // S22 v8 r3 (user UAT: "FEEL-GOOD appears twice in the feed"): the
+        // widget feed is written ONLY by MediaService.PushFeed (Webnet/Viral
+        // kinds). Calling _notifier.Show here DOUBLE-pushed every headline
+        // (gray Message + blue Webnet). TV channel push stays.
         try
         {
             Function.Call(Hash.SET_TV_CHANNEL, 1);   // Weasel News
@@ -31,5 +27,16 @@ public sealed class MediaNotifier : IMediaNotifier
         }
     }
 
-    public void Viral(string message) => _notifier.Show(message);
+    public void Viral(string message)
+    {
+        // S22 v8 r3: same dedupe as News — feed written only by PushFeed.
+        _log?.Info($"Media: viral display suppressed (feed owns it) — {message}");
+    }
+
+    private readonly ILogSink? _log;
+
+    public MediaNotifier(ILogSink? log = null)
+    {
+        _log = log;
+    }
 }
