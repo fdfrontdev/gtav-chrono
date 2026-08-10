@@ -61,7 +61,7 @@ public sealed class EscortService
         _active = _boundary.IsRiding;
         if (_active)
         {
-            _notifier.Show("TRANSPORT — escorted to Bolingbroke (press E to skip)");
+            _notifier.Show($"TRANSPORT — escorted to Bolingbroke (press {_config.InteractKey} to skip)");
             _log.Info("Escort ride begun");
         }
         else
@@ -75,11 +75,16 @@ public sealed class EscortService
     {
         if (!_active) return;
 
-        // Skip: E during the ride → cut to intake
+        // Skip: the interact key during the ride → cut to intake NOW
+        // (S22 v8 r2: skip must END the ride, not just flag it — otherwise
+        // the player waits for arrival/timeout anyway).
         if (_input != null && _input.IsInteractKeyJustPressed)
         {
             _boundary.Skip();
             _notifier.Show("Arrived at Bolingbroke (skipped the ride)");
+            _active = false;
+            _boundary.End();
+            return;
         }
 
         // S22 v8 r2 (user UAT r39: "court reached 0:00, nothing happened"):
@@ -123,5 +128,19 @@ public sealed class EscortService
         _active = false;
         _boundary.End();
         _log.Info("Escort ride aborted");
+    }
+
+    /// <summary>
+    /// S22 v8 r2 (user UAT r40: "court still stuck"): the COURT DATE is the
+    /// hard deadline — when the clock hits 0:00 the ride is over, cut to
+    /// booking. Idempotent.
+    /// </summary>
+    public void ForceComplete()
+    {
+        if (!_active) return;
+        _active = false;
+        _boundary.End();
+        _notifier.Show("ARRIVED — Bolingbroke Penitentiary");
+        _log.Info("Escort ride force-completed (court date due)");
     }
 }

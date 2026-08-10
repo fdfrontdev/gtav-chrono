@@ -153,10 +153,57 @@ public class EscortRideTests
         Assert.Equal(JusticeState.Prison, service.State);
     }
 
-    // ── justice integration: capture starts the ride; verdict waits for arrival ──
+    // S22 v8 r2 (user UAT r40: "court still stuck"): the COURT DATE is the
+    // hard deadline — the ride force-completes the moment the clock hits 0:00,
+    // no dead waiting window.
 
     [Fact]
-    public void Capture_StartsEscort_VerdictWaitsForArrival()
+    public void CourtDue_ForceCompletesRide_VerdictSameTick()
+    {
+        var (service, wanted, player, _, store, probe, crimeProbe, boundary) =
+            BuildJustice(withEscort: true, timeoutSeconds: 9999);   // timeout disabled
+        wanted.CurrentStars = 4;
+        service.Tick();
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                  // captured → escort begins
+
+        Assert.True(service.IsEscortRiding);
+        service.AdvanceTrialTime(120.0); // court clock DUE
+        service.Tick();                  // due → ForceComplete → verdict same tick
+
+        Assert.Equal(JusticeState.Prison, service.State);
+        Assert.False(service.IsEscortRiding);
+        Assert.Equal(1, boundary.EndCalls);
+    }
+
+    [Fact]
+    public void CourtDue_GDuringRide_SkipsNotBails()
+    {
+        var (service, wanted, player, _, store, probe, crimeProbe, boundary) =
+            BuildJustice(withEscort: true, timeoutSeconds: 9999);
+        wanted.CurrentStars = 4;
+        service.Tick();
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                  // captured → riding
+        int moneyBefore = player.Money;
+
+        var input = (FakeInput)typeof(JusticeService)
+            .GetField("_input", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .GetValue(service)!;
+        input.InteractHotkey = true;     // G during the ride
+        input.Update();
+        service.Tick();                  // G = SKIP the ride (bail blocked mid-transport)
+
+        Assert.Equal(JusticeState.Captured, service.State);   // still in custody
+        Assert.False(service.IsEscortRiding);                 // ride skipped
+        Assert.Equal(moneyBefore, player.Money);              // NO bail paid
+    }
+
+    // ── justice integration: capture starts the ride; the COURT DATE is the
+    //    hard deadline (UAT r40) ──
+
+    [Fact]
+    public void Capture_StartsEscort_ClockTicksDuringRide()
     {
         var (service, wanted, player, _, store, probe, crimeProbe, boundary) = BuildJustice(withEscort: true);
         wanted.CurrentStars = 4;
@@ -167,20 +214,29 @@ public class EscortRideTests
         Assert.Equal(JusticeState.Captured, service.State);
         Assert.True(boundary.BeginCalls >= 1, "capture must start the escort ride");
 
-        // trial time passes DURING the ride — the CLOCK keeps ticking (UAT r37:
-        // "the court timer didn't count down" — frozen 0:45 reads as a bug),
-        // but the verdict must NOT fire yet (court scene plays at Bolingbroke).
+        // trial time passes DURING the ride — the CLOCK keeps ticking (UAT r37),
+        // but the verdict must NOT fire while the court isn't due yet.
         double before = service.TrialSecondsLeft;
-        service.AdvanceTrialTime(120.0);
+        service.AdvanceTrialTime(10.0);
         service.Tick();
         Assert.Equal(JusticeState.Captured, service.State);
         Assert.True(service.TrialSecondsLeft < before, "court clock must count DOWN during the ride");
+    }
 
-        // arrival → ride ends → verdict fires on the next tick
+    [Fact]
+    public void Arrival_BeforeCourtDue_VerdictAfterRideEnds()
+    {
+        var (service, wanted, player, _, store, probe, crimeProbe, boundary) = BuildJustice(withEscort: true);
+        wanted.CurrentStars = 4;
+        service.Tick();
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                  // captured → riding
+
+        // arrival BEFORE the court date → ride ends → booking → verdict after
         boundary.ArriveNextTick = true;
         service.Tick();                  // escort completes → booking
         service.AdvanceTrialTime(120.0);
-        service.Tick();                  // now the verdict can run
+        service.Tick();                  // court due → verdict fires
         Assert.Equal(JusticeState.Prison, service.State);
     }
 
@@ -207,9 +263,10 @@ public class EscortRideTests
         var probe = new FakeProbe { NearbyCivilians = 5 };
         var crimeProbe = new FakeCrimeProbe();
         var boundary = new FakeEscortBoundary();
+        var input = new FakeInput();   // shared: justice (bail/surrender) + escort (skip)
         EscortService? escort = null;
         if (withEscort)
-            escort = new EscortService(boundary, player, new FakeInput(), notifier, new FakeLog(),
+            escort = new EscortService(boundary, player, input, notifier, new FakeLog(),
                 new JusticeConfig { EscortTimeoutSeconds = timeoutSeconds });
         var service = new JusticeService(
             wanted, player, store,
@@ -218,7 +275,7 @@ public class EscortRideTests
             notifier, new FakeLog(),
             new JusticeConfig { WarrantReportSeconds = 0, PrisonDayRealSeconds = 30, EscortTimeoutSeconds = timeoutSeconds }, new FakeClock(),
             cutscene: null, probe: probe, random: () => 0.0, crimeProbe: crimeProbe,
-            escort: escort);
+            input: input, escort: escort);
         return (service, wanted, player, notifier, store, probe, crimeProbe, boundary);
     }
 }
