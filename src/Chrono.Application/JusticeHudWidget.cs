@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Chrono.Application.Ports;
 using Chrono.Domain;
 
@@ -158,6 +159,32 @@ public sealed class JusticeHudWidget
         else
             second = "CLEAN IDENTITY";
 
+        // S22 v8 (user: "HUD can be improved — check dashboard design"): KPI
+        // tiles — dashboard BANs. Up to 3: stars, day/heat, and the state's
+        // third metric. Big numerals in enclosed tiles (Big Book of Dashboards).
+        var kpis = new List<(string Label, string Value)>
+        {
+            ("WANTED", stars > 0 ? $"{stars}★" : "—"),
+        };
+        if (state == JusticeState.Prison)
+            kpis.Add(("DAY", $"{j.ServedDays + 1}/{j.SentenceDays}"));
+        else if (j.IsManhunt)
+            kpis.Add(("HEAT", $"DAY {j.ManhuntUntilDay}"));
+        else if (state == JusticeState.Captured)
+            kpis.Add(("COURT", FormatClock(j.TrialSecondsLeft)));
+        else if (j.IsOnBail)
+            kpis.Add(("BAIL", "ON"));
+        else if (j.ParoleDaysLeft > 0)
+            kpis.Add(("PAROLE", $"{j.ParoleDaysLeft}D"));
+        else
+            kpis.Add(("NOTORIETY", $"{j.Notoriety}"));
+        if (j.Warrant.IsActive)
+            kpis.Add(("WARRANT", "ACTIVE"));
+        else if (j.Identity.IsBurned)
+            kpis.Add(("FACE", "ON FILE"));
+        else
+            kpis.Add(("FAME", $"{j.Fame}"));
+
         _renderer.DrawJusticeHud(new JusticeHudState(
             Visible: Enabled,
             Stars: stars,
@@ -168,7 +195,8 @@ public sealed class JusticeHudWidget
             PrisonCountdown: prison,
             Feed: _feed.Items,
             Kind: kind,
-            Progress: progress));
+            Progress: progress,
+            Kpis: kpis));   // S22 v8: dashboard KPI tiles
     }
 
     private static string FormatClock(double seconds)

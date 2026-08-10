@@ -187,6 +187,37 @@ public class JusticeHudWidgetTests
         Assert.False(renderer.Last.Visible);
     }
 
+    // S22 v8: the widget builds dashboard KPI tiles (stars + state metrics)
+
+    [Fact]
+    public void Widget_BuildsKpiTiles_WantedShowsStars()
+    {
+        var (widget, renderer, justice, wanted, probe, _) = Build();
+        wanted.CurrentStars = 4;
+        justice.Tick();                  // star edge → Wanted
+        widget.Tick();
+
+        Assert.NotNull(renderer.Last!.Kpis);
+        Assert.Contains(renderer.Last.Kpis, k => k.Label == "WANTED" && k.Value == "4★");
+    }
+
+    [Fact]
+    public void Widget_KpiTiles_PrisonShowsDay()
+    {
+        var (widget, renderer, justice, wanted, probe, _) = Build();
+        wanted.CurrentStars = 5;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();                  // captured
+        justice.AdvanceTrialTime(60.0);
+        justice.Tick();                  // verdict → prison
+        justice.Tick();                  // confinement
+        widget.Tick();
+
+        Assert.NotNull(renderer.Last!.Kpis);
+        Assert.Contains(renderer.Last.Kpis, k => k.Label == "DAY");
+    }
+
     // S22 v7 (user UAT: "I'm in the manhunt, but HUD still shows WANTED —
     // the glitch happens on the 2ND ESCAPEE"): escape #1 → recapture → re-trial
     // → re-prison → escape #2 must re-arm the manhunt. The widget must show

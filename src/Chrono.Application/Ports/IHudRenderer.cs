@@ -19,7 +19,8 @@ public sealed record JusticeHudState(
     bool PrisonCountdown,     // show the countdown in blue
     IReadOnlyList<HudFeedItem>? Feed = null,      // S21 v2: live message feed (oldest first)
     JusticeStatusKind Kind = JusticeStatusKind.Free,   // S21 v3: status color coding
-    float Progress = 0f);     // S21 v3: countdown progress 0..1 (court/prison bar)
+    float Progress = 0f,      // S21 v3: countdown progress 0..1 (court/prison bar)
+    IReadOnlyList<(string Label, string Value)>? Kpis = null);   // S22 v8: dashboard KPI tiles
 
 /// <summary>Widget status color coding (S21 v3 — Material semantic colors).</summary>
 public enum JusticeStatusKind
