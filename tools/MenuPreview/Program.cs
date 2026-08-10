@@ -314,7 +314,7 @@ public static class Program
             new MenuItem { Title = "Mod Enabled", Value = "ON" },
             new MenuItem { Title = "Superpowers", Value = "ON" },
             new MenuItem { Title = "Justice System", Value = "ON" },
-            new MenuItem { Title = "Hotkeys", Value = "F9 menu | X dash | Z stop | B invis" },
+            new MenuItem { Title = "Hotkeys", Value = "Shift+0 menu | X dash | Z stop | B invis" },
             new MenuItem { Title = "Dash Range", Value = "12.0 m" },
             new MenuItem { Title = "Fly Speed", Value = "3.0" },
             new MenuItem { Title = "Freeze Props", Value = "ON" },

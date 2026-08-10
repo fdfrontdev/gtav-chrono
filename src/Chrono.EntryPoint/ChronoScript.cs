@@ -115,7 +115,7 @@ public class ChronoScript : Script
 
             Tick += OnTick;
             _log.Info($"Chrono initialized — menu key {config.MenuKey}");
-            notifier.Show(UiStrings.FirstRun);
+            notifier.Show(string.Format(UiStrings.FirstRun, config.MenuKey));
         }
         catch (Exception ex)
         {
@@ -156,6 +156,14 @@ public class ChronoScript : Script
             _wasMissionActive = storyTime;
             if (_justice != null) _justice.MissionStandby = storyTime;
             if (_crowd != null) _crowd.Standby = storyTime || !justiceOn;   // crowd = justice world sim
+
+            // S22 v2 (user UAT: "the toggle on/off didn't work"): the widget
+            // must reflect the toggles — Mod OFF hides it, Justice OFF suspends.
+            if (_hud != null)
+            {
+                _hud.ModOff = _config?.ModEnabled == false;
+                _hud.JusticeOff = !_hud.ModOff && _config?.JusticeEnabled == false;
+            }
 
             if (justiceOn && !storyTime)
             {

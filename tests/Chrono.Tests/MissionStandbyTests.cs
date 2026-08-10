@@ -193,6 +193,53 @@ public class MissionStandbyTests
         Assert.False(service.IsTimeStopActive);
     }
 
+    // ── S22 v4 (user UAT: "the toggle on/off didn't work") ──
+
+    [Fact]
+    public void Toggle_LabelRefreshesInMenu()
+    {
+        var service = BuildMenu(out var input, out _, out _);
+        input.MenuKeyPressed = true;
+        service.Tick(0);                 // open the menu — Settings screen is reachable
+        Assert.True(service.IsMenuOpen);
+
+        service.SetModEnabled(false);    // the menu toggle path (PersistConfig → RefreshSettingsValues)
+
+        var root = GetRootScreen(service);
+        var settings = root.Items[root.Items.Count - 1].Submenu;
+        Assert.NotNull(settings);
+        var modItem = settings!.Items.First(i => i.Title == "Mod Enabled");
+        Assert.Equal("OFF", modItem.Value);   // THE bug: label stayed "ON" after toggling
+    }
+
+    [Fact]
+    public void JusticeOff_WidgetShowsSuspended()
+    {
+        var widget = new JusticeHudWidget(null!, new FakeHudRenderer(), new JusticeConfig());
+        widget.JusticeOff = true;
+        widget.Tick();
+        var last = ((FakeHudRenderer)widgetRenderer(widget)).Last;
+        Assert.NotNull(last);
+        Assert.Contains("JUSTICE OFF", last!.StatusLine);
+    }
+
+    [Fact]
+    public void ModOff_WidgetDrawsNothing()
+    {
+        var widget = new JusticeHudWidget(null!, new FakeHudRenderer(), new JusticeConfig());
+        widget.ModOff = true;
+        widget.Tick();
+        Assert.Null(((FakeHudRenderer)widgetRenderer(widget)).Last);
+    }
+
+    private static MenuScreen GetRootScreen(PowerMenuService service)
+        => (MenuScreen)service.GetType().GetField("_rootScreen",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(service)!;
+
+    private static IHudRenderer widgetRenderer(JusticeHudWidget widget)
+        => (IHudRenderer)widget.GetType().GetField("_renderer",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(widget)!;
+
     private static PowerMenuService BuildMenu(out FakeInput input, out FakeNotifier notifier, out FakePlayer player)
     {
         input = new FakeInput();
