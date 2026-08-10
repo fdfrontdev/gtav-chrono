@@ -34,6 +34,7 @@ public sealed class PowerMenuService
     private readonly PoliceDbHackService? _hack;
     private readonly JusticeStatsService? _stats;
     private readonly JusticeHudWidget? _hud;   // S21: persistent HUD widget (Settings toggle)
+    private readonly PowerReactionService? _powerReaction;   // S22 v8 r4: world reacts to powers
 
     private MenuScreen? _rootScreen;
     private MenuScreen? _webnetScreen;   // S14: WEBNET lives INSIDE the menu now
@@ -67,7 +68,8 @@ public sealed class PowerMenuService
         JusticeStatsService? stats = null,
         Func<IReadOnlyList<NewsFeedItem>>? feedProvider = null,
         Func<bool>? cutsceneActive = null,
-        JusticeHudWidget? hud = null)   // S21: persistent HUD widget toggle
+        JusticeHudWidget? hud = null,   // S21: persistent HUD widget toggle
+        PowerReactionService? powerReaction = null)   // S22 v8 r4: world reacts to powers
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -87,6 +89,7 @@ public sealed class PowerMenuService
         _stats = stats;
         _feedProvider = feedProvider;
         _cutsceneActive = cutsceneActive;
+        _powerReaction = powerReaction;
         _hud = hud;
     }
 
@@ -102,7 +105,7 @@ public sealed class PowerMenuService
         _godModeItem = new MenuItem
         {
             Title = UiStrings.ItemGodMode,
-            OnActivate = () => { _godMode.Toggle(); RefreshPowerLabels(); }
+            OnActivate = () => { _godMode.Toggle(); RefreshPowerLabels(); _powerReaction?.Report(PowerReactionService.PowerKind.GodMode); }
         };
         _invisibleItem = new MenuItem
         {
@@ -112,7 +115,7 @@ public sealed class PowerMenuService
         _flyItem = new MenuItem
         {
             Title = UiStrings.ItemFly,
-            OnActivate = () => { _fly.Toggle(); RefreshPowerLabels(); }
+            OnActivate = () => { _fly.Toggle(); RefreshPowerLabels(); _powerReaction?.Report(PowerReactionService.PowerKind.Fly); }
         };
         _dashItem = new MenuItem
         {
@@ -475,6 +478,12 @@ public sealed class PowerMenuService
         _invisible.Toggle();
         RefreshPowerLabels();
 
+        // S22 v8 r4 (user: "citizens don't react to superpowers"): the world
+        // sees the fade-out AND the reveal (witness-gated inside the service).
+        _powerReaction?.Report(wasOn
+            ? PowerReactionService.PowerKind.InvisibleOff
+            : PowerReactionService.PowerKind.InvisibleOn);
+
         if (wasOn)
         {
             // Uncloaking near NPCs: give them the same surprise → digest window
@@ -502,6 +511,8 @@ public sealed class PowerMenuService
                 _timeStop.Deactivate();
                 _vfx.SetTimeStopCue(false);
                 _notifier.Show(UiStrings.TimeStopOff);
+                // S22 v8 r4: the frozen world wakes up baffled (witness-gated)
+                _powerReaction?.Report(PowerReactionService.PowerKind.TimeStop);
             }
             else
             {
@@ -539,6 +550,9 @@ public sealed class PowerMenuService
             if (result.Outcome == TeleportOutcome.Success && result.Point.HasValue)
             {
                 _vfx.CompleteInstantTransmission(from, result.Point.Value);
+                // S22 v8 r4: the blink was witnessed (at the ARRIVAL point — the
+                // service probes the player's current position after the move).
+                _powerReaction?.Report(PowerReactionService.PowerKind.Dash);
             }
             else
             {
@@ -573,6 +587,7 @@ public sealed class PowerMenuService
             }
             _notifier.Show(UiStrings.WarpStart);
             _vfx.StartWarp(_player.Position, _player.GetWaypointPosition());
+            _powerReaction?.Report(PowerReactionService.PowerKind.MapTeleport);   // S22 v8 r4
         }
         catch (Exception ex)
         {
