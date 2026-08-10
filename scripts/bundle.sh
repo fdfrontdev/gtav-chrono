@@ -20,16 +20,42 @@ STAGE="$ROOT/dist/stage"
 OUT="$ROOT/dist/Chrono-$VERSION.zip"
 
 echo "== Building (clean) =="
-export PATH="$PATH:/c/Program Files/dotnet"
+export PATH="$PATH:/c/Program Files/dotnet:$HOME/.dotnet/tools"
 (cd "$ROOT" && dotnet build Chrono.sln --nologo -v q -c Debug)
+
+echo "== Obfuscating (Obfuscar — protect the logic meat) =="
+# KeepPublicApi (SHVDN discovery + JSON config + DI wiring), HidePrivateApi +
+# HideStrings rename/encrypt the internal logic — dnSpy sees gibberish.
+OBF_IN="$ROOT/dist/obf-in"
+OBF_OUT="$ROOT/dist/obf-out"
+rm -rf "$OBF_IN" "$OBF_OUT" && mkdir -p "$OBF_IN" "$OBF_OUT"
+cp "$SRC"/Chrono*.dll "$OBF_IN/"
+# Obfuscar needs to RESOLVE references (Chrono.Boundary → ScriptHookVDotNet3)
+# even though SHVDN is never shipped — it's a build-time reference only.
+cp "$SRC"/ScriptHookVDotNet3.dll "$OBF_IN/" 2>/dev/null || true
+# Forward-slash Windows paths ONLY — Obfuscar's XML pipeline eats backslashes.
+WIN_IN="$(cygpath -m "$OBF_IN")"
+WIN_OUT="$(cygpath -m "$OBF_OUT")"
+sed -e "s|INPATH_PLACEHOLDER|$WIN_IN|" \
+    -e "s|OUTPATH_PLACEHOLDER|$WIN_OUT|" \
+    "$ROOT/scripts/obfuscar.xml" > "$OBF_OUT/obfuscar.xml"
+obfuscar.console -c "$WIN_OUT/obfuscar.xml" >/dev/null 2>&1 \
+    && echo "  obfuscation OK" || echo "  WARN: obfuscation failed — shipping un-obfuscated"
 
 echo "== Staging $VERSION =="
 rm -rf "$STAGE" && mkdir -p "$STAGE/Chrono"
 # Runtime DLLs only (all NuGet deps included); NEVER ScriptHookVDotNet3.dll
 # (the game loads its own from the game root).
+OBF_SRC="$OBF_OUT"
 for dll in "$SRC"/*.dll; do
-    [ "$(basename "$dll")" = "ScriptHookVDotNet3.dll" ] && continue
-    cp "$dll" "$STAGE/Chrono/"
+    base="$(basename "$dll")"
+    [ "$base" = "ScriptHookVDotNet3.dll" ] && continue
+    # prefer obfuscated DLLs (Chrono.* only; NuGet deps pass through as-is)
+    if [ -f "$OBF_SRC/$base" ] && [ "${base#Chrono.}" != "$base" ] || [ "$base" = "Chrono.dll" ]; then
+        cp "$OBF_SRC/$base" "$STAGE/Chrono/"
+    else
+        cp "$dll" "$STAGE/Chrono/"
+    fi
 done
 # SQLite native interop (64-bit game; ship both for safety)
 cp -r "$SRC"/x64 "$STAGE/Chrono/" 2>/dev/null || true
@@ -39,8 +65,8 @@ cp "$ROOT/scripts/config.example.json" "$STAGE/Chrono/config.json"
 
 # README.txt — install + keys + disclaimer
 cat > "$STAGE/Chrono/README.txt" <<'EOF'
-CHRONO JUSTICE — GTA V Superpower Justice System
-=================================================
+CHRONO · FIRDAUS BUILDS — GTA V Superpower Justice System
+===========================================================
 A ScriptHookVDotNet (SHVDN) mod: superpowers (dash, time stop, invisibility,
 fly, god mode, map teleport) + a full justice system (wanted level, arrests,
 courts, prison, manhunts) + a live WEBNET news feed.

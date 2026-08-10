@@ -10,7 +10,7 @@ namespace Chrono.Application;
 /// segment/partition — beautiful, practical, usable"):
 ///
 ///   ┌──────────────────────────────────┐
-///   │ CHRONO JUSTICE           ★★★    │  header strip (primary, full width)
+///   │ CHRONO · FIRDAUS BUILDS ★★★ │  header strip (primary, full width)
 ///   ├──────────────────────────────────┤  divider 1
 ///   │ WANTED 3★                        │  status row (big, color-coded)
 ///   │ ▓▓▓▓▓▓▓▓░░░░  COURT IN 0:34     │  countdown row + progress bar
@@ -62,7 +62,7 @@ public sealed class HudLayoutEngine
         Rect Divider2,       // status block / feed block
         Rect ProgressTrack,  // countdown bar track
         Rect ProgressFill,   // countdown bar fill (w = track.W * progress)
-        TextSpan HeaderTitle,   // "CHRONO JUSTICE"
+        TextSpan HeaderTitle,   // "CHRONO" (brand — S22 v8 r2: CHRONO · FIRDAUS BUILDS)
         TextSpan HeaderStars,   // "★★★" right-aligned, amber
         Row Status,             // big, color-coded
         Row Countdown,          // smaller, dim
@@ -108,9 +108,9 @@ public sealed class HudLayoutEngine
         float textX = x + 0.016f;
         float maxW = CardW - 0.032f;
 
-        // ── Header strip ──
+        // ── Header strip (S22 v8 r2: CHRONO = product brand, FIRDAUS BUILDS = maker) ──
         var header = new Rect(x, y, CardW, HeaderH);
-        var headerTitle = new TextSpan(Truncate("CHRONO JUSTICE", maxW - 0.10f, measure, 0.22f), textX, y + HeaderH / 2f, 0.22f, true);
+        var headerTitle = new TextSpan(Truncate("CHRONO · FIRDAUS BUILDS", maxW - 0.02f, measure, 0.22f), textX, y + HeaderH / 2f, 0.22f, true);
         string starStr = new string('★', Math.Max(0, Math.Min(5, stars)));
         var headerStars = new TextSpan(starStr, x + CardW - 0.016f - 0.055f, y + HeaderH / 2f, 0.22f, true);
 

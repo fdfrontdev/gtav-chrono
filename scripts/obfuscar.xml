@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Obfuscar config for Chrono (S22 v8 r2 — "do whatever protection you can").
+
+  PROTECTION PROFILE (balanced — deter casual copying, zero breakage risk):
+  - KeepPublicApi=true  : public classes/methods keep names → SHVDN discovery,
+    JSON config binding, and hexagonal DI wiring all keep working.
+  - HidePrivateApi=true : private + internal members renamed → the actual
+    logic meat (services, engines, boundary natives) becomes unreadable in
+    dnSpy/ILSpy.
+  - HideStrings=true    : string literals encrypted at build, decrypted at
+    runtime (VERIFIED: "TRANSPORT"/"frozen moment" gone from the binary).
+    NOTE: OptimizeMethods must stay OFF — it conflicts with string hiding.
+
+  WHY NOT FULL RENAME: ChronoScript must stay discoverable by SHVDN; config
+  records bind config.json by property name; Ports interfaces are the DI
+  contracts. Renaming them breaks the mod — and the game would silently
+  refuse to load it. This profile gives ~90% of the deterrence with 0% of
+  the breakage risk.
+
+  PATH CONVENTION: forward slashes ONLY (backslashes are eaten by the XML
+  pipeline — "C:\..." became "C:SER..." in Obfuscar's parser). InPath must
+  also contain ScriptHookVDotNet3.dll so references resolve (it is never
+  shipped — build-time reference only).
+-->
+<Obfuscator>
+  <Var name="InPath" value="INPATH_PLACEHOLDER" />
+  <Var name="OutPath" value="OUTPATH_PLACEHOLDER" />
+  <Var name="KeepPublicApi" value="true" />
+  <Var name="HidePrivateApi" value="true" />
+  <Var name="RenameProperties" value="true" />
+  <Var name="RenameEvents" value="true" />
+  <Var name="RenameFields" value="true" />
+  <Var name="UseUnicodeNames" value="false" />
+  <Var name="ReuseNames" value="true" />
+  <Var name="HideStrings" value="true" />
+  <Var name="SuppressIldasm" value="true" />
+
+  <Module file="$(InPath)/Chrono.Domain.dll" />
+  <Module file="$(InPath)/Chrono.Application.dll" />
+  <Module file="$(InPath)/Chrono.Boundary.dll" />
+  <Module file="$(InPath)/Chrono.dll" />
+</Obfuscator>
