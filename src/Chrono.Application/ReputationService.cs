@@ -82,6 +82,8 @@ public sealed class ReputationService
 
     public void OnEscape() => AddNotoriety(40);
     public void OnHack() => AddNotoriety(30);
+    /// <summary>S22 v8 r4: a witnessed superpower use — public image sees you.</summary>
+    public void OnPublicPowerUse() => AddNotoriety(5);
     public void OnConviction() { AddNotoriety(-10); AddFame(3); }   // debt paid, justice served
     public void OnRelease() => AddFame(10);                         // rehabilitation
 
