@@ -39,4 +39,4 @@ Rockstar Games or Take-Two. GTA V modding is subject to Rockstar's modding
 policy - use at your own risk. The author is not responsible for any
 in-game or account effects.
 
-Made by Firdaus - FIRDAUS BUILDS: github.com/fdfrontdev | youtube.com/@firdausbuilds
+Made by Firdaus - FIRDAUS BUILDS: github.com/fdfrontdev | youtube.com/@firdausbuilds | patreon.com/FirdausBuilds
