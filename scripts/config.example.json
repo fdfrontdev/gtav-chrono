@@ -82,7 +82,8 @@
     "level": "info"
   },
   "Justice": {
-    "PauseDuringMissions": true
+    "PauseDuringMissions": true,
+    "WarrantRecognitionRangeM": 6.0
   },
   "ModEnabled": true,
   "PowersEnabled": true,

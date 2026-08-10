@@ -131,7 +131,12 @@ public sealed class FakeProbe : IWorldProbe
 
     public float? GetGroundHeight(Vector3 position) => GroundHeight;
     public int NearbyCivilians { get; set; }
-    public int CountNearbyCivilians(Vector3 position, float radius) => NearbyCivilians;
+    public float LastCiviliansRadius { get; private set; } = float.MaxValue;   // S22 v6
+    public int CountNearbyCivilians(Vector3 position, float radius)
+    {
+        LastCiviliansRadius = radius;
+        return NearbyCivilians;
+    }
     public int FleeCalls { get; private set; }
     public void MakeNearbyCiviliansFlee(Vector3 position, float radius) => FleeCalls++;
 }
