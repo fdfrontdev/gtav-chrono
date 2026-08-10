@@ -121,7 +121,10 @@ stage, out_noext = sys.argv[1], sys.argv[2]
 shutil.make_archive(out_noext, "zip", stage)
 print("zipped ->", out_noext + ".zip")
 PYEOF
-rm -rf "$STAGE"
+# S22 v8 r2: KEEP the staged folder as dist/release/Chrono — the Inno Setup
+# installer sources from it (one build → zip + installer from the same files).
+rm -rf "$ROOT/dist/release"
+mv "$STAGE" "$ROOT/dist/release"
 
 echo "== Bundle ready: $OUT =="
 WIN_OUT="$(cygpath -w "$OUT")"
