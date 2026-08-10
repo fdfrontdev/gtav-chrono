@@ -142,19 +142,22 @@ public class ChronoScript : Script
             // during scripted missions the justice pipeline FREEZES — story
             // missions own the wanted level. The menu + superpowers keep
             // working; the widget announces the standby.
-            // S22 v2 (user UAT: mod/justice on-off): the pipeline also freezes
-            // when the user toggles the mod or the justice system off.
+            // S22 v3 (user UAT: "people run because of me during the story"):
+            // the standby signal covers scripted story time — missions AND
+            // cutscenes (some walk-ins/intros run with the mission flag unset).
             bool justiceOn = _config?.ModEnabled == true && _config.JusticeEnabled == true;
-            bool mission = justiceOn && _config != null && _config.Justice.PauseDuringMissions == true && Game.IsMissionActive;
-            if (mission && !_wasMissionActive)
+            bool storyTime = _config != null && _config.Justice.PauseDuringMissions == true
+                && (Game.IsMissionActive || Game.IsCutsceneActive);
+            if (storyTime && !_wasMissionActive)
             {
                 _cutscene?.Abort();              // mission takeover — drop our camera/anim
-                _log?.Info("Mission active — justice on standby");
+                _log?.Info("Story sequence active — justice on standby");
             }
-            _wasMissionActive = mission;
-            if (_justice != null) _justice.MissionStandby = mission;
+            _wasMissionActive = storyTime;
+            if (_justice != null) _justice.MissionStandby = storyTime;
+            if (_crowd != null) _crowd.Standby = storyTime || !justiceOn;   // crowd = justice world sim
 
-            if (justiceOn && !mission)
+            if (justiceOn && !storyTime)
             {
                 _crimeDetection?.Tick(_clock.ElapsedMilliseconds);
                 _justice?.Tick();
