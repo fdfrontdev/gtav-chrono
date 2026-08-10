@@ -99,10 +99,21 @@ public sealed class JusticeHudWidget
         bool court = false, prison = false;
         if (state == JusticeState.Captured)
         {
-            double s = j.TrialSecondsLeft;
-            countdown = $"COURT IN {FormatClock(s)}";
-            court = true;
-            progress = (float)(1 - s / Math.Max(1.0, _config.TrialDelaySeconds));
+            // S22 v8: during the police escort ride the court clock is FROZEN
+            // (verdict waits for arrival) — show the transport status instead
+            // of a stuck "COURT IN 0:45" (user UAT: "the court timer seems stuck").
+            if (j.IsEscortRiding)
+            {
+                countdown = "TRANSPORT — BOLINGBROKE (E TO SKIP)";
+                progress = 1f;   // bar full = the ride is live; skip hint on the line
+            }
+            else
+            {
+                double s = j.TrialSecondsLeft;
+                countdown = $"COURT IN {FormatClock(s)}";
+                court = true;
+                progress = (float)(1 - s / Math.Max(1.0, _config.TrialDelaySeconds));
+            }
         }
         else if (state == JusticeState.Prison)
         {

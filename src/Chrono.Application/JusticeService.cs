@@ -806,6 +806,9 @@ public sealed class JusticeService
     public int Notoriety => _reputation?.Notoriety ?? 0;
     public int Fame => _reputation?.Fame ?? 0;
 
+    /// <summary>S22 v8: true while the police escort ride is live (widget shows TRANSPORT instead of the frozen court clock).</summary>
+    public bool IsEscortRiding => _escort != null && _escort.IsActive;
+
     public void TryOpenEscapeChoice()
     {
         if (!_isYardPhase || _escapeChoiceOpen || _input == null) return;

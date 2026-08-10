@@ -14,7 +14,7 @@ namespace Chrono.Tests;
 /// </summary>
 public class EscortRideTests
 {
-    private sealed class FakeEscortBoundary : IEscortBoundary
+    internal sealed class FakeEscortBoundary : IEscortBoundary
     {
         public bool IsRiding { get; private set; }
         public bool WasSkipped { get; private set; }

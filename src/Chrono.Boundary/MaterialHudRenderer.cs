@@ -27,7 +27,9 @@ public sealed class MaterialHudRenderer : IHudRenderer
             state.Kind, state.Progress, state.Stars, Measure,
             hasCountdown: !string.IsNullOrEmpty(state.CountdownLine),
             hasIdentity: !string.IsNullOrEmpty(state.SecondLine),
-            countdownUrgent: state.CountdownLine.Contains("YARD OPEN") || state.StatusLine.Contains("MANHUNT"));
+            countdownUrgent: state.CountdownLine.Contains("YARD OPEN") || state.StatusLine.Contains("MANHUNT")
+                || state.CountdownLine.Contains("TRANSPORT"),   // S22 v8: ride = action prompt (E to skip)
+            kpis: state.Kpis);   // S22 v8: dashboard KPI tiles — MUST forward (game bug: preview passed them, renderer didn't)
 
         // ── Elevation: shadow → surface ──
         var s = layout.Shadow;
