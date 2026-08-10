@@ -18,7 +18,7 @@ public class JusticeHudWidgetTests
         public void DrawJusticeHud(JusticeHudState state) => Last = state;
     }
 
-    private static (JusticeHudWidget widget, FakeHudRenderer renderer, JusticeService justice, FakeWantedMonitor wanted, FakeCrimeProbe probe, FakeNotifier notifier) Build()
+    private static (JusticeHudWidget widget, FakeHudRenderer renderer, JusticeService justice, FakeWantedMonitor wanted, FakeCrimeProbe probe, FakeNotifier notifier) Build(bool withEscort = false)
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true, Money = 100000, DistrictName = "Vinewood" };
@@ -27,12 +27,15 @@ public class JusticeHudWidgetTests
         var probe = new FakeCrimeProbe();
         var config = new JusticeConfig { TrialDelaySeconds = 60, PrisonDayRealSeconds = 30 };
         var notifier = new FakeNotifier();
+        EscortService? escort = null;
+        if (withEscort)
+            escort = new EscortService(new EscortRideTests.FakeEscortBoundary(), player, new FakeInput(), notifier, new FakeLog());
         var justice = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
             notifier, new FakeLog(), config, clock,
-            input: new FakeInput(), crimeProbe: probe);
+            input: new FakeInput(), crimeProbe: probe, escort: escort);
         var renderer = new FakeHudRenderer();
         var widget = new JusticeHudWidget(justice, renderer, config);
         return (widget, renderer, justice, wanted, probe, notifier);
@@ -216,6 +219,27 @@ public class JusticeHudWidgetTests
 
         Assert.NotNull(renderer.Last!.Kpis);
         Assert.Contains(renderer.Last.Kpis, k => k.Label == "DAY");
+    }
+
+    // S22 v8 (user UAT: "the court timer seems stuck"): during the police
+    // escort ride the countdown shows TRANSPORT, not a frozen COURT clock.
+
+    [Fact]
+    public void Widget_EscortRiding_ShowsTransportNotFrozenCourt()
+    {
+        var (widget, renderer, justice, wanted, probe, _) = Build(withEscort: true);
+        wanted.CurrentStars = 4;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();                  // captured → escort ride begins
+        justice.AdvanceTrialTime(45.0);  // time passes mid-ride — verdict must wait
+        justice.Tick();
+        widget.Tick();
+
+        Assert.Equal(JusticeState.Captured, justice.State);
+        Assert.True(justice.IsEscortRiding);
+        Assert.Equal("TRANSPORT — BOLINGBROKE (E TO SKIP)", renderer.Last!.CountdownLine);
+        Assert.DoesNotContain("COURT IN", renderer.Last.CountdownLine);
     }
 
     // S22 v7 (user UAT: "I'm in the manhunt, but HUD still shows WANTED —
