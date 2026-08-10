@@ -44,6 +44,7 @@ public sealed class JusticeService
     private readonly ReputationService? _reputation;
     private readonly IWorldProbe? _probe;
     private readonly JusticeCutsceneService? _cutscene;
+    private readonly EscortService? _escort;   // S22 v8: police escort ride
     private readonly Func<double> _random;
     private readonly ICrimeProbe? _crimeProbe;   // S20: act detection + police hold-fire
     private readonly Stopwatch _reportClock = Stopwatch.StartNew();
@@ -111,7 +112,8 @@ public sealed class JusticeService
         Func<double>? random = null,
         JusticeCutsceneService? cutscene = null,
         IPrisonOutfit? outfit = null,
-        ICrimeProbe? crimeProbe = null)
+        ICrimeProbe? crimeProbe = null,
+        EscortService? escort = null)   // S22 v8: police escort ride to Bolingbroke
     {
         _wanted = wanted;
         _player = player;
@@ -132,6 +134,7 @@ public sealed class JusticeService
         _cutscene = cutscene;
         _outfit = outfit;
         _crimeProbe = crimeProbe;
+        _escort = escort;
         _prisonCalendar = new PrisonCalendar(config.PrisonDayRealSeconds);
         _lastStars = wanted.CurrentStars;
     }
@@ -249,11 +252,18 @@ public sealed class JusticeService
 
         if (State == JusticeState.Captured && (_cutscene == null || !_cutscene.IsActive))
         {
-            _trialElapsedMs += _trialClock.Elapsed.TotalMilliseconds;
-            _trialClock.Restart();
-            if (_trialElapsedMs >= _config.TrialDelaySeconds * 1000)
-                OnTrialVerdict();
+            // S22 v8: the trial verdict waits for the escort ARRIVAL — the court
+            // scene plays at Bolingbroke, never in the back of a moving cruiser.
+            if (_escort == null || !_escort.IsActive)
+            {
+                _trialElapsedMs += _trialClock.Elapsed.TotalMilliseconds;
+                _trialClock.Restart();
+                if (_trialElapsedMs >= _config.TrialDelaySeconds * 1000)
+                    OnTrialVerdict();
+            }
         }
+
+        TickEscortArrival();
 
         if (State == JusticeState.Prison)
             PrisonTick();
@@ -335,8 +345,8 @@ public sealed class JusticeService
         // S21 v3 (user UAT: "respawn at hospital — I expect prison"): death
         // capture wakes you AT the prison holding area, not the hospital —
         // the court scene + verdict play there (a recaptured fugitive doesn't
-        // come back from the morgue, they come back in cuffs).
-        _player.Teleport(PrisonCenter);
+        // come back from the morgue, they come back in cuffs). S22 v8: via the
+        // escort ride — the arrival teleport happens in TickEscortArrival.
         bool manhuntEnded = IsManhunt;
         _manhuntUntilDay = 0;             // S21 v3: recaptured — the manhunt is OVER
         // S21 v3 (user UAT: "busted, wasted, captured → back to prison + more
@@ -346,8 +356,18 @@ public sealed class JusticeService
             _notifier.Show("WASTED during the manhunt — RECAPTURED. The court adds the escape charge");
         else
             _notifier.Show("You wake up in POLICE CUSTODY — the court date is set");
-        _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
-        _log.Info("Death-capture: custody started, hospital fee refunded");
+        // S22 v8: escort ride instead of instant teleport (arrival → intake cutscene)
+        if (_escort != null)
+        {
+            _escort.Begin(EscortService.BolingbrokeGate);
+            _log.Info("Death-capture: custody started, escort to Bolingbroke");
+        }
+        else
+        {
+            _player.Teleport(PrisonCenter);
+            _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
+            _log.Info("Death-capture: custody started, hospital fee refunded");
+        }
     }
 
     private void OnStarsIncreased(int stars)
@@ -468,8 +488,6 @@ public sealed class JusticeService
         _wanted.SetStars(0);              // handcuffed — the chase is OVER (S11: no re-arrest loop)
         bool manhuntEnded = IsManhunt;
         _manhuntUntilDay = 0;             // S21 v3: recaptured — the manhunt is OVER
-        _vfx?.ScreenFadeOut(300);
-        _vfx?.ScreenFlash(300);
         if (manhuntEnded)
         {
             // prison-break vibe (user UAT): a manhunt ends with a RECAPTURE, not a routine arrest
@@ -481,12 +499,47 @@ public sealed class JusticeService
             _notifier.Show($"ARRESTED — bail {BailCost():$#,##0} (press G) or face the court");
             _media?.News($"BREAKING: {_player.GetCharacterName().ToUpperInvariant()} taken into custody in {_player.GetDistrictName()}");
         }
-        _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
-        _log.Info("Captured at 4★+ — custody started");
+        // S22 v8: the police escort ride — cuffed in a cruiser to Bolingbroke.
+        // The intake cutscene + prison teleport happen on ARRIVAL (TickEscortArrival).
+        if (_escort != null)
+        {
+            _escort.Begin(EscortService.BolingbrokeGate);
+            _log.Info("Captured at 4★+ — escort ride to Bolingbroke started");
+        }
+        else
+        {
+            // No escort: booking plays at the arrest site (the player is already
+            // there in cuffs — a fine-only release must NOT wake them at the gate).
+            _vfx?.ScreenFadeOut(300);
+            _vfx?.ScreenFlash(300);
+            _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
+            _log.Info("Captured at 4★+ — custody started");
+        }
     }
 
     /// <summary>Testable seam — the real loop accumulates elapsed time from the Stopwatch.</summary>
     public void AdvanceTrialTime(double realSeconds) => _trialElapsedMs += realSeconds * 1000;
+
+    /// <summary>
+    /// S22 v8 — drive the police escort ride; on arrival (or skip, or a broken
+    /// ride) hand off to the intake cutscene + prison teleport.
+    /// </summary>
+    private void TickEscortArrival()
+    {
+        if (_escort == null || !_escort.IsActive) return;
+
+        _escort.Tick();
+
+        if (_escort.IsActive) return;   // still riding
+
+        // Arrived (or skipped): booking at Bolingbroke — the intake cutscene +
+        // holding teleport (the S21 death-capture behavior, now ride-gated).
+        _vfx?.ScreenFadeOut(300);
+        _vfx?.ScreenFlash(300);
+        _player.Teleport(PrisonCenter);
+        _cutscene?.Play(CutsceneKind.Arrest);   // booking cinematic (S11)
+        _log.Info("Escort complete — booking at Bolingbroke");
+    }
 
     private void OnTrialVerdict()
     {
