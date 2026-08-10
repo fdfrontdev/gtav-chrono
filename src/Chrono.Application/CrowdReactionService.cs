@@ -23,6 +23,12 @@ public sealed class CrowdReactionService
     private long _lastReactionMs = long.MinValue / 2;
     private bool _fleeNotified, _greetNotified;
 
+    /// <summary>
+    /// S22 v3: set true while a story mission/cutscene is active — crowd
+    /// reactions freeze (scripted NPCs are the story's, not the mod's).
+    /// </summary>
+    public bool Standby { get; set; }
+
     public CrowdReactionService(
         IPlayerContext player,
         IWorldProbe probe,
@@ -41,6 +47,11 @@ public sealed class CrowdReactionService
 
     public void Tick(long nowMs)
     {
+        // S22 v3 (user UAT: "people run because of me during the story — this
+        // should not happen"): the crowd reaction is part of the JUSTICE world
+        // simulation — it must freeze during missions/cutscenes too (scripted
+        // NPCs belong to the story, not to the mod).
+        if (Standby) return;
         if (nowMs - _lastReactionMs < ReactionIntervalMs) return;
         _lastReactionMs = nowMs;
         if (_player.IsInVehicle || _player.IsDead) return;
