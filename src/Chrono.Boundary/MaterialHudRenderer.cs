@@ -50,6 +50,18 @@ public sealed class MaterialHudRenderer : IHudRenderer
         // ── Status / countdown / identity rows ──
         DrawRow(layout.Status);
         DrawRow(layout.Countdown);
+
+        // ── S22 v8: dashboard KPI tiles (enclosed groups — gestalt principle) ──
+        foreach (var kpi in layout.Kpis)
+        {
+            var t = kpi.Tile;
+            Rect(t.X + t.W / 2f, t.Y + t.H / 2f, t.W, t.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 230);
+            DrawSpan(kpi.Label, 160, 160, 160);
+            // BAN value inherits the status alert color — the eye lands on it
+            var ban = HudLayoutEngine.KindColor(state.Kind);
+            DrawSpan(kpi.Value, ban.R, ban.G, ban.B);
+        }
+
         DrawRow(layout.Identity);
 
         // ── Countdown progress bar ──

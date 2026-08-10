@@ -70,14 +70,16 @@ public static class Program
     /// <summary>Widget preview inputs — the same snapshot shape the widget builds.</summary>
     private sealed record WidgetPreview(
         string Status, string Countdown, string Identity,
-        HudFeedItem[] Feed, JusticeStatusKind Kind, float Progress, int Stars = 3);
+        HudFeedItem[] Feed, JusticeStatusKind Kind, float Progress, int Stars = 3,
+        (string Label, string Value)[]? Kpis = null);   // S22 v8: dashboard tiles
 
     private static void AppendWidgetScreen(StringBuilder sb, WidgetPreview wp)
     {
         var layout = HudLayoutEngine.Compute(wp.Status, wp.Countdown, wp.Identity,
             wp.Feed, wp.Kind, wp.Progress, wp.Stars, MeasureApprox,
             hasCountdown: !string.IsNullOrEmpty(wp.Countdown),
-            hasIdentity: !string.IsNullOrEmpty(wp.Identity));
+            hasIdentity: !string.IsNullOrEmpty(wp.Identity),
+            kpis: wp.Kpis);
 
         AppendRect(sb, layout.Shadow, 0, 0, 0, 0.62f);
         AppendRect(sb, layout.Card, 30, 30, 30, 0.95f);
@@ -106,6 +108,15 @@ public static class Program
         {
             var fill = wp.Kind == JusticeStatusKind.Manhunt ? (198, 40, 40) : (24, 103, 192);
             AppendRect(sb, layout.ProgressFill, fill.Item1, fill.Item2, fill.Item3, 1f);
+        }
+
+        // S22 v8: dashboard KPI tiles — enclosed groups, BAN value in status color
+        var ban = HudLayoutEngine.KindColor(wp.Kind);
+        foreach (var kpi in layout.Kpis)
+        {
+            AppendRect(sb, kpi.Tile, 44, 44, 44, 0.9f);
+            AppendText(sb, kpi.Label.Text, kpi.Label.X, kpi.Label.Y, kpi.Label.Scale, 160, 160, 160, kpi.Label.Bold);
+            AppendText(sb, kpi.Value.Text, kpi.Value.X, kpi.Value.Y, kpi.Value.Scale, ban.R, ban.G, ban.B, true);
         }
 
         // feed block
@@ -262,30 +273,35 @@ public static class Program
             Status: "FREE", Countdown: "", Identity: "CLEAN IDENTITY",
             Feed: new[] {
                 new HudFeedItem("A civilian recognized you — police dispatched (1★)", FeedKind.Message, "12:01:22"),
-            }, JusticeStatusKind.Free, 0f)));
+            }, JusticeStatusKind.Free, 0f,
+            Kpis: new[] { ("WANTED", "—"), ("NOTORIETY", "12"), ("FAME", "340") })));
         screens.Add(("WIDGET: WANTED", new WidgetPreview(
             Status: "WANTED 3*", Countdown: "", Identity: "WARRANT ACTIVE — FACE ON FILE",
             Feed: new[] {
                 new HudFeedItem("A civilian recognized you — police dispatched (3★)", FeedKind.Message, "12:05:10"),
                 new HudFeedItem("POLICE LOSE SUPER-POWERED SUSPECT in Vinewood — chase footage goes viral", FeedKind.Viral, "12:05:44"),
-            }, JusticeStatusKind.Wanted, 0f)));
+            }, JusticeStatusKind.Wanted, 0f,
+            Kpis: new[] { ("WANTED", "3★"), ("NOTORIETY", "990"), ("WARRANT", "ACTIVE") })));
         screens.Add(("WIDGET: CUSTODY", new WidgetPreview(
             Status: "IN CUSTODY — COURT AWAITS", Countdown: "COURT IN 0:34", Identity: "FACE ON FILE (BURNED)",
             Feed: new[] {
                 new HudFeedItem("BREAKING: super-powered suspect taken into custody", FeedKind.Webnet, "12:10:02"),
                 new HudFeedItem("Bail: $12,000 — press G or face the court", FeedKind.Message, "12:10:05"),
-            }, JusticeStatusKind.Captured, 0.55f)));
+            }, JusticeStatusKind.Captured, 0.55f,
+            Kpis: new[] { ("WANTED", "—"), ("COURT", "0:34"), ("FACE", "ON FILE") })));
         screens.Add(("WIDGET: PRISON", new WidgetPreview(
             Status: "PRISON — DAY 3/14", Countdown: "NEXT DAY IN 0:12", Identity: "WARRANT CLEARED",
             Feed: new[] {
                 new HudFeedItem("Day 2 of 14 — yard time at dusk", FeedKind.Message, "12:30:00"),
-            }, JusticeStatusKind.Prison, 0.4f)));
+            }, JusticeStatusKind.Prison, 0.4f,
+            Kpis: new[] { ("WANTED", "—"), ("DAY", "3/14"), ("FAME", "340") })));
         screens.Add(("WIDGET: MANHUNT", new WidgetPreview(
             Status: "MANHUNT — PRISON BREAK 4*", Countdown: "HEAT UNTIL DAY 12", Identity: "WARRANT ACTIVE — FACE ON FILE",
             Feed: new[] {
                 new HudFeedItem("PRISON BREAK: super-powered inmate escapes Bolingbroke — MANHUNT underway", FeedKind.Viral, "21:30:02"),
                 new HudFeedItem("A civilian recognized you — police dispatched (4★)", FeedKind.Message, "21:31:14"),
-            }, JusticeStatusKind.Manhunt, 1f, Stars: 4)));
+            }, JusticeStatusKind.Manhunt, 1f, Stars: 4,
+            Kpis: new[] { ("WANTED", "4★"), ("HEAT", "DAY 12"), ("WARRANT", "ACTIVE") })));
 
         return screens;
     }

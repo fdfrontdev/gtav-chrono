@@ -14,6 +14,9 @@ namespace Chrono.Application;
 ///   ├──────────────────────────────────┤  divider 1
 ///   │ WANTED 3★                        │  status row (big, color-coded)
 ///   │ ▓▓▓▓▓▓▓▓░░░░  COURT IN 0:34     │  countdown row + progress bar
+///   │ ┌────┐ ┌─────┐ ┌─────────┐      │  KPI tiles (S22 v8: dashboard BANs —
+///   │ │ 3★ │ │DAY  │ │HEAT     │      │  big numerals, enclosed groups)
+///   │ └────┘ └─────┘ └─────────┘      │
 ///   │ FACE ON FILE (BURNED)            │  identity row
 ///   ├──────────────────────────────────┤  divider 2
 ///   │ LIVE FEED                        │  section label (overline)
@@ -23,6 +26,12 @@ namespace Chrono.Application;
 ///
 /// Font 0 (Chalet London — the vanilla HUD font) for readability; the v1/v2
 /// font 4 (thin Chalet Comprimé) was the readability problem.
+///
+/// S22 v8 (user: "the HUD can be improved further — check dashboard design"):
+/// applied The Big Book of Dashboards principles — BANs (big-ass numbers:
+/// the KPI tiles carry the critical numerals), KPI row near the top (eye
+/// scans the top row first), gestalt enclosure (each KPI is a bounded tile),
+/// and alert colors for state (status row stays the biggest, color-coded).
 /// </summary>
 public sealed class HudLayoutEngine
 {
@@ -35,11 +44,15 @@ public sealed class HudLayoutEngine
     public const float RowH = 0.030f;
     public const float DividerH = 0.002f;
     public const int MaxFeedRows = 3;            // bigger type → fewer rows
+    public const int MaxKpis = 3;                // S22 v8: dashboard KPI tiles
 
     public readonly record struct Rect(float X, float Y, float W, float H);
     public readonly record struct TextSpan(string Text, float X, float Y, float Scale, bool Bold);
 
     public sealed record Row(TextSpan Text, (int R, int G, int B) Color);
+
+    /// <summary>S22 v8 — a dashboard KPI tile: label (small) over a BAN numeral.</summary>
+    public sealed record KpiTile(Rect Tile, TextSpan Label, TextSpan Value);
 
     public sealed record Layout(
         Rect Card,           // surface
@@ -53,6 +66,7 @@ public sealed class HudLayoutEngine
         TextSpan HeaderStars,   // "★★★" right-aligned, amber
         Row Status,             // big, color-coded
         Row Countdown,          // smaller, dim
+        IReadOnlyList<KpiTile> Kpis,   // S22 v8: dashboard KPI tiles
         Row Identity,           // dimmest
         TextSpan FeedLabel,     // "LIVE FEED" overline
         IReadOnlyList<Row> FeedRows,
@@ -61,6 +75,8 @@ public sealed class HudLayoutEngine
     /// <summary>
     /// Compute the segmented widget layout. kind = status color coding;
     /// progress 0..1 drives the countdown bar fill (0 = no bar).
+    /// kpis = S22 v8 dashboard tiles — up to <see cref="MaxKpis"/>, each
+    /// (label, value) pair rendered as an enclosed tile under the countdown.
     /// </summary>
     public static Layout Compute(
         string status, string countdown, string identity,
@@ -68,7 +84,8 @@ public sealed class HudLayoutEngine
         JusticeStatusKind kind, float progress, int stars,
         Func<string, float, int, float> measure,
         bool hasCountdown = true, bool hasIdentity = true,
-        bool countdownUrgent = false)   // S21 v3: yard-escape prompt → amber
+        bool countdownUrgent = false,   // S21 v3: yard-escape prompt → amber
+        IReadOnlyList<(string Label, string Value)>? kpis = null)   // S22 v8
     {
         int feedRows = Math.Min(feed.Count, MaxFeedRows);
         // feed block: label pad + label + rows + bottom pad. The last row's text
@@ -76,7 +93,9 @@ public sealed class HudLayoutEngine
         // below the center (half line-height at 0.21 scale) — the v3 clip bug:
         // block was short by ~0.012, cutting the last feed line at the card edge.
         float feedBlockH = 0.006f + 0.008f + feedRows * 0.024f + 0.028f;
-        float cardH = HeaderH + DividerH + RowH * 2.5f + DividerH + feedBlockH;
+        // S22 v8: KPI tile row height (label + BAN numeral inside one tile)
+        float kpiH = kpis != null && kpis.Count > 0 ? 0.040f : 0f;
+        float cardH = HeaderH + DividerH + RowH * 2.5f + DividerH + kpiH + feedBlockH;
 
         float right = 1f - RightMargin;
         float x = right - CardW;
@@ -107,7 +126,26 @@ public sealed class HudLayoutEngine
             new TextSpan(Truncate(countdown, maxW, measure, 0.24f), textX, countdownY, 0.24f, countdownUrgent),
             countdownUrgent ? (255, 179, 64) : (170, 170, 170));   // amber = action prompt
 
-        float identityY = countdownY + RowH;
+        // ── S22 v8: KPI tiles (dashboard BANs — enclosed groups) ──
+        var kpiTiles = new List<KpiTile>();
+        float kpiY = countdownY + RowH * 0.5f + kpiH * 0.5f;   // tile CENTER: clears the countdown text
+        if (kpis != null && kpis.Count > 0)
+        {
+            float gap = 0.006f;
+            float tileW = (maxW - gap * (Math.Min(kpis.Count, MaxKpis) - 1)) / Math.Min(kpis.Count, MaxKpis);
+            for (int i = 0; i < Math.Min(kpis.Count, MaxKpis); i++)
+            {
+                float tx = textX + i * (tileW + gap);
+                var tile = new Rect(tx, kpiY - kpiH / 2f, tileW, kpiH);
+                var label = new TextSpan(Truncate(kpis[i].Label, tileW - 0.008f, measure, 0.15f),
+                    tx + 0.006f, kpiY - kpiH * 0.22f, 0.15f, false);
+                var value = new TextSpan(Truncate(kpis[i].Value, tileW - 0.008f, measure, 0.26f),
+                    tx + 0.006f, kpiY + kpiH * 0.16f, 0.26f, true);
+                kpiTiles.Add(new KpiTile(tile, label, value));
+            }
+        }
+
+        float identityY = countdownY + RowH + kpiH;
         var identityRow = new Row(
             new TextSpan(Truncate(identity, maxW, measure, 0.22f), textX, identityY, 0.22f, false),
             (130, 130, 130));
@@ -137,7 +175,7 @@ public sealed class HudLayoutEngine
         var fill = new Rect(x + 0.016f, barTop, maxW * Math.Max(0f, Math.Min(1f, progress)), 0.004f);
 
         return new Layout(card, shadow, header, divider1, divider2, track, fill,
-            headerTitle, headerStars, statusRow, countdownRow, identityRow,
+            headerTitle, headerStars, statusRow, countdownRow, kpiTiles, identityRow,
             feedLabel, feedRowsList, cardH);
     }
 

@@ -26,11 +26,13 @@ public class HudLayoutEngineTests
 
     private static HudLayoutEngine.Layout Compute(
         string status = "FREE", string countdown = "", string identity = "CLEAN IDENTITY",
-        List<HudFeedItem>? feed = null, JusticeStatusKind kind = JusticeStatusKind.Free, float progress = 0f, int stars = 3)
+        List<HudFeedItem>? feed = null, JusticeStatusKind kind = JusticeStatusKind.Free, float progress = 0f, int stars = 3,
+        (string Label, string Value)[]? kpis = null)   // S22 v8: dashboard tiles
         => HudLayoutEngine.Compute(status, countdown, identity,
             feed ?? Feed(), kind, progress, stars, Measure,
             hasCountdown: !string.IsNullOrEmpty(countdown),
-            hasIdentity: !string.IsNullOrEmpty(identity));
+            hasIdentity: !string.IsNullOrEmpty(identity),
+            kpis: kpis);
 
     // ── 1. Card geometry ──
 
@@ -214,5 +216,45 @@ public class HudLayoutEngineTests
         buffer.Push("   ");
         buffer.Push("");
         Assert.Empty(buffer.Items);
+    }
+
+    // ── S22 v8: dashboard KPI tiles (Big Book of Dashboards: BANs + enclosure) ──
+
+    [Fact]
+    public void Kpis_RenderAsEnclosedTiles_BetweenCountdownAndIdentity()
+    {
+        var layout = Compute(
+            countdown: "COURT IN 0:34", identity: "FACE ON FILE",
+            kpis: new[] { ("WANTED", "3★"), ("COURT", "0:34"), ("FACE", "ON FILE") });
+
+        Assert.Equal(3, layout.Kpis.Count);
+        foreach (var kpi in layout.Kpis)
+        {
+            Assert.True(kpi.Tile.W > 0.05f, "each KPI tile has a real width");
+            Assert.True(kpi.Tile.H > 0.02f, "each KPI tile has a real height");
+            Assert.True(kpi.Tile.Y > layout.Countdown.Text.Y, "tiles sit below the countdown row");
+            Assert.True(layout.Identity.Text.Y > kpi.Tile.Y + kpi.Tile.H, "identity sits below the tiles");
+            Assert.True(kpi.Tile.X >= layout.Card.X && kpi.Tile.X + kpi.Tile.W <= layout.Card.X + layout.Card.W,
+                "tiles stay inside the card");
+        }
+    }
+
+    [Fact]
+    public void Kpis_CappedAtThree()
+    {
+        var layout = Compute(kpis: new[] { ("A", "1"), ("B", "2"), ("C", "3"), ("D", "4") });
+        Assert.Equal(3, layout.Kpis.Count);
+    }
+
+    [Fact]
+    public void NoKpis_NoTileRow_NoExtraCardHeight()
+    {
+        var layout = Compute();
+        Assert.Empty(layout.Kpis);
+        // card height unchanged vs v3 (no kpiH contribution)
+        float expected = HudLayoutEngine.HeaderH + HudLayoutEngine.DividerH
+            + HudLayoutEngine.RowH * 2.5f + HudLayoutEngine.DividerH
+            + (0.006f + 0.008f + 0 * 0.024f + 0.028f);
+        Assert.Equal(expected, layout.CardHeight, 3);
     }
 }

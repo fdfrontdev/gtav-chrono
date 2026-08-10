@@ -749,6 +749,10 @@ public sealed class JusticeService
     public int ManhuntUntilDay => _manhuntUntilDay;
     public int ParoleDaysLeft => Math.Max(0, _paroleUntilDay - _clock.CurrentGameDay);   // S15
 
+    /// <summary>S22 v8: public-image KPIs for the dashboard tiles (via reputation).</summary>
+    public int Notoriety => _reputation?.Notoriety ?? 0;
+    public int Fame => _reputation?.Fame ?? 0;
+
     public void TryOpenEscapeChoice()
     {
         if (!_isYardPhase || _escapeChoiceOpen || _input == null) return;
