@@ -257,7 +257,7 @@ public class JusticeHudWidgetTests
 
         Assert.Equal(JusticeState.Captured, justice.State);
         Assert.True(justice.IsEscortRiding);
-        Assert.Equal("TRANSPORT — BOLINGBROKE (E TO SKIP)", renderer.Last!.CountdownLine);
+        Assert.Equal("TRANSPORT — BOLINGBROKE (G TO SKIP)", renderer.Last!.CountdownLine);
         Assert.DoesNotContain("COURT IN", renderer.Last.CountdownLine);
     }
 

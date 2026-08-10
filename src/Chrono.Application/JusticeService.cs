@@ -252,15 +252,18 @@ public sealed class JusticeService
 
         if (State == JusticeState.Captured && (_cutscene == null || !_cutscene.IsActive))
         {
-            // S22 v8 r2: the trial verdict waits for the escort ARRIVAL — the
-            // court scene plays at Bolingbroke, never in the back of a moving
-            // cruiser. BUT the clock must keep TICKING during the ride —
-            // a frozen "COURT 0:45" reads as a bug (user UAT r37 screenshot).
+            // S22 v8 r2: the trial clock keeps TICKING during the ride (UAT r37).
+            // The verdict waits for the escort — BUT the COURT DATE is the hard
+            // deadline (UAT r40: "court still stuck"): the moment the clock
+            // hits 0:00 the ride is force-completed and the ruling lands the
+            // same tick — never a dead 0:00 window.
             _trialElapsedMs += _trialClock.Elapsed.TotalMilliseconds;
             _trialClock.Restart();
             bool due = _trialElapsedMs >= _config.TrialDelaySeconds * 1000;
+            if (due && _escort != null && _escort.IsActive)
+                _escort.ForceComplete();   // court date arrived — the ride is over
             if (due && (_escort == null || !_escort.IsActive))
-                OnTrialVerdict();   // held until arrival; fires the tick after
+                OnTrialVerdict();   // fires the same tick the ride ends
         }
 
         TickEscortArrival();
@@ -950,6 +953,14 @@ public sealed class JusticeService
     public void PostBail()
     {
         if (State != JusticeState.Captured || _onBail) return;
+        if (_escort != null && _escort.IsActive)
+        {
+            // S22 v8 r2 (user UAT r40): you're cuffed in a moving cruiser —
+            // no bail from the back seat. The interact key during the ride is
+            // the SKIP key (also fixes the G = bail + skip double-fire).
+            _notifier.Show("You're cuffed in the transport — bail comes later");
+            return;
+        }
         if (_cutscene != null && _cutscene.IsActive)
         {
             _notifier.Show("The court is in session — it's too late for bail");

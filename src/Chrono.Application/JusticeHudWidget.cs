@@ -105,7 +105,7 @@ public sealed class JusticeHudWidget
             // of a stuck "COURT IN 0:45" (user UAT: "the court timer seems stuck").
             if (j.IsEscortRiding)
             {
-                countdown = "TRANSPORT — BOLINGBROKE (E TO SKIP)";
+                countdown = $"TRANSPORT — BOLINGBROKE ({_config.InteractKey} TO SKIP)";
                 progress = 1f;   // bar full = the ride is live; skip hint on the line
             }
             else
