@@ -19,6 +19,9 @@ public sealed class HudFeedBuffer
     /// <summary>All live items, oldest → newest.</summary>
     public IReadOnlyList<HudFeedItem> Items => _items.ToList();
 
+    /// <summary>S22: immutable snapshot for the renderer (same items as <see cref="Items"/>).</summary>
+    public IReadOnlyList<HudFeedItem> Snapshot() => _items.ToList();
+
     public void Push(string text, FeedKind kind = FeedKind.Message)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
