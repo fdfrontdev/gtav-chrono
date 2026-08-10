@@ -37,6 +37,15 @@ public sealed class JusticeConfig
     public double WarrantReportSeconds { get; set; } = 10;
     public double WarrantReportChance { get; set; } = 0.35;
 
+    /// <summary>
+    /// S22 v6 (user UAT: "someone recognizes me from far and calls police —
+    /// realistically they should be very near to confirm before calling"):
+    /// recognition requires being CLOSE enough to see and confirm the face.
+    /// 30m → 6m default: a warrant report only fires when a civilian is within
+    /// this range of the player.
+    /// </summary>
+    public float WarrantRecognitionRangeM { get; set; } = 6f;
+
     /// <summary>Unpaid fine converts to prison days (S12 — debtor's prison):
     /// $<see cref="FineToPrisonRate"/> short = 1 day served.</summary>
     public int FineToPrisonRate { get; set; } = 1000;

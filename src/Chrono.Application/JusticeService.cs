@@ -273,15 +273,17 @@ public sealed class JusticeService
         _log.Info($"Chase escaped in {district} — media frenzy");
     }
 
-    /// <summary>Warrant enforcement (S9): burned + visible + near civilians → they
-    /// call the police. Stars rise WITHOUT recording a new crime (the warrant IS
-    /// the crime). Fame lowers the chance; notoriety raises it.</summary>
+    /// <summary>Warrant enforcement (S9): burned + visible + civilians CLOSE ENOUGH
+    /// TO CONFIRM THE FACE → they call the police. Stars rise WITHOUT recording a
+    /// new crime (the warrant IS the crime). Fame lowers the chance; notoriety
+    /// raises it. S22 v6: recognition requires proximity — a civilian 30m away
+    /// can't confirm your face, so reports only fire within the configured range.</summary>
     private void UpdateWarrantReports()
     {
         if (!_config.WarrantReportEnabled) return;
         if (State != JusticeState.Free || !_warrant.IsActive || !_identity.IsBurned) return;
         if (!_player.IsVisible || _player.IsDead) return;             // unseen = unreported
-        if (_probe == null || _probe.CountNearbyCivilians(_player.Position, 30f) == 0) return;
+        if (_probe == null || _probe.CountNearbyCivilians(_player.Position, _config.WarrantRecognitionRangeM) == 0) return;
         if (_reportClock.ElapsedMilliseconds < _config.WarrantReportSeconds * 1000) return;
         _reportClock.Restart();
 
