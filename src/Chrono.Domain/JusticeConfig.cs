@@ -81,6 +81,10 @@ public sealed class JusticeConfig
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
     public bool AmbientFeedEnabled { get; set; } = true;   // S22 v8 r3: city chatter stream
     public int AmbientFeedIntervalMs { get; set; } = 60000;   // one ambient line per game day, ~60s
+    /// <summary>S22 v8 r2 (user UAT r39: "court reached 0:00, nothing happened") —
+    /// the escort ride force-completes after this long (broken driver AI, stuck
+    /// cruiser) so the verdict can never be held forever.</summary>
+    public int EscortTimeoutSeconds { get; set; } = 120;
 
     // --- S20 — act-based crime detection (ADR-04 D1) ---
 

@@ -37,12 +37,13 @@ public class EscortRideTests
         public void End() { IsRiding = false; EndCalls++; }
     }
 
-    private static (EscortService service, FakeEscortBoundary boundary, FakePlayer player, FakeNotifier notifier) Build()
+    private static (EscortService service, FakeEscortBoundary boundary, FakePlayer player, FakeNotifier notifier) Build(int timeoutSeconds = 120)
     {
         var boundary = new FakeEscortBoundary();
         var player = new FakePlayer { IsVisible = true };
         var notifier = new FakeNotifier();
-        var service = new EscortService(boundary, player, new FakeInput(), notifier, new FakeLog());
+        var service = new EscortService(boundary, player, new FakeInput(), notifier, new FakeLog(),
+            new JusticeConfig { EscortTimeoutSeconds = timeoutSeconds });
         return (service, boundary, player, notifier);
     }
 
@@ -114,6 +115,44 @@ public class EscortRideTests
         Assert.Equal(1, boundary.EndCalls);
     }
 
+    // S22 v8 r2 (user UAT r39: "court reached 0:00, nothing happened"): the
+    // ride TIMES OUT when the driver never moves — the verdict can never be
+    // held forever.
+
+    [Fact]
+    public void StuckRide_TimesOut_AndCompletes()
+    {
+        var (service, boundary, _, notifier) = Build(timeoutSeconds: 1);
+        service.Begin(EscortService.BolingbrokeGate);
+        boundary.ArriveNextTick = false;      // the cruiser never arrives
+
+        System.Threading.Thread.Sleep(1100);  // past the 1s timeout
+        service.Tick();
+
+        Assert.False(service.IsActive);
+        Assert.Equal(1, boundary.EndCalls);
+        Assert.Contains(notifier.Messages, m => m.Contains("ARRIVED"));
+    }
+
+    [Fact]
+    public void Timeout_ThenVerdictFires_InJusticePipeline()
+    {
+        var (service, wanted, player, _, store, probe, crimeProbe, boundary) =
+            BuildJustice(withEscort: true, timeoutSeconds: 1);
+        wanted.CurrentStars = 4;
+        service.Tick();
+        crimeProbe.NearestPoliceDistance = 2f;
+        service.Tick();                  // captured → escort begins
+
+        Assert.True(service.IsEscortRiding);
+        service.AdvanceTrialTime(120.0); // court is DUE
+        System.Threading.Thread.Sleep(1100);
+        service.Tick();                  // timeout → ride ends
+        service.Tick();                  // verdict fires
+
+        Assert.Equal(JusticeState.Prison, service.State);
+    }
+
     // ── justice integration: capture starts the ride; verdict waits for arrival ──
 
     [Fact]
@@ -159,7 +198,7 @@ public class EscortRideTests
     }
 
     private static (JusticeService, FakeWantedMonitor, FakePlayer, FakeNotifier, FakeRecordStore,
-        FakeProbe, FakeCrimeProbe, FakeEscortBoundary) BuildJustice(bool withEscort)
+        FakeProbe, FakeCrimeProbe, FakeEscortBoundary) BuildJustice(bool withEscort, int timeoutSeconds = 120)
     {
         var wanted = new FakeWantedMonitor();
         var player = new FakePlayer { IsVisible = true };
@@ -170,13 +209,14 @@ public class EscortRideTests
         var boundary = new FakeEscortBoundary();
         EscortService? escort = null;
         if (withEscort)
-            escort = new EscortService(boundary, player, new FakeInput(), notifier, new FakeLog());
+            escort = new EscortService(boundary, player, new FakeInput(), notifier, new FakeLog(),
+                new JusticeConfig { EscortTimeoutSeconds = timeoutSeconds });
         var service = new JusticeService(
             wanted, player, store,
             new IdentityService(store, new FakeLog()),
             new WarrantService(store, new FakeLog()),
             notifier, new FakeLog(),
-            new JusticeConfig { WarrantReportSeconds = 0, PrisonDayRealSeconds = 30 }, new FakeClock(),
+            new JusticeConfig { WarrantReportSeconds = 0, PrisonDayRealSeconds = 30, EscortTimeoutSeconds = timeoutSeconds }, new FakeClock(),
             cutscene: null, probe: probe, random: () => 0.0, crimeProbe: crimeProbe,
             escort: escort);
         return (service, wanted, player, notifier, store, probe, crimeProbe, boundary);

@@ -85,7 +85,8 @@
         "PauseDuringMissions": true,
         "WarrantRecognitionRangeM": 6.0,
         "AmbientFeedEnabled": true,
-        "AmbientFeedIntervalMs": 60000
+        "AmbientFeedIntervalMs": 60000,
+        "EscortTimeoutSeconds": 120
     },
     "ModEnabled": true,
     "PowersEnabled": true,
