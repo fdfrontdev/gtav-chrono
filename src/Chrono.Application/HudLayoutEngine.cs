@@ -43,7 +43,7 @@ public sealed class HudLayoutEngine
     public const float HeaderH = 0.034f;
     public const float RowH = 0.030f;
     public const float DividerH = 0.002f;
-    public const int MaxFeedRows = 3;            // bigger type → fewer rows
+    public const int MaxFeedRows = 4;            // S22 v8 r3: more room — duplicates killed, ambient added
     public const int MaxKpis = 3;                // S22 v8: dashboard KPI tiles
 
     public readonly record struct Rect(float X, float Y, float W, float H);
@@ -92,7 +92,9 @@ public sealed class HudLayoutEngine
         // CENTER sits at labelY+0.008+feedRows*0.024; its glyphs extend ~0.011
         // below the center (half line-height at 0.21 scale) — the v3 clip bug:
         // block was short by ~0.012, cutting the last feed line at the card edge.
-        float feedBlockH = 0.006f + 0.008f + feedRows * 0.024f + 0.028f;
+        // S22 v8 r3: bottom pad raised 0.028 → 0.034 — the 4-row layout was
+        // skimming the card edge (DOM check: last row flush against the bottom).
+        float feedBlockH = 0.006f + 0.008f + feedRows * 0.024f + 0.034f;
         // S22 v8: KPI tile row height (label + BAN numeral inside one tile)
         float kpiH = kpis != null && kpis.Count > 0 ? 0.040f : 0f;
         float cardH = HeaderH + DividerH + RowH * 2.5f + DividerH + kpiH + feedBlockH;
@@ -160,8 +162,11 @@ public sealed class HudLayoutEngine
         for (int i = 0; i < feedRows; i++)
         {
             var item = feed[i];
-            string label = item.Kind == FeedKind.Webnet ? "W " + item.Text
-                : item.Kind == FeedKind.Viral ? "V " + item.Text : item.Text;
+            // S22 v8 r3 (user: "feed seems too quiet"): the When timestamp was
+            // stored but never shown — recency is what makes a feed feel LIVE.
+            string stamp = item.When.Length >= 5 ? item.When.Substring(0, 5) : item.When;
+            string label = $"{stamp}  " + (item.Kind == FeedKind.Webnet ? "W " + item.Text
+                : item.Kind == FeedKind.Viral ? "V " + item.Text : item.Text);
             var color = item.Kind == FeedKind.Webnet ? (100, 181, 246)
                 : item.Kind == FeedKind.Viral ? (239, 83, 80) : (150, 150, 150);
             feedRowsList.Add(new Row(

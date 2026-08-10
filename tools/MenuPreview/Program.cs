@@ -273,12 +273,15 @@ public static class Program
             Status: "FREE", Countdown: "", Identity: "CLEAN IDENTITY",
             Feed: new[] {
                 new HudFeedItem("A civilian recognized you — police dispatched (1★)", FeedKind.Message, "12:01:22"),
+                new HudFeedItem("Police blotter: VINEWOOD — noise complaint, no arrests", FeedKind.Message, "12:03:05"),
+                new HudFeedItem("WEBNET: traffic slow on the DEL PERRO freeway — expect delays", FeedKind.Webnet, "12:04:40"),
             }, JusticeStatusKind.Free, 0f,
             Kpis: new[] { ("WANTED", "—"), ("NOTORIETY", "12"), ("FAME", "340") })));
         screens.Add(("WIDGET: WANTED", new WidgetPreview(
             Status: "WANTED 3*", Countdown: "", Identity: "WARRANT ACTIVE — FACE ON FILE",
             Feed: new[] {
                 new HudFeedItem("A civilian recognized you — police dispatched (3★)", FeedKind.Message, "12:05:10"),
+                new HudFeedItem("Police blotter: DAVIS — parking dispute resolved", FeedKind.Message, "12:05:30"),
                 new HudFeedItem("POLICE LOSE SUPER-POWERED SUSPECT in Vinewood — chase footage goes viral", FeedKind.Viral, "12:05:44"),
             }, JusticeStatusKind.Wanted, 0f,
             Kpis: new[] { ("WANTED", "3★"), ("NOTORIETY", "990"), ("WARRANT", "ACTIVE") })));

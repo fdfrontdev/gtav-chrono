@@ -95,7 +95,7 @@ public class EscortRideTests
             .GetField("_input", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .GetValue(service)!;
         input.InteractHotkey = true;
-        input.Update();                  // edge detection: InteractHotkey → IsInteractK***
+        input.Update();                  // edge detection: InteractHotkey → IsInteractKeyJustPressed
 
         service.Tick();   // skip → boundary.Skip → next tick sees IsRiding false → ends
 

@@ -79,6 +79,8 @@ public sealed class JusticeConfig
     public double ComplianceSeconds { get; set; } = 3;
     public bool NewsEnabled { get; set; } = true;          // FR-4.1
     public bool ViralEnabled { get; set; } = true;         // FR-4.2
+    public bool AmbientFeedEnabled { get; set; } = true;   // S22 v8 r3: city chatter stream
+    public int AmbientFeedIntervalMs { get; set; } = 60000;   // one ambient line per game day, ~60s
 
     // --- S20 — act-based crime detection (ADR-04 D1) ---
 

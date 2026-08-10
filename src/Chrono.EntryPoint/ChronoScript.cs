@@ -26,6 +26,7 @@ public class ChronoScript : Script
     private CrimeProbe? _crimeProbe;                  // S20: concrete — Poll() runs from OnTick
     private JusticeHudWidget? _hud;                   // S21: persistent HUD widget
     private EscortService? _escort;                    // S22 v8: police escort ride
+    private AmbientFeedService? _ambient;              // S22 v8 r3: city chatter stream
     private bool _wasMissionActive;                    // S22: mission edge for cutscene abort
     private ChronoConfig? _config;                     // S22: mission gate reads PauseDuringMissions
     private readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -92,7 +93,7 @@ public class ChronoScript : Script
                         }
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
-            var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice, hudFeed,
+            var media = new MediaService(new MediaNotifier(_log), _log, config.Justice, hudFeed,
                 characterName: player.GetCharacterName);   // S21 v3: real names in headlines
             var reputation = new ReputationService(recordStore, clock, media, config.Justice,
                 characterName: player.GetCharacterName);   // S21 v3
@@ -113,6 +114,9 @@ public class ChronoScript : Script
             _crimeDetection = new CrimeDetectionService(
                 crimeProbe, probe, player, _justice, _log, config.Justice);
             _hud = new JusticeHudWidget(_justice, hudRenderer, config.Justice, hudFeed);   // S21 v2: live feed
+            // S22 v8 r3 (user: "feed seems too quiet"): ambient city chatter —
+            // police blotter + WEBNET color when the world is calm.
+            _ambient = new AmbientFeedService(hudFeed, config.Justice, clock, _log);
             _clinic = new ClinicService(
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(
@@ -193,6 +197,10 @@ public class ChronoScript : Script
                 _cutscene?.Tick(_clock.ElapsedMilliseconds);
             }
             _hud?.Tick();                        // S21: persistent justice widget (shows standby)
+            // S22 v8 r3: ambient chatter only when the world is calm — free +
+            // not mid-mission + justice on (a chase/custody silences the city).
+            _ambient?.Tick(justiceOn && !storyTime
+                && _justice != null && _justice.State == JusticeState.Free);
             _clinic?.Tick();
             _crowd?.Tick(_clock.ElapsedMilliseconds);
         }

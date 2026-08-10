@@ -221,6 +221,25 @@ public class JusticeHudWidgetTests
         Assert.Contains(renderer.Last.Kpis, k => k.Label == "DAY");
     }
 
+    // S22 v8 r3 (user: "feed seems too quiet"): priority tiers — viral and
+    // WEBNET float to the TOP of the rendered feed, message lines sink.
+
+    [Fact]
+    public void Widget_FeedPriority_ViralAndWebnetFirst()
+    {
+        var (widget, renderer, _, _, _, _) = Build();
+        // Push order: message first, then webnet, then viral (oldest→newest)
+        widget.Feed.Push("Police blotter: VINEWOOD — noise complaint");
+        widget.Feed.Push("WEBNET: traffic slow on the DEL PERRO freeway", FeedKind.Webnet);
+        widget.Feed.Push("MANHUNT: fugitive escaped", FeedKind.Viral);
+        widget.Tick();
+
+        var feed = renderer.Last!.Feed!;
+        Assert.Equal(FeedKind.Viral, feed[0].Kind);     // viral on TOP
+        Assert.Equal(FeedKind.Webnet, feed[1].Kind);    // webnet second
+        Assert.Equal(FeedKind.Message, feed[2].Kind);   // message sinks
+    }
+
     // S22 v8 (user UAT: "the court timer seems stuck"): during the police
     // escort ride the countdown shows TRANSPORT, not a frozen COURT clock.
 

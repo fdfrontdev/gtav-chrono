@@ -171,13 +171,13 @@ public class HudLayoutEngineTests
             ("second", FeedKind.Message),
             ("third", FeedKind.Webnet),
             ("fourth", FeedKind.Viral),
-            ("fifth", FeedKind.Message));   // 5 items > MaxFeedRows 3
+            ("fifth", FeedKind.Message));   // 5 items > MaxFeedRows 4 (S22 v8 r3)
 
         var layout = Compute(feed: feed);
 
         Assert.Equal(HudLayoutEngine.MaxFeedRows, layout.FeedRows.Count);
-        Assert.Contains(layout.FeedRows, r => r.Text.Text == "first");
-        Assert.DoesNotContain(layout.FeedRows, r => r.Text.Text == "fifth");
+        Assert.Contains(layout.FeedRows, r => r.Text.Text.EndsWith("first"));
+        Assert.DoesNotContain(layout.FeedRows, r => r.Text.Text.EndsWith("fifth"));
     }
 
     [Fact]
@@ -185,7 +185,8 @@ public class HudLayoutEngineTests
     {
         var layout = Compute(feed: Feed(("BREAKING: suspect caught", FeedKind.Webnet)));
 
-        Assert.StartsWith("W ", layout.FeedRows[0].Text.Text);
+        // S22 v8 r3: rows now carry the HH:MM timestamp prefix before the W/
+        Assert.StartsWith("12:00  W ", layout.FeedRows[0].Text.Text);
         Assert.Equal((100, 181, 246), layout.FeedRows[0].Color);
     }
 
@@ -246,6 +247,24 @@ public class HudLayoutEngineTests
         Assert.Equal(3, layout.Kpis.Count);
     }
 
+    // S22 v8 r3: feed timestamps + 4 rows (user: "feed seems too quiet")
+
+    [Fact]
+    public void FeedRows_ShowTimestampPrefix()
+    {
+        var layout = Compute(feed: Feed(("Police blotter: VINEWOOD — noise complaint", FeedKind.Message)));
+        Assert.Contains(layout.FeedRows, r => r.Text.Text.StartsWith("12:00"));
+    }
+
+    [Fact]
+    public void FeedRows_MaxFour()
+    {
+        var layout = Compute(feed: Feed(
+            ("1", FeedKind.Message), ("2", FeedKind.Message),
+            ("3", FeedKind.Message), ("4", FeedKind.Message), ("5", FeedKind.Message)));
+        Assert.Equal(4, layout.FeedRows.Count);
+    }
+
     [Fact]
     public void NoKpis_NoTileRow_NoExtraCardHeight()
     {
@@ -254,7 +273,7 @@ public class HudLayoutEngineTests
         // card height unchanged vs v3 (no kpiH contribution)
         float expected = HudLayoutEngine.HeaderH + HudLayoutEngine.DividerH
             + HudLayoutEngine.RowH * 2.5f + HudLayoutEngine.DividerH
-            + (0.006f + 0.008f + 0 * 0.024f + 0.028f);
+            + (0.006f + 0.008f + 0 * 0.024f + 0.034f);
         Assert.Equal(expected, layout.CardHeight, 3);
     }
 }
