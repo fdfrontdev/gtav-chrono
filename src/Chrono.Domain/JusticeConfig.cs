@@ -6,6 +6,14 @@ public sealed class JusticeConfig
     /// <summary>Record crimes from wanted-level increases (FR-1.2 proxy).</summary>
     public bool RecordFromWanted { get; set; } = true;
 
+    /// <summary>
+    /// S22 (user UAT: "this mod makes a mess on main story events"): when a
+    /// scripted mission is active, the justice pipeline FREEZES — no crime
+    /// recording, no star-driving, no arrests/cutscenes/prison. The cheat menu
+    /// and superpowers keep working. Story missions own the wanted level.
+    /// </summary>
+    public bool PauseDuringMissions { get; set; } = true;
+
     public int ClinicBaseCost { get; set; } = 5000;        // FR-5.4
     public int PerEventCost { get; set; } = 1000;          // FR-5.4 (scales with record)
     public int SurgeryCooldownDays { get; set; } = 1;      // FR-5.5

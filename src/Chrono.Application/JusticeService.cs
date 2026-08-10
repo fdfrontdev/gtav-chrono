@@ -170,6 +170,8 @@ public sealed class JusticeService
     /// <summary>Per-tick: star edges → crimes; capture/trial/prison flow.</summary>
     public void Tick()
     {
+        if (MissionStandby) return;   // S22: missions own the wanted level — stand down
+
         if (_input != null && _input.IsInteractKeyJustPressed)
         {
             if (State == JusticeState.Prison)
@@ -720,6 +722,15 @@ public sealed class JusticeService
     /// <summary>Testable seam — true when the escape-plan window is open.</summary>
     public bool IsEscapeChoiceOpen => _escapeChoiceOpen;
     public bool IsOnBail => _onBail;                        // S15
+    /// <summary>
+    /// S22 (user UAT: "this mod makes a mess on main story events"): set true
+    /// while a scripted mission is active. The justice pipeline FREEZES — no
+    /// star-driving, no crime recording, no capture/arrest/cutscene, no prison
+    /// ticking. The menu + superpowers keep working. The entry point sets this
+    /// from <c>Game.IsMissionActive</c> each tick (config: PauseDuringMissions).
+    /// </summary>
+    public bool MissionStandby { get; set; }
+
     /// <summary>S21 v3: yard time is open — the escape prompt (G) is live (widget hint).</summary>
     public bool IsYardPhase => _isYardPhase;
     /// <summary>S21 v3 (prison-break vibe): manhunt active after an escape — the

@@ -80,5 +80,8 @@
   },
   "logging": {
     "level": "info"
+  },
+  "Justice": {
+    "PauseDuringMissions": true
   }
 }

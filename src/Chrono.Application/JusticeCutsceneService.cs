@@ -131,6 +131,22 @@ public sealed class JusticeCutsceneService
         }
     }
 
+    /// <summary>
+    /// S22 (user UAT: "mod makes a mess on main story events"): force-end an
+    /// active cutscene when a story mission takes over — restore the camera and
+    /// player control WITHOUT running the completion callback (the mission owns
+    /// the flow now). No-op when nothing is playing.
+    /// </summary>
+    public void Abort()
+    {
+        if (_kind == CutsceneKind.None) return;
+        _log.Info($"Cutscene {_kind} aborted — mission takeover");
+        _kind = CutsceneKind.None;
+        _onComplete = null;
+        _renderer.End();
+        _player.ClearCurrentAnimation();   // never leave the cuffed idle locking movement
+    }
+
     private void End()
     {
         CutsceneKind finished = _kind;

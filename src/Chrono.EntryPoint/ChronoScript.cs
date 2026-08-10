@@ -25,6 +25,8 @@ public class ChronoScript : Script
     private CrimeDetectionService? _crimeDetection;   // S20: act-based crime detection
     private CrimeProbe? _crimeProbe;                  // S20: concrete — Poll() runs from OnTick
     private JusticeHudWidget? _hud;                   // S21: persistent HUD widget
+    private bool _wasMissionActive;                    // S22: mission edge for cutscene abort
+    private ChronoConfig? _config;                     // S22: mission gate reads PauseDuringMissions
     private readonly Stopwatch _clock = Stopwatch.StartNew();
 
     public ChronoScript()
@@ -41,6 +43,7 @@ public class ChronoScript : Script
             var store = new JsonConfigStore(configPath);
             var validation = ConfigValidator.Validate(store.Load());
             var config = validation.Config;
+            _config = config;   // S22: OnTick reads the mission gate
 
             _log = new ChronoLogger(logPath, config.Logging.Level);
             foreach (var warning in validation.Warnings) _log.Warn($"Config: {warning}");
@@ -134,10 +137,27 @@ public class ChronoScript : Script
         {
             _menu?.Tick(_clock.ElapsedMilliseconds);
             _crimeProbe?.Poll();                 // S20: 200ms world snapshots
-            _crimeDetection?.Tick(_clock.ElapsedMilliseconds);
-            _justice?.Tick();
-            _hud?.Tick();                        // S21: persistent justice widget
-            _cutscene?.Tick(_clock.ElapsedMilliseconds);
+
+            // S22 (user UAT: "this mod makes a mess on main story events"):
+            // during scripted missions the justice pipeline FREEZES — story
+            // missions own the wanted level. The menu + superpowers keep
+            // working; the widget announces the standby.
+            bool mission = _config?.Justice.PauseDuringMissions == true && Game.IsMissionActive;
+            if (mission && !_wasMissionActive)
+            {
+                _cutscene?.Abort();              // mission takeover — drop our camera/anim
+                _log?.Info("Mission active — justice on standby");
+            }
+            _wasMissionActive = mission;
+            if (_justice != null) _justice.MissionStandby = mission;
+
+            if (!mission)
+            {
+                _crimeDetection?.Tick(_clock.ElapsedMilliseconds);
+                _justice?.Tick();
+                _cutscene?.Tick(_clock.ElapsedMilliseconds);
+            }
+            _hud?.Tick();                        // S21: persistent justice widget (shows standby)
             _clinic?.Tick();
             _crowd?.Tick(_clock.ElapsedMilliseconds);
         }

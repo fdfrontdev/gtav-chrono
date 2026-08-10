@@ -39,6 +39,24 @@ public sealed class JusticeHudWidget
         var j = _justice;
         var state = j.State;
 
+        // S22 (user UAT: "mod makes a mess on main story events"): during a
+        // scripted mission the widget says so — the pipeline is frozen.
+        if (j.MissionStandby)
+        {
+            _renderer.DrawJusticeHud(new JusticeHudState(
+                Visible: Enabled,
+                Stars: 0,
+                StatusLine: "MISSION — JUSTICE ON STANDBY",
+                CountdownLine: "STORY MODE: THE LAW WAITS",
+                SecondLine: "",
+                CourtCountdown: false,
+                PrisonCountdown: false,
+                Kind: JusticeStatusKind.Free,
+                Progress: 0f,
+                Feed: _feed.Snapshot()));
+            return;
+        }
+
         int stars = j.CurrentStars;
         string status;
         switch (state)
