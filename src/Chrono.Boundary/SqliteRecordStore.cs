@@ -44,6 +44,50 @@ public sealed class SqliteRecordStore : IRecordStore
         MigrateFromJson();
     }
 
+    // ── S22 v5: new-game isolation (user UAT) ──
+
+    /// <summary>True when the record holds any events or convictions.</summary>
+    public bool HasRecord()
+    {
+        using var conn = Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM events UNION ALL SELECT COUNT(*) FROM convictions";
+        long total = 0;
+        using (var r = cmd.ExecuteReader())
+            while (r.Read()) total += r.GetInt64(0);
+        return total > 0;
+    }
+
+    /// <summary>
+    /// S22 v5: a brand-new GTA game must NOT inherit the previous playthrough's
+    /// record. Archives the whole DB file to chrono.archive-&lt;ts&gt;.db, then
+    /// clears events/convictions/profile/status back to a fresh state.
+    /// </summary>
+    public void ArchiveAndReset()
+    {
+        try
+        {
+            string stamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+            string archive = Path.Combine(_baseDir, $"chrono.archive-{stamp}.db");
+            File.Copy(_dbPath, archive, overwrite: true);
+            _log.Info($"Record archived to {archive}");
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Record archive failed (continuing with reset): {ex.Message}");
+        }
+
+        using var conn = Open();
+        using var tx = conn.BeginTransaction();
+        Exec(conn, tx, "DELETE FROM conviction_events;");
+        Exec(conn, tx, "DELETE FROM convictions;");
+        Exec(conn, tx, "DELETE FROM events;");
+        Exec(conn, tx, "DELETE FROM profile;");
+        Exec(conn, tx, "DELETE FROM status;");
+        tx.Commit();
+        _log.Info("Record reset — fresh criminal history");
+    }
+
     // ── schema ──
 
     private void EnsureSchema()

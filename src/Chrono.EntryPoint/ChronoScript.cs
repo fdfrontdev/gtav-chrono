@@ -75,6 +75,20 @@ public class ChronoScript : Script
                         // S22: relational storage — SQLite (idempotency + integrity). The
                         // legacy JSON files are migrated to chrono.db on first boot.
                         var recordStore = new SqliteRecordStore(BaseDirectory, _log);
+
+                        // S22 v5 (user UAT: "this is a NEW game, why City Menace /
+                        // burned / warrant active?"): the record is per-INSTALL, not
+                        // per-SAVE — a fresh story must not inherit the previous
+                        // playthrough's criminal history. Detect via SPM_MIS (missions
+                        // passed): a fresh story reads ≤5, an old save reads 20+.
+                        // The old record is ARCHIVED (chrono.archive-*.db), never lost.
+                        int missions = new StoryProbe().GetMissionsPassed();
+                        if (missions >= 0 && missions <= 5 && recordStore.HasRecord())
+                        {
+                            recordStore.ArchiveAndReset();
+                            notifier.Show("NEW GAME — criminal record reset (old one archived)");
+                            _log.Info($"New game detected (SPM_MIS={missions}) — record archived + reset");
+                        }
             var identity = new IdentityService(recordStore, _log);
             var warrant = new WarrantService(recordStore, _log);
             var media = new MediaService(new MediaNotifier(notifier), _log, config.Justice, hudFeed,
