@@ -252,15 +252,15 @@ public sealed class JusticeService
 
         if (State == JusticeState.Captured && (_cutscene == null || !_cutscene.IsActive))
         {
-            // S22 v8: the trial verdict waits for the escort ARRIVAL — the court
-            // scene plays at Bolingbroke, never in the back of a moving cruiser.
-            if (_escort == null || !_escort.IsActive)
-            {
-                _trialElapsedMs += _trialClock.Elapsed.TotalMilliseconds;
-                _trialClock.Restart();
-                if (_trialElapsedMs >= _config.TrialDelaySeconds * 1000)
-                    OnTrialVerdict();
-            }
+            // S22 v8 r2: the trial verdict waits for the escort ARRIVAL — the
+            // court scene plays at Bolingbroke, never in the back of a moving
+            // cruiser. BUT the clock must keep TICKING during the ride —
+            // a frozen "COURT 0:45" reads as a bug (user UAT r37 screenshot).
+            _trialElapsedMs += _trialClock.Elapsed.TotalMilliseconds;
+            _trialClock.Restart();
+            bool due = _trialElapsedMs >= _config.TrialDelaySeconds * 1000;
+            if (due && (_escort == null || !_escort.IsActive))
+                OnTrialVerdict();   // held until arrival; fires the tick after
         }
 
         TickEscortArrival();

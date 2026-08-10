@@ -128,10 +128,14 @@ public class EscortRideTests
         Assert.Equal(JusticeState.Captured, service.State);
         Assert.True(boundary.BeginCalls >= 1, "capture must start the escort ride");
 
-        // trial time passes DURING the ride — verdict must NOT fire yet
+        // trial time passes DURING the ride — the CLOCK keeps ticking (UAT r37:
+        // "the court timer didn't count down" — frozen 0:45 reads as a bug),
+        // but the verdict must NOT fire yet (court scene plays at Bolingbroke).
+        double before = service.TrialSecondsLeft;
         service.AdvanceTrialTime(120.0);
         service.Tick();
         Assert.Equal(JusticeState.Captured, service.State);
+        Assert.True(service.TrialSecondsLeft < before, "court clock must count DOWN during the ride");
 
         // arrival → ride ends → verdict fires on the next tick
         boundary.ArriveNextTick = true;
