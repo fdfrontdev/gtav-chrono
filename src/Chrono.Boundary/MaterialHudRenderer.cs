@@ -123,6 +123,61 @@ public sealed class MaterialHudRenderer : IHudRenderer
 
     private static void Text(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold = false, int font = 0)
     {
+        // S23 (user UAT 2026-08-13: "the star symbol shows as a rectangle"):
+        // the ★ glyph (U+2605) is NOT in GTA's font 0 — it renders as a box.
+        // Draw real wanted-star sprites instead (the game's own HUD dict).
+        if (text.IndexOf('★') >= 0)
+        {
+            DrawTextWithStars(text, x, y, scale, r, g, b, a, bold, font);
+            return;
+        }
+
+        DrawTextCore(text, x, y, scale, r, g, b, a, bold, font);
+    }
+
+    /// <summary>S23: draw text segment-by-segment, replacing every ★ with a
+    /// wanted-star sprite (the text cursor advances by measured width; the
+    /// sprite by its own width). Falls back to "*" if the dict never loads.</summary>
+    private static void DrawTextWithStars(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold, int font)
+    {
+        bool sprite = WantedStarSpriteAvailable();
+        float cursor = x;
+        string seg = "";
+        foreach (char ch in text)
+        {
+            if (ch == '★')
+            {
+                if (seg.Length > 0)
+                {
+                    DrawTextCore(seg, cursor, y, scale, r, g, b, a, bold, font);
+                    cursor += Measure(seg, scale, font);
+                    seg = "";
+                }
+
+                if (sprite)
+                {
+                    // Text box height ≈ scale × 0.08 → a square star at the same
+                    // height sits visually centered on the text line (y = text TOP).
+                    float starH = scale * 0.085f;
+                    float starW = starH * 0.95f;
+                    Function.Call(Hash.DRAW_SPRITE, "wantedstars", "wanted_star_1",
+                        cursor + starW / 2f, y + starH / 2f, starW, starH, 0f, r, g, b, a);
+                    cursor += starW + scale * 0.006f;
+                }
+                else
+                {
+                    DrawTextCore("*", cursor, y, scale, r, g, b, a, bold, font);
+                    cursor += Measure("*", scale, font);
+                }
+            }
+            else seg += ch;
+        }
+        if (seg.Length > 0)
+            DrawTextCore(seg, cursor, y, scale, r, g, b, a, bold, font);
+    }
+
+    private static void DrawTextCore(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold = false, int font = 0)
+    {
         Function.Call(Hash.SET_TEXT_FONT, font);
         Function.Call(Hash.SET_TEXT_SCALE, scale, scale);
         Function.Call(Hash.SET_TEXT_COLOUR, r, g, b, a);
@@ -131,5 +186,21 @@ public sealed class MaterialHudRenderer : IHudRenderer
         Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_TEXT, "STRING");
         Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, text);
         Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_TEXT, x, y);
+    }
+
+    // ── S23: wanted-star texture (game HUD dict "wantedstars") ──
+    private static bool _starDictRequested;
+    private static bool _starDictLoaded;
+
+    private static bool WantedStarSpriteAvailable()
+    {
+        if (!_starDictRequested)
+        {
+            Function.Call(Hash.REQUEST_STREAMED_TEXTURE_DICT, "wantedstars", true);
+            _starDictRequested = true;
+        }
+        if (!_starDictLoaded)
+            _starDictLoaded = Function.Call<bool>(Hash.HAS_STREAMED_TEXTURE_DICT_LOADED, "wantedstars");
+        return _starDictLoaded;
     }
 }

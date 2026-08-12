@@ -16,6 +16,13 @@ public interface IEscortBoundary
     /// task the AI driver to the destination. Idempotent.</summary>
     void Begin(Vector3 playerPosition, Vector3 destination);
 
+    /// <summary>
+    /// S23 — per-tick watchdog: re-seat/re-task the driver if the AI bailed
+    /// (user UAT: \"the officer got out of the car\") and reassert the custody
+    /// suppression (police ignore / wanted 0) for the ride's duration.
+    /// </summary>
+    void Tick();
+
     /// <summary>True when the cruiser reached the destination (arrival radius).</summary>
     bool HasArrived(Vector3 destination, float arrivalRadiusM = 20f);
 

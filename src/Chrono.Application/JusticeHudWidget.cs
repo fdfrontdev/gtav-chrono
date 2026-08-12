@@ -91,7 +91,7 @@ public sealed class JusticeHudWidget
         {
             case JusticeState.Captured: status = "IN CUSTODY — COURT AWAITS"; break;
             case JusticeState.Prison:   status = $"PRISON — DAY {j.ServedDays + 1}/{j.SentenceDays}"; break;
-            case JusticeState.Wanted:   status = stars > 0 ? $"WANTED {stars}*" : "WANTED"; break;
+            case JusticeState.Wanted:   status = stars > 0 ? $"WANTED {stars}★" : "WANTED"; break;
             default:                    status = "FREE"; break;
         }
 
@@ -157,7 +157,7 @@ public sealed class JusticeHudWidget
         // with the heat countdown on the countdown line.
         if (j.IsManhunt)
         {
-            status = $"MANHUNT — PRISON BREAK {stars}*";
+            status = $"MANHUNT — PRISON BREAK {stars}★";
             countdown = $"HEAT UNTIL DAY {j.ManhuntUntilDay}";
             progress = 1f;
             prison = true;   // reuse the countdown bar + urgent color for the heat timer
@@ -176,7 +176,10 @@ public sealed class JusticeHudWidget
         // third metric. Big numerals in enclosed tiles (Big Book of Dashboards).
         var kpis = new List<(string Label, string Value)>
         {
-            ("WANTED", stars > 0 ? $"{stars}★" : "—"),
+            // S23 (user UAT 2026-08-13): in custody/prison the street chase is
+            // over — the WANTED tile shows a dash, NEVER a star (the game's
+            // level is forced to 0 anyway; the tile must not contradict it).
+            ("WANTED", state is JusticeState.Captured or JusticeState.Prison || stars == 0 ? "—" : $"{stars}★"),
         };
         if (state == JusticeState.Prison)
             kpis.Add(("DAY", $"{j.ServedDays + 1}/{j.SentenceDays}"));

@@ -62,8 +62,28 @@ public class JusticeHudWidgetTests
         justice.Tick();                  // enter Wanted state
         widget.Tick();
 
-        Assert.Equal("WANTED 3*", renderer.Last!.StatusLine);
+        Assert.Equal("WANTED 3★", renderer.Last!.StatusLine);
         Assert.Equal(3, renderer.Last.Stars);
+    }
+
+    // S23 (user UAT 2026-08-13: prison panel showed WANTED 2★): in custody
+    // the street chase is over — the WANTED tile shows a dash, never a star.
+    [Fact]
+    public void CapturedState_WantedKpiShowsDash_NotStars()
+    {
+        var (widget, renderer, justice, wanted, probe, _) = Build();
+        wanted.CurrentStars = 4;
+        justice.Tick();
+        probe.NearestPoliceDistance = 2f;
+        justice.Tick();                  // captured
+        justice.Tick();                  // suppression reasserts stars → 0
+        wanted.CurrentStars = 4;         // game re-raises mid-custody
+        justice.Tick();                  // forced back to 0
+        widget.Tick();
+
+        Assert.Equal(JusticeState.Captured, justice.State);
+        Assert.NotNull(renderer.Last!.Kpis);
+        Assert.Contains(renderer.Last.Kpis, k => k.Label == "WANTED" && k.Value == "—");
     }
 
     [Fact]

@@ -52,7 +52,12 @@ public class CustodyAndViewportTests
         service.Tick();
         service.Tick();                    // would fire a report if State flipped to Wanted
 
-        Assert.Equal(starsAtCapture, wanted.StarSets.Count);   // no extra star sets — civilians stay quiet
+        // S23: the custody suppression keeps the state CAPTURED (reports stay
+        // quiet) and reasserts the wanted level to 0 — exactly ONE extra star
+        // set for the re-raise above, and it is a 0 (never a report's stars).
+        Assert.Equal(JusticeState.Captured, service.State);
+        Assert.Equal(starsAtCapture + 1, wanted.StarSets.Count);   // the S23 reassert only
+        Assert.Equal(0, wanted.CurrentStars);                      // and it zeroed the re-raise
     }
 
     // ── 2. Viewport scrolling math ──

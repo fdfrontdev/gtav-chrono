@@ -147,6 +147,15 @@ public sealed class PlayerContext : IPlayerContext
         Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, !enabled);
     }
 
+    // S23 (user UAT 2026-08-13): custody/prison — the street chase is over.
+    // Police stop targeting the player and civilians stop calling it in.
+    // Restored on release/escape so the manhunt can engage normally.
+    public void SetLawEnforcementIgnore(bool enabled)
+    {
+        Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Game.Player.Handle, enabled);
+        Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, enabled);
+    }
+
     public bool IsVisible
     {
         get
