@@ -136,11 +136,13 @@ public sealed class MaterialHudRenderer : IHudRenderer
     }
 
     /// <summary>S23: draw text segment-by-segment, replacing every ★ with a
-    /// wanted-star sprite (the text cursor advances by measured width; the
-    /// sprite by its own width). Falls back to "*" if the dict never loads.</summary>
+    /// procedurally drawn star (the text cursor advances by measured width;
+    /// the star by its own footprint). No textures, no font glyphs — the
+    /// game's wanted stars are scaleform vector art (verified: zero
+    /// 'wanted*' / '*star*.ytd' strings across every .rpf in the install),
+    /// so a texture-based approach can never work here.</summary>
     private static void DrawTextWithStars(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold, int font)
     {
-        bool sprite = WantedStarSpriteAvailable();
         float cursor = x;
         string seg = "";
         foreach (char ch in text)
@@ -154,26 +156,45 @@ public sealed class MaterialHudRenderer : IHudRenderer
                     seg = "";
                 }
 
-                if (sprite)
-                {
-                    // Text box height ≈ scale × 0.08 → a square star at the same
-                    // height sits visually centered on the text line (y = text TOP).
-                    float starH = scale * 0.085f;
-                    float starW = starH * 0.95f;
-                    Function.Call(Hash.DRAW_SPRITE, "wantedstars", "wanted_star_1",
-                        cursor + starW / 2f, y + starH / 2f, starW, starH, 0f, r, g, b, a);
-                    cursor += starW + scale * 0.006f;
-                }
-                else
-                {
-                    DrawTextCore("*", cursor, y, scale, r, g, b, a, bold, font);
-                    cursor += Measure("*", scale, font);
-                }
+                // Text box height ≈ scale × 0.08 → star at the same height,
+                // centered on the text line (y = text TOP).
+                float starH = scale * 0.085f;
+                DrawStar(cursor + starH * 0.58f, y + starH / 2f, starH, r, g, b, a);
+                cursor += starH * 1.16f + scale * 0.006f;   // square footprint + gap
             }
             else seg += ch;
         }
         if (seg.Length > 0)
             DrawTextCore(seg, cursor, y, scale, r, g, b, a, bold, font);
+    }
+
+    /// <summary>S23 r2 — the fat 5-point star silhouette (11×8 cells, row spans).
+    /// Each row is ONE DRAW_RECT: 8 rects per star, always renders, cheap.</summary>
+    private static readonly (int X, int W)[] StarRowSpans =
+    {
+        (4, 3),   // top point
+        (3, 5),
+        (2, 7),
+        (0, 10),  // arms (widest row)
+        (1, 9),
+        (2, 7),   // waist
+        (2, 7),
+        (3, 5),   // legs
+    };
+
+    /// <summary>Draw a filled star centered at (cx, cy) with the given height.</summary>
+    private static void DrawStar(float cx, float cy, float height, int r, int g, int b, int a)
+    {
+        float cellH = height / 8f;
+        float cellW = cellH * 0.92f;               // slightly narrow cells → star proportions
+        float totalW = 11f * cellW;
+        for (int i = 0; i < StarRowSpans.Length; i++)
+        {
+            var (x0, w) = StarRowSpans[i];
+            float x = cx - totalW / 2f + (x0 + w / 2f) * cellW;
+            float y = cy - height / 2f + (i + 0.5f) * cellH;
+            Rect(x, y, w * cellW, cellH, r, g, b, a);
+        }
     }
 
     private static void DrawTextCore(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold = false, int font = 0)
@@ -186,21 +207,5 @@ public sealed class MaterialHudRenderer : IHudRenderer
         Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_TEXT, "STRING");
         Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, text);
         Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_TEXT, x, y);
-    }
-
-    // ── S23: wanted-star texture (game HUD dict "wantedstars") ──
-    private static bool _starDictRequested;
-    private static bool _starDictLoaded;
-
-    private static bool WantedStarSpriteAvailable()
-    {
-        if (!_starDictRequested)
-        {
-            Function.Call(Hash.REQUEST_STREAMED_TEXTURE_DICT, "wantedstars", true);
-            _starDictRequested = true;
-        }
-        if (!_starDictLoaded)
-            _starDictLoaded = Function.Call<bool>(Hash.HAS_STREAMED_TEXTURE_DICT_LOADED, "wantedstars");
-        return _starDictLoaded;
     }
 }
