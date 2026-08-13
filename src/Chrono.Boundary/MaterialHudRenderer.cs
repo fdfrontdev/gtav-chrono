@@ -159,8 +159,9 @@ public sealed class MaterialHudRenderer : IHudRenderer
                 // Text box height ≈ scale × 0.08 → star at the same height,
                 // centered on the text line (y = text TOP).
                 float starH = scale * 0.085f;
-                DrawStar(cursor + starH * 0.58f, y + starH / 2f, starH, r, g, b, a);
-                cursor += starH * 1.16f + scale * 0.006f;   // square footprint + gap
+                float starW = starH * 1.3f;   // 13 cells × 10-cell rows
+                DrawStar(cursor + starW / 2f, y + starH / 2f, starH, r, g, b, a);
+                cursor += starW + scale * 0.006f;   // footprint + gap
             }
             else seg += ch;
         }
@@ -168,32 +169,39 @@ public sealed class MaterialHudRenderer : IHudRenderer
             DrawTextCore(seg, cursor, y, scale, r, g, b, a, bold, font);
     }
 
-    /// <summary>S23 r2 — the fat 5-point star silhouette (11×8 cells, row spans).
-    /// Each row is ONE DRAW_RECT: 8 rects per star, always renders, cheap.</summary>
-    private static readonly (int X, int W)[] StarRowSpans =
+    /// <summary>S23 r3 — real 5-point star (13×11 cells, supersampled from a
+    /// 10-vertex star polygon: 5 outer points + 5 inner notches). 12 rects per
+    /// star: top point, wide arms, tapered waist, and TWO legs with a notch
+    /// between them — the notches are what make it READ as a star at HUD size
+    /// (r2's notch-less fat silhouette rendered as a blob).</summary>
+    private static readonly (int Row, int X, int W)[] StarCells =
     {
-        (4, 3),   // top point
-        (3, 5),
-        (2, 7),
-        (0, 10),  // arms (widest row)
-        (1, 9),
-        (2, 7),   // waist
-        (2, 7),
-        (3, 5),   // legs
+        (1, 6, 1),   // top point
+        (2, 6, 1),
+        (3, 5, 3),
+        (4, 1, 11),  // arms (widest row)
+        (5, 2, 9),
+        (6, 3, 7),   // waist taper
+        (7, 4, 5),
+        (8, 4, 5),
+        (9, 3, 3),   // left leg
+        (9, 7, 3),   // right leg  (notch between the legs)
+        (10, 3, 1),  // leg tips
+        (10, 9, 1),
     };
 
     /// <summary>Draw a filled star centered at (cx, cy) with the given height.</summary>
     private static void DrawStar(float cx, float cy, float height, int r, int g, int b, int a)
     {
-        float cellH = height / 8f;
-        float cellW = cellH * 0.92f;               // slightly narrow cells → star proportions
-        float totalW = 11f * cellW;
-        for (int i = 0; i < StarRowSpans.Length; i++)
+        float cell = height / 10f;   // rows 1..10
+        float totalW = 13f * cell;
+        float yTop = cy - height / 2f;
+        float xLeft = cx - totalW / 2f;
+        foreach (var (row, x0, w) in StarCells)
         {
-            var (x0, w) = StarRowSpans[i];
-            float x = cx - totalW / 2f + (x0 + w / 2f) * cellW;
-            float y = cy - height / 2f + (i + 0.5f) * cellH;
-            Rect(x, y, w * cellW, cellH, r, g, b, a);
+            float x = xLeft + (x0 + w / 2f) * cell;
+            float y = yTop + (row - 1) * cell + cell / 2f;
+            Rect(x, y, w * cell, cell, r, g, b, a);
         }
     }
 
