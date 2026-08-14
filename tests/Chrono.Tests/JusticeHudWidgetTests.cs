@@ -86,6 +86,38 @@ public class JusticeHudWidgetTests
         Assert.Contains(renderer.Last.Kpis, k => k.Label == "WANTED" && k.Value == "—");
     }
 
+    // v0.10 (FR-C14): the widget forwards the four survivor bars + energy.
+    [Fact]
+    public void Widget_WithNeeds_ForwardsBarsAndEnergy()
+    {
+        var wanted = new FakeWantedMonitor();
+        var player = new FakePlayer { IsVisible = true, Money = 100000 };
+        var store = new FakeRecordStore();
+        var probe = new FakeCrimeProbe();
+        var config = new JusticeConfig { TrialDelaySeconds = 60 };
+        var notifier = new FakeNotifier();
+        var justice = new JusticeService(
+            wanted, player, store,
+            new IdentityService(store, new FakeLog()),
+            new WarrantService(store, new FakeLog()),
+            notifier, new FakeLog(), config, new FakeClock(),
+            probe: new FakeProbe(), crimeProbe: probe);
+        var energy = new PowerEnergyService(new PowersConfig { EnergyMax = 100 });
+        var needs = new NeedsService(player, store, new Domain.NeedsConfig { GameHourRealSeconds = 120 },
+            notifier, new FakeLog());
+        needs.Load();
+        var renderer = new FakeHudRenderer();
+        var widget = new JusticeHudWidget(justice, renderer, config, null, energy, needs);
+
+        widget.Tick();
+
+        Assert.NotNull(renderer.Last);
+        Assert.Equal(100, renderer.Last.Energy);
+        Assert.Equal(100, renderer.Last.EnergyMax);
+        Assert.NotNull(renderer.Last.Needs);
+        Assert.Equal(4, renderer.Last.Needs.Count);
+    }
+
     [Fact]
     public void CapturedState_ShowsCourtCountdown()
     {

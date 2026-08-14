@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Chrono.Application.Ports;
 using GTA;
@@ -203,4 +204,45 @@ public sealed class PlayerContext : IPlayerContext
 
     public void SetControlEnabled(bool enabled)
         => Game.Player.SetControlState(enabled, SetPlayerControlFlags.None);
+
+    // ── v0.10 survivor needs (SRS FR-C4..C7) — cosmetic/balance natives,
+    // all guarded: a missing native must never crash the mod. ──
+
+    public void SetHealthRechargeMultiplier(float multiplier)
+    {
+        try { Function.Call(Hash.SET_PLAYER_HEALTH_RECHARGE_MULTIPLIER, Game.Player.Handle, multiplier); }
+        catch { /* cosmetic — ignore */ }
+    }
+
+    public void SetRunSpeedMultiplier(float multiplier)
+    {
+        try
+        {
+            // SET_RUN_SPEED_MULTIPLIER 0x3B3CAD6166916D87 (missing from SHVDN's Hash enum)
+            Function.Call((Hash)0x3B3CAD6166916D87, Game.Player.Handle, multiplier);
+        }
+        catch { /* cosmetic — ignore */ }
+    }
+
+    public void SetDrunkVisual(bool enabled)
+    {
+        try
+        {
+            var ped = Game.Player.Character;
+            if (ped != null && ped.Exists())
+                Function.Call(Hash.SET_PED_IS_DRUNK, ped.Handle, enabled);
+        }
+        catch { /* cosmetic — ignore */ }
+    }
+
+    public void ApplyHealthDamage(float amount)
+    {
+        try
+        {
+            var ped = Game.Player.Character;
+            if (ped == null || !ped.Exists() || ped.IsDead) return;
+            ped.Health = (int)Math.Max(1, ped.Health - amount);
+        }
+        catch { /* never a crash vector */ }
+    }
 }

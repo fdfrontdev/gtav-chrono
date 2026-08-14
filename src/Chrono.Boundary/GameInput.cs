@@ -18,6 +18,10 @@ public sealed class GameInput : IGameInput
     private readonly Keys? _timeStopKey;
     private readonly Keys? _invisibleKey;
     private readonly Keys? _interactKey;
+    private readonly Keys? _pushKey;         // v0.10: combat power hotkeys
+    private readonly Keys? _blastKey;
+    private readonly Keys? _bulletTimeKey;
+    private readonly Keys? _regenKey;
 
     private bool _menuKeyDown, _menuKeyWasDown;
     private bool _timeStopDown, _timeStopWasDown;
@@ -25,13 +29,24 @@ public sealed class GameInput : IGameInput
     private bool _interactDown, _interactWasDown;
     private bool _wDown, _wWasDown, _sDown, _sWasDown, _aDown, _aWasDown, _dDown, _dWasDown;
 
-    public GameInput(string menuKeyName, string dashHotkeyName, string timeStopHotkeyName, string invisibleHotkeyName, string? interactKeyName = null)
+    // v0.10: combat hotkey edges (N/K/V/U)
+    private bool _pushDown, _pushWasDown;
+    private bool _blastDown, _blastWasDown;
+    private bool _bulletTimeDown, _bulletTimeWasDown;
+    private bool _regenDown, _regenWasDown;
+
+    public GameInput(string menuKeyName, string dashHotkeyName, string timeStopHotkeyName, string invisibleHotkeyName, string? interactKeyName = null,
+        string? pushHotkeyName = null, string? blastHotkeyName = null, string? bulletTimeHotkeyName = null, string? regenHotkeyName = null)
     {
         (_menuKey, _menuKeyShift) = ParseComboKey(menuKeyName, Keys.F9);
         _dashKey = ParseOptionalKey(dashHotkeyName);
         _timeStopKey = ParseOptionalKey(timeStopHotkeyName);
         _invisibleKey = ParseOptionalKey(invisibleHotkeyName);
         _interactKey = ParseOptionalKey(interactKeyName ?? "");
+        _pushKey = ParseOptionalKey(pushHotkeyName ?? "");
+        _blastKey = ParseOptionalKey(blastHotkeyName ?? "");
+        _bulletTimeKey = ParseOptionalKey(bulletTimeHotkeyName ?? "");
+        _regenKey = ParseOptionalKey(regenHotkeyName ?? "");
     }
 
     public void Update()
@@ -56,6 +71,12 @@ public sealed class GameInput : IGameInput
             _interactWasDown = _interactDown;
             _interactDown = Game.IsKeyPressed(_interactKey.Value);
         }
+
+        // v0.10: combat power hotkeys (N/K/V/U)
+        if (_pushKey.HasValue) { _pushWasDown = _pushDown; _pushDown = Game.IsKeyPressed(_pushKey.Value); }
+        if (_blastKey.HasValue) { _blastWasDown = _blastDown; _blastDown = Game.IsKeyPressed(_blastKey.Value); }
+        if (_bulletTimeKey.HasValue) { _bulletTimeWasDown = _bulletTimeDown; _bulletTimeDown = Game.IsKeyPressed(_bulletTimeKey.Value); }
+        if (_regenKey.HasValue) { _regenWasDown = _regenDown; _regenDown = Game.IsKeyPressed(_regenKey.Value); }
 
         // WASD menu navigation edges (S8 — arrows conflict with other bindings)
         _wWasDown = _wDown; _wDown = Game.IsControlPressed(GTA.Control.MoveUpOnly);
@@ -88,6 +109,11 @@ public sealed class GameInput : IGameInput
     public bool IsTimeStopHotkeyJustPressed => _timeStopKey.HasValue && _timeStopDown && !_timeStopWasDown;
     public bool IsInvisibleHotkeyJustPressed => _invisibleKey.HasValue && _invisibleDown && !_invisibleWasDown;
     public bool IsInteractKeyJustPressed => _interactKey.HasValue && _interactDown && !_interactWasDown;
+
+    public bool IsPushHotkeyJustPressed => _pushKey.HasValue && _pushDown && !_pushWasDown;
+    public bool IsBlastHotkeyJustPressed => _blastKey.HasValue && _blastDown && !_blastWasDown;
+    public bool IsBulletTimeHotkeyJustPressed => _bulletTimeKey.HasValue && _bulletTimeDown && !_bulletTimeWasDown;
+    public bool IsRegenHotkeyJustPressed => _regenKey.HasValue && _regenDown && !_regenWasDown;
 
     public bool IsPhoneKeyJustPressed => Game.IsControlJustPressed(GTA.Control.Phone);
 

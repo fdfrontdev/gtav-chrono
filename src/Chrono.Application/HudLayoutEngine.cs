@@ -62,11 +62,14 @@ public sealed class HudLayoutEngine
         Rect Divider2,       // status block / feed block
         Rect ProgressTrack,  // countdown bar track
         Rect ProgressFill,   // countdown bar fill (w = track.W * progress)
+        Rect EnergyTrack,    // v0.10: combat energy bar (FR-B3)
+        Rect EnergyFill,
         TextSpan HeaderTitle,   // "CHRONO" (brand — S22 v8 r2: CHRONO · FIRDAUS BUILDS)
         TextSpan HeaderStars,   // "★★★" right-aligned, amber
         Row Status,             // big, color-coded
         Row Countdown,          // smaller, dim
         IReadOnlyList<KpiTile> Kpis,   // S22 v8: dashboard KPI tiles
+        IReadOnlyList<(Rect Track, Rect Fill)> NeedBars,   // v0.10: survivor bars
         Row Identity,           // dimmest
         TextSpan FeedLabel,     // "LIVE FEED" overline
         IReadOnlyList<Row> FeedRows,
@@ -85,7 +88,9 @@ public sealed class HudLayoutEngine
         Func<string, float, int, float> measure,
         bool hasCountdown = true, bool hasIdentity = true,
         bool countdownUrgent = false,   // S21 v3: yard-escape prompt → amber
-        IReadOnlyList<(string Label, string Value)>? kpis = null)   // S22 v8
+        IReadOnlyList<(string Label, string Value)>? kpis = null,   // S22 v8
+        int energy = 0, int energyMax = 0,             // v0.10: combat energy bar (FR-B3)
+        IReadOnlyList<NeedBar>? needs = null)          // v0.10: survivor bars (FR-C14)
     {
         int feedRows = Math.Min(feed.Count, MaxFeedRows);
         // feed block: label pad + label + rows + bottom pad. The last row's text
@@ -97,7 +102,9 @@ public sealed class HudLayoutEngine
         float feedBlockH = 0.006f + 0.008f + feedRows * 0.024f + 0.034f;
         // S22 v8: KPI tile row height (label + BAN numeral inside one tile)
         float kpiH = kpis != null && kpis.Count > 0 ? 0.040f : 0f;
-        float cardH = HeaderH + DividerH + RowH * 2.5f + DividerH + kpiH + feedBlockH;
+        // v0.10: needs row (4 compact bars) under the KPI tiles
+        float needsH = needs != null && needs.Count > 0 ? 0.030f : 0f;
+        float cardH = HeaderH + DividerH + RowH * 2.5f + DividerH + kpiH + needsH + feedBlockH;
 
         float right = 1f - RightMargin;
         float x = right - CardW;
@@ -147,7 +154,33 @@ public sealed class HudLayoutEngine
             }
         }
 
-        float identityY = countdownY + RowH + kpiH;
+        float identityY = countdownY + RowH + kpiH + needsH;
+
+        // ── v0.10: energy bar (thin, under the countdown) + survivor need bars ──
+        Rect energyTrack = default, energyFill = default;
+        if (energyMax > 0)
+        {
+            float eTop = countdownY + 0.011f;
+            energyTrack = new Rect(x + 0.016f, eTop, maxW, 0.004f);
+            float ratio = Math.Max(0f, Math.Min(1f, (float)energy / energyMax));
+            energyFill = new Rect(x + 0.016f, eTop, maxW * ratio, 0.004f);
+        }
+
+        var needBars = new List<(Rect Track, Rect Fill)>();
+        if (needs != null && needs.Count > 0)
+        {
+            float gap = 0.008f;
+            float barW = (maxW - gap * (needs.Count - 1)) / needs.Count;
+            float needsBarTop = identityY - 0.020f;         // bar row sits inside the needs band
+            for (int i = 0; i < needs.Count; i++)
+            {
+                float bx = textX + i * (barW + gap);
+                var nTrack = new Rect(bx, needsBarTop, barW, 0.006f);
+                float ratio = Math.Max(0f, Math.Min(1f, needs[i].Value / 100f));
+                var nFill = new Rect(bx, needsBarTop, barW * ratio, 0.006f);
+                needBars.Add((nTrack, nFill));
+            }
+        }
         var identityRow = new Row(
             new TextSpan(Truncate(identity, maxW, measure, 0.22f), textX, identityY, 0.22f, false),
             (130, 130, 130));
@@ -180,7 +213,8 @@ public sealed class HudLayoutEngine
         var fill = new Rect(x + 0.016f, barTop, maxW * Math.Max(0f, Math.Min(1f, progress)), 0.004f);
 
         return new Layout(card, shadow, header, divider1, divider2, track, fill,
-            headerTitle, headerStars, statusRow, countdownRow, kpiTiles, identityRow,
+            energyTrack, energyFill,
+            headerTitle, headerStars, statusRow, countdownRow, kpiTiles, needBars, identityRow,
             feedLabel, feedRowsList, cardH);
     }
 

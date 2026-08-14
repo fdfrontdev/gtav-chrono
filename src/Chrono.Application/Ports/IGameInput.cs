@@ -17,6 +17,12 @@ public interface IGameInput
     bool IsInvisibleHotkeyJustPressed { get; }  // B — edge
     bool IsInteractKeyJustPressed { get; }      // G — world interaction (clinic, S5) — edge
 
+    // --- v0.10 combat power hotkeys (SRS FR-B) — edges ---
+    bool IsPushHotkeyJustPressed { get; }        // N — Force Push
+    bool IsBlastHotkeyJustPressed { get; }       // K — Energy Blast
+    bool IsBulletTimeHotkeyJustPressed { get; }  // V — Bullet Time toggle
+    bool IsRegenHotkeyJustPressed { get; }       // U — Regeneration
+
     // --- flight controls (held, camera-relative) ---
     bool IsFlyForward { get; }
     bool IsFlyBack { get; }

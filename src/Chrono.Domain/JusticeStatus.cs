@@ -23,4 +23,7 @@ public sealed class JusticeStatus
     /// fines and rehabilitation build Fame. Persisted so the street never forgets.</summary>
     public int Notoriety { get; set; }
     public int Fame { get; set; }
+
+    /// <summary>v0.10 survivor needs (SRS FR-C1) — schema v2; null on old saves → defaults.</summary>
+    public NeedsState? Needs { get; set; }
 }

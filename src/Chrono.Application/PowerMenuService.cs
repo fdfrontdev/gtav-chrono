@@ -35,9 +35,14 @@ public sealed class PowerMenuService
     private readonly JusticeStatsService? _stats;
     private readonly JusticeHudWidget? _hud;   // S21: persistent HUD widget (Settings toggle)
     private readonly PowerReactionService? _powerReaction;   // S22 v8 r4: world reacts to powers
+    private readonly CombatPowerService? _combat;   // v0.10: offensive/defensive powers
+    private readonly NeedsService? _needs;          // v0.10: survivor needs (phone/sleep)
+    private readonly PowerEnergyService? _energy;   // v0.10: energy readout
 
     private MenuScreen? _rootScreen;
     private MenuScreen? _webnetScreen;   // S14: WEBNET lives INSIDE the menu now
+    private MenuScreen? _phoneScreen;    // v0.10: Phone (needs/delivery/sleep)
+    private MenuItem? _phoneItem;        // v0.10
     private MenuItem? _timeStopItem;
     private MenuItem? _godModeItem;
     private MenuItem? _invisibleItem;
@@ -48,6 +53,7 @@ public sealed class PowerMenuService
     private MenuItem? _recordItem;
     private MenuScreen? _justiceScreen;
     private MenuScreen? _recordScreen;
+    private long _lastCombatMs;   // v0.10: combat Tick dt
 
     public PowerMenuService(
         MenuFramework menu,
@@ -69,7 +75,10 @@ public sealed class PowerMenuService
         Func<IReadOnlyList<NewsFeedItem>>? feedProvider = null,
         Func<bool>? cutsceneActive = null,
         JusticeHudWidget? hud = null,   // S21: persistent HUD widget toggle
-        PowerReactionService? powerReaction = null)   // S22 v8 r4: world reacts to powers
+        PowerReactionService? powerReaction = null,   // S22 v8 r4: world reacts to powers
+        CombatPowerService? combat = null,   // v0.10
+        NeedsService? needs = null,          // v0.10
+        PowerEnergyService? energy = null)   // v0.10
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -90,6 +99,9 @@ public sealed class PowerMenuService
         _feedProvider = feedProvider;
         _cutsceneActive = cutsceneActive;
         _powerReaction = powerReaction;
+        _combat = combat;
+        _needs = needs;
+        _energy = energy;
         _hud = hud;
     }
 
@@ -130,6 +142,7 @@ public sealed class PowerMenuService
 
         // S21 v3 (user UAT): ALL superpowers live under one "SUPERPOWERS"
         // category — dash / map teleport / fly / invisible / god mode.
+        // v0.10: combat powers join the roster (push/blast/bullet-time/regen).
         var powers = new MenuScreen
         {
             Title = UiStrings.ItemSuperpowers,
@@ -140,7 +153,27 @@ public sealed class PowerMenuService
                 _flyItem,
                 _invisibleItem,
                 _godModeItem,
-                _timeStopItem
+                _timeStopItem,
+                new MenuItem
+                {
+                    Title = $"{UiStrings.ItemForcePush} [{_config.Powers.PushHotkey}]",
+                    OnActivate = ExecutePush
+                },
+                new MenuItem
+                {
+                    Title = $"{UiStrings.ItemEnergyBlast} [{_config.Powers.BlastHotkey}]",
+                    OnActivate = ExecuteBlast
+                },
+                new MenuItem
+                {
+                    Title = $"{UiStrings.ItemBulletTime} [{_config.Powers.BulletTimeHotkey}]",
+                    OnActivate = ToggleBulletTime
+                },
+                new MenuItem
+                {
+                    Title = $"{UiStrings.ItemRegenerate} [{_config.Powers.RegenHotkey}]",
+                    OnActivate = ExecuteRegen
+                }
             }
         };
 
@@ -152,12 +185,73 @@ public sealed class PowerMenuService
                 new MenuItem { Title = UiStrings.ItemSuperpowers, Submenu = powers },
                 new MenuItem { Title = UiStrings.ItemJustice, Submenu = BuildJusticeScreen() },
                 _webnetItem = new MenuItem { Title = UiStrings.ItemWebnet, Submenu = RebuildWebnetScreen() },
+                _phoneItem = new MenuItem { Title = UiStrings.ItemPhone, Submenu = BuildPhoneScreen() },
                 new MenuItem { Title = UiStrings.ItemSettings, Submenu = settings }
             }
         };
 
         RefreshPowerLabels();
         RefreshTimeStopLabel();
+    }
+
+    /// <summary>
+    /// v0.10 — Phone submenu (survivor life): needs status, food delivery,
+    /// eat at an eatery, sleep. Rebuilt while open (live values).
+    /// </summary>
+    private MenuScreen BuildPhoneScreen()
+    {
+        var items = new List<MenuItem>();
+        if (_needs == null)
+        {
+            items.Add(new MenuItem { Title = "Life systems offline" });
+        }
+        else
+        {
+            string delivery = _needs.Delivery.HasPendingOrder
+                ? $"Delivery en route — {_needs.Delivery.PendingMealName} ({Math.Ceiling(_needs.Delivery.EtaSeconds)}s)"
+                : _needs.Delivery.HasArrivedFood
+                    ? "Delivery ARRIVED — press G to eat"
+                    : "Delivery idle";
+            items.Add(new MenuItem { Title = delivery });
+
+            foreach (var (label, value, tier) in _needs.StatusLines())
+                items.Add(new MenuItem { Title = $"{label} {value} — {tier}" });
+
+            items.Add(new MenuItem
+            {
+                Title = UiStrings.ItemFoodDelivery,
+                Submenu = BuildDeliveryScreen()
+            });
+            items.Add(new MenuItem
+            {
+                Title = UiStrings.ItemEatAtEatery,
+                OnActivate = () => _needs?.TryEatAtEatery()
+            });
+            items.Add(new MenuItem
+            {
+                Title = UiStrings.ItemSleep,
+                OnActivate = () => _needs?.TrySleep()
+            });
+        }
+        _phoneScreen = new MenuScreen { Title = UiStrings.ItemPhone, Items = items };
+        return _phoneScreen;
+    }
+
+    private MenuScreen BuildDeliveryScreen()
+    {
+        var items = new List<MenuItem>();
+        foreach (var meal in FoodCatalog.Meals)
+        {
+            int idx = Array.IndexOf(FoodCatalog.Meals, meal);
+            var m = meal;
+            items.Add(new MenuItem
+            {
+                Title = $"{m.Name} — ${m.Price + _config.Needs.DeliveryFee}",
+                Value = $"${m.Price} + ${_config.Needs.DeliveryFee} fee",
+                OnActivate = () => _needs?.TryOrderMeal(idx)
+            });
+        }
+        return new MenuScreen { Title = UiStrings.ItemFoodDelivery, Items = items };
     }
 
     /// <summary>WEBNET feed screen (S14) — the news feed lives INSIDE the cheat
@@ -293,6 +387,47 @@ public sealed class PowerMenuService
         _hack.TryHack();
     }
 
+    // ── v0.10: combat powers (energy-gated; respect the powers toggle) ──
+
+    private void ExecutePush()
+    {
+        if (!PowersAvailable()) return;
+        _combat?.TryForcePush();
+    }
+
+    private void ExecuteBlast()
+    {
+        if (!PowersAvailable()) return;
+        _combat?.TryEnergyBlast();
+    }
+
+    private void ToggleBulletTime()
+    {
+        if (!PowersAvailable()) return;
+        _combat?.ToggleBulletTime();
+    }
+
+    private void ExecuteRegen()
+    {
+        if (!PowersAvailable()) return;
+        _combat?.TryRegenerate();
+    }
+
+    private bool PowersAvailable()
+    {
+        if (!_config.PowersEnabled || !_config.ModEnabled)
+        {
+            _notifier.Show("Superpowers are disabled — toggle ON in Settings");
+            return false;
+        }
+        if (_combat == null)
+        {
+            _notifier.Show("Combat powers offline");
+            return false;
+        }
+        return true;
+    }
+
     public void ToggleMenu()
     {
         if (_menu.IsOpen)
@@ -331,6 +466,7 @@ public sealed class PowerMenuService
             _invisible.SetEnabled(false);
             _fly.SetEnabled(false);
             _godMode.SetEnabled(false);
+            _combat?.Deactivate();   // v0.10
         }
         PersistConfig();
     }
@@ -345,6 +481,7 @@ public sealed class PowerMenuService
             _invisible.SetEnabled(false);
             _fly.SetEnabled(false);
             _godMode.SetEnabled(false);
+            _combat?.Deactivate();   // v0.10
         }
         PersistConfig();
     }
@@ -411,6 +548,11 @@ public sealed class PowerMenuService
                 if (_input.IsDashHotkeyPressed) ExecuteDash();
                 if (_input.IsTimeStopHotkeyJustPressed) ToggleTimeStop();       // Z
                 if (_input.IsInvisibleHotkeyJustPressed) ToggleInvisible();     // B
+                // v0.10: combat hotkeys — N push, K blast, V bullet time, U regen
+                if (_input.IsPushHotkeyJustPressed) ExecutePush();
+                if (_input.IsBlastHotkeyJustPressed) ExecuteBlast();
+                if (_input.IsBulletTimeHotkeyJustPressed) ToggleBulletTime();
+                if (_input.IsRegenHotkeyJustPressed) ExecuteRegen();
             }
         }
 
@@ -423,6 +565,12 @@ public sealed class PowerMenuService
             _godMode.Tick();
             _invisible.Tick();
             _fly.Tick();
+            if (_combat != null)   // v0.10: bullet-time drain + regen pulses
+            {
+                double dt = _lastCombatMs == 0 ? 0 : (nowMs - _lastCombatMs) / 1000.0;
+                _lastCombatMs = nowMs;
+                _combat.Tick(dt);
+            }
         }
         else
         {
@@ -430,6 +578,8 @@ public sealed class PowerMenuService
             _invisible.SetEnabled(false);
             _fly.SetEnabled(false);
             _godMode.SetEnabled(false);
+            _combat?.Deactivate();
+            _lastCombatMs = 0;
         }
 
         // Criminal Record screen refresh while the Justice screen is open (S7)
@@ -443,6 +593,12 @@ public sealed class PowerMenuService
         if (_menu.IsOpen && _menu.CurrentScreen == _webnetScreen)
         {
             if (_webnetItem != null) _webnetItem.Submenu = RebuildWebnetScreen();
+        }
+
+        // v0.10: Phone screen refresh while open (live needs/delivery values)
+        if (_menu.IsOpen && _menu.CurrentScreen == _phoneScreen)
+        {
+            if (_phoneItem != null) _phoneItem.Submenu = BuildPhoneScreen();
         }
 
         // Persistent fly-controls hint while flying (user request v0.3.0: "no instructions on screen")

@@ -20,7 +20,10 @@ public sealed record JusticeHudState(
     IReadOnlyList<HudFeedItem>? Feed = null,      // S21 v2: live message feed (oldest first)
     JusticeStatusKind Kind = JusticeStatusKind.Free,   // S21 v3: status color coding
     float Progress = 0f,      // S21 v3: countdown progress 0..1 (court/prison bar)
-    IReadOnlyList<(string Label, string Value)>? Kpis = null);   // S22 v8: dashboard KPI tiles
+    IReadOnlyList<(string Label, string Value)>? Kpis = null,   // S22 v8: dashboard KPI tiles
+    int Energy = 0,           // v0.10: combat energy pool (FR-B3)
+    int EnergyMax = 0,
+    IReadOnlyList<NeedBar>? Needs = null);        // v0.10: survivor need bars (FR-C14)
 
 /// <summary>Widget status color coding (S21 v3 — Material semantic colors).</summary>
 public enum JusticeStatusKind
@@ -32,6 +35,9 @@ public enum JusticeStatusKind
     OnBail,     // violet — conditional release
     Manhunt,    // S21 v3: crimson — escaped prisoner, the whole state is looking
 }
+
+/// <summary>v0.10 — one survivor need bar (FR-C14).</summary>
+public sealed record NeedBar(string Label, int Value, Chrono.Domain.NeedsTier Tier);
 
 /// <summary>Renders the persistent justice widget (implemented by the boundary).</summary>
 public interface IHudRenderer

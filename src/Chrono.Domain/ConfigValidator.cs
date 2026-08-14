@@ -34,6 +34,9 @@ public static class ConfigValidator
         ValidateJustice(cfg.Justice, warnings);
         ValidateVisual(cfg.Visual, warnings);
         ValidateLogging(cfg.Logging, warnings);
+        ValidatePowers(cfg.Powers, warnings);
+        ValidateHack(cfg.Hack, warnings);
+        ValidateNeeds(cfg.Needs, warnings);
 
         return new ValidationResult(cfg, warnings);
     }
@@ -254,6 +257,47 @@ public static class ConfigValidator
             log.Level = "info";
             warnings.Add($"logging.level '{log.Level}' invalid — using info");
         }
+    }
+
+    // ── v0.10 (SRS 05) ──
+
+    private static void ValidatePowers(PowersConfig p, List<string> warnings)
+    {
+        if (p.EnergyMax < 10 || p.EnergyMax > 1000) { p.EnergyMax = 100; warnings.Add("powers.energyMax outside [10,1000] → 100"); }
+        if (p.EnergyRegenPerSecond < 0 || p.EnergyRegenPerSecond > 100) { p.EnergyRegenPerSecond = 8; warnings.Add("powers.energyRegenPerSecond outside [0,100] → 8"); }
+        if (p.PushCost < 0 || p.PushCost > p.EnergyMax) { p.PushCost = 25; warnings.Add("powers.pushCost outside [0,energyMax] → 25"); }
+        if (p.PushRangeM < 2f || p.PushRangeM > 50f) { p.PushRangeM = 12f; warnings.Add("powers.pushRangeM outside [2,50] → 12"); }
+        if (p.PushConeDeg < 10f || p.PushConeDeg > 180f) { p.PushConeDeg = 60f; warnings.Add("powers.pushConeDeg outside [10,180] → 60"); }
+        if (p.BlastCost < 0 || p.BlastCost > p.EnergyMax) { p.BlastCost = 40; warnings.Add("powers.blastCost outside [0,energyMax] → 40"); }
+        if (p.BlastRadiusM < 1f || p.BlastRadiusM > 30f) { p.BlastRadiusM = 6f; warnings.Add("powers.blastRadiusM outside [1,30] → 6"); }
+        if (p.BlastRangeM < 5f || p.BlastRangeM > 100f) { p.BlastRangeM = 30f; warnings.Add("powers.blastRangeM outside [5,100] → 30"); }
+        if (p.BulletTimeCostPerSecond < 0 || p.BulletTimeCostPerSecond > 100) { p.BulletTimeCostPerSecond = 12; warnings.Add("powers.bulletTimeCostPerSecond outside [0,100] → 12"); }
+        if (p.BulletTimeScale < 0.05f || p.BulletTimeScale > 1f) { p.BulletTimeScale = 0.3f; warnings.Add("powers.bulletTimeScale outside [0.05,1] → 0.3"); }
+        if (p.RegenCost < 0 || p.RegenCost > p.EnergyMax) { p.RegenCost = 35; warnings.Add("powers.regenCost outside [0,energyMax] → 35"); }
+        if (p.RegenSeconds < 1 || p.RegenSeconds > 30) { p.RegenSeconds = 5; warnings.Add("powers.regenSeconds outside [1,30] → 5"); }
+    }
+
+    private static void ValidateHack(HackConfig h, List<string> warnings)
+    {
+        if (h.BaseCost < 0 || h.BaseCost > 1_000_000) { h.BaseCost = 10000; warnings.Add("hack.baseCost outside [0,1e6] → 10000"); }
+        if (h.PerEventCost < 0 || h.PerEventCost > 100_000) { h.PerEventCost = 1500; warnings.Add("hack.perEventCost outside [0,1e5] → 1500"); }
+    }
+
+    private static void ValidateNeeds(NeedsConfig n, List<string> warnings)
+    {
+        if (n.GameHourRealSeconds < 10 || n.GameHourRealSeconds > 3600) { n.GameHourRealSeconds = 120; warnings.Add("needs.gameHourRealSeconds outside [10,3600] → 120"); }
+        if (n.ThirstPerGameHour < 0.5 || n.ThirstPerGameHour > 20) { n.ThirstPerGameHour = 100.0 / 18.0; warnings.Add("needs.thirstPerGameHour outside [0.5,20] → 100/18"); }
+        if (n.HungerPerGameHour < 0.5 || n.HungerPerGameHour > 20) { n.HungerPerGameHour = 100.0 / 24.0; warnings.Add("needs.hungerPerGameHour outside [0.5,20] → 100/24"); }
+        if (n.MoodPerGameHour < 0.5 || n.MoodPerGameHour > 20) { n.MoodPerGameHour = 100.0 / 30.0; warnings.Add("needs.moodPerGameHour outside [0.5,20] → 100/30"); }
+        if (n.EnergyIdlePerGameHour < 0.5 || n.EnergyIdlePerGameHour > 20) { n.EnergyIdlePerGameHour = 100.0 / 24.0; warnings.Add("needs.energyIdlePerGameHour outside [0.5,20] → 100/24"); }
+        if (n.EnergyActiveMultiplier < 1.0 || n.EnergyActiveMultiplier > 5.0) { n.EnergyActiveMultiplier = 1.5; warnings.Add("needs.energyActiveMultiplier outside [1,5] → 1.5"); }
+        if (n.CriticalHungerDrainPerSecond < 0 || n.CriticalHungerDrainPerSecond > 10) { n.CriticalHungerDrainPerSecond = 1.2; warnings.Add("needs.criticalHungerDrainPerSecond outside [0,10] → 1.2"); }
+        if (n.CriticalThirstDrainPerSecond < 0 || n.CriticalThirstDrainPerSecond > 10) { n.CriticalThirstDrainPerSecond = 2.0; warnings.Add("needs.criticalThirstDrainPerSecond outside [0,10] → 2.0"); }
+        if (n.PassOutSkipGameHours < 1 || n.PassOutSkipGameHours > 24) { n.PassOutSkipGameHours = 4; warnings.Add("needs.passOutSkipGameHours outside [1,24] → 4"); }
+        if (n.SleepSkipGameHours < 1 || n.SleepSkipGameHours > 24) { n.SleepSkipGameHours = 6; warnings.Add("needs.sleepSkipGameHours outside [1,24] → 6"); }
+        if (n.DeliveryFee < 0 || n.DeliveryFee > 1000) { n.DeliveryFee = 25; warnings.Add("needs.deliveryFee outside [0,1000] → 25"); }
+        if (n.DeliverySecondsMin < 5 || n.DeliverySecondsMax < n.DeliverySecondsMin) { n.DeliverySecondsMin = 30; n.DeliverySecondsMax = 60; warnings.Add("needs.deliverySeconds invalid → 30-60"); }
+        if (n.EateryRadiusM < 2f || n.EateryRadiusM > 30f) { n.EateryRadiusM = 8f; warnings.Add("needs.eateryRadiusM outside [2,30] → 8"); }
     }
 
     private static string Format(float v) => v.ToString(CultureInfo.InvariantCulture);

@@ -71,4 +71,17 @@ public interface IPlayerContext
 
     /// <summary>Current cash.</summary>
     int GetMoney();
+
+    // --- v0.10 survivor needs (SRS FR-C4..C7) ---
+    /// <summary>Health recharge multiplier (0 = no passive regen when hungry/thirsty).</summary>
+    void SetHealthRechargeMultiplier(float multiplier);
+
+    /// <summary>Run-speed multiplier (tired).</summary>
+    void SetRunSpeedMultiplier(float multiplier);
+
+    /// <summary>Drunken-blur visual (critical thirst).</summary>
+    void SetDrunkVisual(bool enabled);
+
+    /// <summary>Direct health damage (starvation / dehydration drain).</summary>
+    void ApplyHealthDamage(float amount);
 }

@@ -20,6 +20,8 @@ public sealed class PoliceDbHackService
     private readonly ILogSink _log;
     private readonly JusticeConfig _config;
     private readonly IGameClock _clock;
+    private readonly IPlayerContext _player;      // v0.10: pays for the hack
+    private readonly HackConfig _hackConfig;      // v0.10: pricing (FR-A1)
     private readonly VfxService? _vfx;
     private readonly ReputationService? _reputation;
     private readonly MediaService? _media;
@@ -34,6 +36,8 @@ public sealed class PoliceDbHackService
         ILogSink log,
         JusticeConfig config,
         IGameClock clock,
+        IPlayerContext player,
+        HackConfig hackConfig,
         VfxService? vfx = null,
         ReputationService? reputation = null,
         MediaService? media = null)
@@ -47,6 +51,8 @@ public sealed class PoliceDbHackService
         _log = log;
         _config = config;
         _clock = clock;
+        _player = player;
+        _hackConfig = hackConfig;
         _vfx = vfx;
         _reputation = reputation;
         _media = media;
@@ -61,17 +67,19 @@ public sealed class PoliceDbHackService
             return false;
         }
 
-        var status = _store.LoadStatus();
-        if (status.LastHackDay > 0
-            && status.LastHackDay + _config.HackCooldownDays > _clock.CurrentGameDay)
+        // v0.10 (FR-A1/A2, ADR D1): no more day cooldown — the PRICE is the
+        // gate. Erasing history costs money, scaled by the file size.
+        int cost = HackPricingPolicy.Cost(_hackConfig, _justice.Record);
+        if (_player.GetMoney() < cost)
         {
-            int wait = status.LastHackDay + _config.HackCooldownDays - _clock.CurrentGameDay;
-            _notifier.Show($"Police DB is locked down — retry in {wait} day(s)");
+            _notifier.Show($"Not enough cash for the hack (${cost:#,##0}) — more crimes made it pricier");
             return false;
         }
 
+        _player.AddMoney(-cost);                       // FR-A5: pay first
         _justice.PurgeRecord();                        // events + convictions gone (FR-6.1)
-        status.LastHackDay = _clock.CurrentGameDay;
+        var status = _store.LoadStatus();
+        status.LastHackDay = _clock.CurrentGameDay;    // audit trail only — no lock
         _store.SaveStatusAtomic(status);
         _identity.SetClean();                          // no face on file
         _warrant.Clear();                              // nothing to warrant
@@ -83,8 +91,8 @@ public sealed class PoliceDbHackService
         }
 
         _vfx?.ScreenFlash(200);
-        _notifier.Show("POLICE DB PURGED — you don't exist anymore");
-        _log.Info("Police database hacked — record purged, identity Clean");
+        _notifier.Show($"POLICE DB PURGED (${cost:#,##0}) — you don't exist anymore");
+        _log.Info($"Police database hacked for ${cost} — record purged, identity Clean");
         return true;
     }
 }

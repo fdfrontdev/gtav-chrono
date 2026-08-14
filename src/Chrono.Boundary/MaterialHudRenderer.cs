@@ -29,7 +29,9 @@ public sealed class MaterialHudRenderer : IHudRenderer
             hasIdentity: !string.IsNullOrEmpty(state.SecondLine),
             countdownUrgent: state.CountdownLine.Contains("YARD OPEN") || state.StatusLine.Contains("MANHUNT")
                 || state.CountdownLine.Contains("TRANSPORT"),   // S22 v8: ride = action prompt (E to skip)
-            kpis: state.Kpis);   // S22 v8: dashboard KPI tiles — MUST forward (game bug: preview passed them, renderer didn't)
+            kpis: state.Kpis,   // S22 v8: dashboard KPI tiles — MUST forward (game bug: preview passed them, renderer didn't)
+            energy: state.Energy, energyMax: state.EnergyMax,   // v0.10: combat energy
+            needs: state.Needs);                                // v0.10: survivor bars
 
         // ── Elevation: shadow → surface ──
         var s = layout.Shadow;
@@ -62,6 +64,42 @@ public sealed class MaterialHudRenderer : IHudRenderer
             // BAN value inherits the status alert color — the eye lands on it
             var ban = HudLayoutEngine.KindColor(state.Kind);
             DrawSpan(kpi.Value, ban.R, ban.G, ban.B);
+        }
+
+        // ── v0.10: combat energy bar (thin; amber when low) ──
+        if (state.EnergyMax > 0)
+        {
+            var eTrack = layout.EnergyTrack;
+            Rect(eTrack.X + eTrack.W / 2f, eTrack.Y, eTrack.W, eTrack.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 255);
+            var eFill = layout.EnergyFill;
+            if (eFill.W > 0.001f)
+            {
+                bool low = state.Energy < 30;
+                (int R, int G, int B) ec = low ? (255, 179, 64) : (76, 175, 80);
+                Rect(eFill.X + eFill.W / 2f, eFill.Y, eFill.W, eFill.H, ec.R, ec.G, ec.B, 255);
+            }
+        }
+
+        // ── v0.10: survivor need bars (tier-colored fills) ──
+        if (state.Needs != null && layout.NeedBars.Count == state.Needs.Count)
+        {
+            for (int i = 0; i < state.Needs.Count; i++)
+            {
+                var (track, fill) = layout.NeedBars[i];
+                Rect(track.X + track.W / 2f, track.Y, track.W, track.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 255);
+                if (fill.W > 0.001f)
+                {
+                    (int R, int G, int B) tierColor = state.Needs[i].Tier switch
+                    {
+                        Chrono.Domain.NeedsTier.Critical => (239, 83, 80),
+                        Chrono.Domain.NeedsTier.Bad => (255, 179, 64),
+                        _ => (76, 175, 80)
+                    };
+                    Rect(fill.X + fill.W / 2f, fill.Y, fill.W, fill.H, tierColor.R, tierColor.G, tierColor.B, 255);
+                }
+                // tiny label above the bar
+                Text(state.Needs[i].Label, track.X, track.Y - 0.010f, 0.13f, 170, 170, 170, 255, bold: false, font: (int)HudLayoutEngine.Font);
+            }
         }
 
         DrawRow(layout.Identity);

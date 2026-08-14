@@ -17,6 +17,14 @@ public static class UiStrings
     public const string ItemCriminalRecord = "Criminal Record";
     public const string ItemWebnet = "WEBNET News";   // S14: feed lives in the menu
     public const string ItemSettings = "Settings";
+    public const string ItemPhone = "Phone";            // v0.10: survivor life
+    public const string ItemFoodDelivery = "Food Delivery";
+    public const string ItemEatAtEatery = "Eat at Eatery";
+    public const string ItemSleep = "Sleep";
+    public const string ItemForcePush = "Force Push";   // v0.10: combat powers
+    public const string ItemEnergyBlast = "Energy Blast";
+    public const string ItemBulletTime = "Bullet Time";
+    public const string ItemRegenerate = "Regenerate";
     public const string ItemModToggle = "Mod Enabled";        // S22
     public const string ItemPowersToggle = "Superpowers";     // S22
     public const string ItemJusticeToggle = "Justice System"; // S22
