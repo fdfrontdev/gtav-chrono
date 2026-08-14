@@ -53,4 +53,27 @@ public sealed class SleepBoundary : ISleepBoundary
         spot = default;
         return false;
     }
+
+    /// <summary>v0.13 (ADR 09): nearest TV prop (models start with "prop_tv_").</summary>
+    public bool TryFindTv(Vector3 center, float radiusM, out Vector3 spot)
+    {
+        try
+        {
+            var gta = EntityFreezer.ToGta(center);
+            foreach (var prop in World.GetNearbyProps(gta, radiusM))
+            {
+                if (prop == null || !prop.Exists()) continue;
+                string model = prop.Model.ToString() ?? "";
+                if (model.StartsWith("prop_tv_", StringComparison.OrdinalIgnoreCase))
+                {
+                    spot = EntityFreezer.ToNumerics(prop.Position);
+                    return true;
+                }
+            }
+        }
+        catch { /* scan is flavor — never a crash */ }
+
+        spot = default;
+        return false;
+    }
 }

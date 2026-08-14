@@ -38,6 +38,8 @@ public sealed class NeedsService
     private double _escortEta;
     private bool _escortArriving;
     private double _escortForceTimer;
+    private System.Numerics.Vector3 _lastPos;   // v0.13: driving-speed detection
+    private bool _hasLastPos;
 
     public NeedsService(
         IPlayerContext player,
@@ -98,6 +100,7 @@ public sealed class NeedsService
 
         double gameHours = deltaSeconds / _config.GameHourRealSeconds;
         _state.ApplyGameHours(gameHours, _config, active: _player.IsInVehicle);
+        ApplyMoodPassives(gameHours, deltaSeconds);   // v0.13 (ADR 09): fresh air + driving
 
         ApplyEffects(deltaSeconds);
         CheckTierTransitions();
@@ -364,6 +367,68 @@ public sealed class NeedsService
         NeedsTier.Bad => "BAD",
         _ => "CRITICAL"
     };
+
+    /// <summary>
+    /// v0.13 mood passives (ADR 09, SB-grounded): walking outdoors (fresh air —
+    /// nature/exercise studies) and cruising in a vehicle (agency/motion)
+    /// restore mood per game hour. Parked vehicles and interiors give nothing.
+    /// Fractional accumulator — per-tick int truncation would eat small rates.
+    /// </summary>
+    private double _moodAccumulator;
+
+    private void ApplyMoodPassives(double gameHours, double dt)
+    {
+        if (gameHours <= 0) return;
+
+        double rate = 0;
+        if (!_player.IsInVehicle && _player.IsOutdoors())
+            rate += _config.MoodFreshAirPerHour;
+        if (_player.IsInVehicle)
+        {
+            var pos = _player.Position;
+            if (_hasLastPos && dt > 0.01)
+            {
+                float speed = (pos - _lastPos).Length() / (float)dt;
+                if (speed >= _config.MoodDriveMinSpeedMps)
+                    rate += _config.MoodDrivePerHour;
+            }
+            _lastPos = pos;
+            _hasLastPos = true;
+        }
+        else
+        {
+            _lastPos = _player.Position;   // re-anchor when you exit a vehicle
+        }
+
+        if (rate <= 0) return;
+        _moodAccumulator += gameHours * rate;
+        while (_moodAccumulator >= 1)
+        {
+            _moodAccumulator -= 1;
+            _state.Restore(NeedKind.Mood, 1);
+        }
+    }
+
+    /// <summary>
+    /// v0.13: watch TV near a TV prop (ADR 09) — escapism; a sedentary hour
+    /// passes (hunger/thirst/energy decay, mood doesn't) then a mood gain.
+    /// </summary>
+    public bool TryWatchTv()
+    {
+        if (_sleep == null || !_sleep.TryFindTv(_player.Position, _config.EateryRadiusM * 2f, out _))
+        {
+            _notifier.Show("No TV nearby — find one at home or a motel");
+            return false;
+        }
+        _vfx?.ScreenFadeOut(600);
+        _state.ApplyGameHours(_config.TvSkipGameHours, _config, active: false, includeMood: false);
+        _state.Restore(NeedKind.Mood, _config.TvMoodGain);
+        _vfx?.ScreenFadeIn(600);
+        _notifier.Show("You watched TV — mind off things for a while");
+        _log.Info($"Watched TV — mood +{_config.TvMoodGain}");
+        Persist();
+        return true;
+    }
 
     /// <summary>
     /// v0.12 escort state machine (FR-D2): ETA → companion walks in →

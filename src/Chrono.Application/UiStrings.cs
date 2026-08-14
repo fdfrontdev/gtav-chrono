@@ -26,6 +26,7 @@ public static class UiStrings
     public const string ItemEatAtEatery = "Eat at Eatery";
     public const string ItemSleep = "Sleep";
     public const string ItemEscort = "Escort Service";   // v0.12 (FR-D2)
+    public const string ItemWatchTv = "Watch TV";        // v0.13 (ADR 09)
     public const string ItemForcePush = "Force Push";   // v0.10: combat powers
     public const string ItemEnergyBlast = "Energy Blast";
     public const string ItemBulletTime = "Bullet Time";

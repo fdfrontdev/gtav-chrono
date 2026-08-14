@@ -286,6 +286,12 @@ public sealed class PowerMenuService
                 Title = UiStrings.ItemSleep,
                 OnActivate = () => _needs?.TrySleep()
             });
+            // v0.13: watch TV (ADR 09)
+            items.Add(new MenuItem
+            {
+                Title = UiStrings.ItemWatchTv,
+                OnActivate = () => _needs?.TryWatchTv()
+            });
         }
         _phoneScreen = new MenuScreen { Title = UiStrings.ItemPhone, Items = items };
         return _phoneScreen;

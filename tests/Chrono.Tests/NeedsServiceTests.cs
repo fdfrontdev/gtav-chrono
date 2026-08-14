@@ -45,7 +45,9 @@ public class NeedsServiceTests
     internal sealed class FakeSleepBoundary : ISleepBoundary
     {
         public bool SpotAvailable { get; set; }
+        public bool TvNearby { get; set; }
         public bool TryFindSleepSpot(Vector3 center, float radiusM, out Vector3 spot) { spot = Vector3.Zero; return SpotAvailable; }
+        public bool TryFindTv(Vector3 center, float radiusM, out Vector3 spot) { spot = Vector3.Zero; return TvNearby; }
     }
 
     private static (NeedsService needs, FakePlayer player, FakeRecordStore store, FakeNotifier notifier,
@@ -382,5 +384,101 @@ public class NeedsServiceTests
         needs.Delivery.TryConsume();
 
         Assert.True(needs.State.Energy > energyBefore);
+    }
+
+    // ── v0.13 mood passives (ADR 09, SB-grounded) ──
+    // Semantics (floor decay): 1h idle = -4 pts (floor(3.33)); fresh air 5.0/h
+    // = net +1/h (recovers); driving 4.0/h = net 0 (holds level).
+
+    [Fact]
+    public void Mood_FreshAir_WalkingOutdoors_Rises()
+    {
+        var (needs, player, _, _, _, _, _, _, _) = Build();
+        player.IsInVehicle = false;
+        player.Outdoors = false;
+        needs.Tick(120 * 10);               // idle indoors 10h → mood 100 → 66
+        Assert.True(needs.State.Mood <= 66);
+        player.Outdoors = true;             // now walk outside 2h
+
+        needs.Tick(120 * 2);
+
+        // decay -8, fresh air +10 → mood ~68 > 66
+        Assert.True(needs.State.Mood > 66, $"mood {needs.State.Mood} should recover above 66");
+    }
+
+    [Fact]
+    public void Mood_FreshAir_Indoors_NoGain()
+    {
+        var (needs, player, _, _, _, _, _, _, _) = Build();
+        player.IsInVehicle = false;
+        player.Outdoors = false;
+        needs.Tick(120 * 10);               // to ~66
+
+        needs.Tick(120 * 2);                // 2 more indoor hours → floor(66−6.67) = 59
+
+        Assert.True(needs.State.Mood <= 59, $"mood {needs.State.Mood} should keep decaying indoors");
+    }
+
+    [Fact]
+    public void Mood_DrivingCruising_HoldsLevel()
+    {
+        var (needs, player, _, _, _, _, _, _, _) = Build();
+        player.IsInVehicle = false;
+        player.Outdoors = false;
+        needs.Tick(120 * 10);               // idle → mood ~66
+        int before = needs.State.Mood;
+        player.IsInVehicle = true;
+        player.Position = System.Numerics.Vector3.Zero;
+        needs.Tick(1);                      // anchor position
+        for (int i = 0; i < 120; i++)       // 120 × 1s ticks at 10 m/s = 1 game hour cruising
+        {
+            player.Position += new System.Numerics.Vector3(10, 0, 0);
+            needs.Tick(1);
+        }
+
+        // decay -4, drive +4 → holds
+        Assert.True(needs.State.Mood >= before - 2, $"mood {needs.State.Mood} should hold ~{before}");
+    }
+
+    [Fact]
+    public void Mood_ParkedVehicle_NoDrivingGain()
+    {
+        var (needs, player, _, _, _, _, _, _, _) = Build();
+        player.IsInVehicle = false;
+        player.Outdoors = false;
+        needs.Tick(120 * 10);               // to ~66
+        int before = needs.State.Mood;
+        player.IsInVehicle = true;
+        player.Position = System.Numerics.Vector3.Zero;
+        needs.Tick(1);                      // anchor
+        // position unchanged → speed 0 → no drive passive
+
+        needs.Tick(120);                    // 1 game hour parked
+
+        Assert.True(needs.State.Mood <= before - 2, $"mood {needs.State.Mood} should decay while parked");
+    }
+
+    [Fact]
+    public void Tv_WatchNearTv_BoostsMood()
+    {
+        var (needs, _, _, notifier, _, sleep, _, _, _) = Build();
+        sleep.TvNearby = true;
+        needs.Tick(120 * 10);               // mood down
+        int moodBefore = needs.State.Mood;
+
+        Assert.True(needs.TryWatchTv());
+
+        Assert.True(needs.State.Mood > moodBefore);
+        Assert.Contains(notifier.Messages, m => m.Contains("watched TV"));
+    }
+
+    [Fact]
+    public void Tv_NoTvNearby_Refused()
+    {
+        var (needs, _, _, notifier, _, sleep, _, _, _) = Build();
+        sleep.TvNearby = false;
+
+        Assert.False(needs.TryWatchTv());
+        Assert.Contains(notifier.Messages, m => m.Contains("No TV nearby"));
     }
 }

@@ -84,4 +84,7 @@ public interface IPlayerContext
 
     /// <summary>Direct health damage (starvation / dehydration drain).</summary>
     void ApplyHealthDamage(float amount);
+
+    /// <summary>v0.13: true when the player is not inside an interior (fresh-air mood, ADR 09).</summary>
+    bool IsOutdoors();
 }

@@ -193,6 +193,16 @@ public sealed class NeedsConfig
     public int EscortEnergyGain { get; set; } = 10;
     public int EscortSkipGameHours { get; set; } = 1;
     public string EscortModel { get; set; } = "a_f_m_skid_01";   // fallback chain in boundary
+
+    // v0.13 mood passives (ADR 09, SB-grounded: exercise/nature studies —
+    // walking outdoors = strongest lift; driving = agency/motion; TV = escapism)
+    // Floor-decay note: decay 3.33/h costs 4 pts (floor), so 5.0 = net +1/h lift,
+    // 4.0 = net maintenance (cruise holds mood level).
+    public double MoodFreshAirPerHour { get; set; } = 5.0;    // on foot + outdoors → mood recovers
+    public double MoodDrivePerHour { get; set; } = 4.0;       // in vehicle + moving → mood holds
+    public float MoodDriveMinSpeedMps { get; set; } = 2.0f;   // must be cruising, not parked
+    public int TvMoodGain { get; set; } = 15;                 // per watch session
+    public int TvSkipGameHours { get; set; } = 1;             // sedentary hour passes (hunger/thirst decay, mood doesn't)
 }
 
 /// <summary>

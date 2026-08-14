@@ -303,6 +303,10 @@ public static class ConfigValidator
         if (n.EscortPrice < 1 || n.EscortPrice > 10000) { n.EscortPrice = 100; warnings.Add("needs.escortPrice outside [1,10000] → 100"); }
         if (n.EscortEtaSeconds < 5 || n.EscortEtaSeconds > 120) { n.EscortEtaSeconds = 20; warnings.Add("needs.escortEtaSeconds outside [5,120] → 20"); }
         if (n.EscortMoodGain < 0 || n.EscortMoodGain > 100) { n.EscortMoodGain = 30; warnings.Add("needs.escortMoodGain outside [0,100] → 30"); }
+        // v0.13 mood passives (ADR 09)
+        if (n.MoodFreshAirPerHour < 0 || n.MoodFreshAirPerHour > 20) { n.MoodFreshAirPerHour = 5.0; warnings.Add("needs.moodFreshAirPerHour outside [0,20] → 5"); }
+        if (n.MoodDrivePerHour < 0 || n.MoodDrivePerHour > 20) { n.MoodDrivePerHour = 4.0; warnings.Add("needs.moodDrivePerHour outside [0,20] → 4"); }
+        if (n.TvMoodGain < 0 || n.TvMoodGain > 100) { n.TvMoodGain = 15; warnings.Add("needs.tvMoodGain outside [0,100] → 15"); }
     }
 
     private static void ValidateCheat(CheatConfig c, List<string> warnings)

@@ -131,6 +131,11 @@ public sealed class FakePlayer : IPlayerContext
     public void SetDrunkVisual(bool enabled) => DrunkCalls.Add(enabled);
     public float DamageTaken { get; private set; }
     public void ApplyHealthDamage(float amount) => DamageTaken += amount;
+
+    // v0.13: fresh-air mood passive (ADR 09) — default FALSE so older tests
+    // don't silently gain mood; mood tests opt in explicitly.
+    public bool Outdoors { get; set; } = false;
+    public bool IsOutdoors() => Outdoors;
 }
 
 public sealed class FakeProbe : IWorldProbe

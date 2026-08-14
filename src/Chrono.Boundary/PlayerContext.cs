@@ -245,4 +245,16 @@ public sealed class PlayerContext : IPlayerContext
         }
         catch { /* never a crash vector */ }
     }
+
+    public bool IsOutdoors()
+    {
+        try
+        {
+            var pos = Game.Player.Character?.Position;
+            if (pos == null) return true;
+            // GET_INTERIOR_AT_COORDS 0xB0F7A866A4B0E1E4 (missing from SHVDN's Hash enum)
+            return Function.Call<int>((Hash)0xB0F7A866A4B0E1E4, pos.Value.X, pos.Value.Y, pos.Value.Z) == 0;
+        }
+        catch { return true; }   // fail-open: no interior data → treat as outdoors
+    }
 }
