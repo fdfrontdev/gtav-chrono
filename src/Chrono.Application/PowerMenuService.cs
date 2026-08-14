@@ -259,6 +259,8 @@ public sealed class PowerMenuService
                     ? "Delivery ARRIVED — press G to eat"
                     : "Delivery idle";
             items.Add(new MenuItem { Title = delivery });
+            // v0.12: escort status line (FR-D2)
+            items.Add(new MenuItem { Title = _needs.EscortStatusLine });
 
             foreach (var (label, value, tier) in _needs.StatusLines())
                 items.Add(new MenuItem { Title = $"{label} {value} — {tier}" });
@@ -272,6 +274,12 @@ public sealed class PowerMenuService
             {
                 Title = UiStrings.ItemEatAtEatery,
                 OnActivate = () => _needs?.TryEatAtEatery()
+            });
+            // v0.12: phone escort service (FR-D2)
+            items.Add(new MenuItem
+            {
+                Title = $"{UiStrings.ItemEscort} (${_config.Needs.EscortPrice:#,##0})",
+                OnActivate = () => _needs?.TryOrderEscort()
             });
             items.Add(new MenuItem
             {
@@ -295,6 +303,18 @@ public sealed class PowerMenuService
                 Title = $"{m.Name} — ${m.Price + _config.Needs.DeliveryFee}",
                 Value = $"${m.Price} + ${_config.Needs.DeliveryFee} fee",
                 OnActivate = () => _needs?.TryOrderMeal(idx)
+            });
+        }
+        // v0.12: drinks via phone (FR-D1) — no prop, drink anim on consume
+        foreach (var drink in FoodCatalog.DeliveryDrinks)
+        {
+            int idx = Array.IndexOf(FoodCatalog.DeliveryDrinks, drink);
+            var d = drink;
+            items.Add(new MenuItem
+            {
+                Title = $"{d.Name} — ${d.Price + _config.Needs.DeliveryFee}",
+                Value = $"${d.Price} + ${_config.Needs.DeliveryFee} fee",
+                OnActivate = () => _needs?.TryOrderDrink(idx)
             });
         }
         return new MenuScreen { Title = UiStrings.ItemFoodDelivery, Items = items };

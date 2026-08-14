@@ -183,6 +183,16 @@ public sealed class NeedsConfig
     public int MealPrice { get; set; } = 20;
     public float EateryRadiusM { get; set; } = 8f;        // interact range at eateries/vending
     public bool HudBarsEnabled { get; set; } = true;          // FR-C14
+
+    // v0.12 phone escort service (FR-D1..D3, ADR 08): pay → she arrives →
+    // time skip + mood/energy boost. Pure need loop — no crime by default.
+    public bool EscortEnabled { get; set; } = true;
+    public int EscortPrice { get; set; } = 100;
+    public int EscortEtaSeconds { get; set; } = 20;
+    public int EscortMoodGain { get; set; } = 30;
+    public int EscortEnergyGain { get; set; } = 10;
+    public int EscortSkipGameHours { get; set; } = 1;
+    public string EscortModel { get; set; } = "a_f_m_skid_01";   // fallback chain in boundary
 }
 
 /// <summary>

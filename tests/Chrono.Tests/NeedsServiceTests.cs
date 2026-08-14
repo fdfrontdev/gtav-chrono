@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Chrono.Application;
@@ -19,13 +19,27 @@ public class NeedsServiceTests
         public int SpawnedCount { get; private set; }
         public Vector3 LastSpawn { get; private set; }
         public int EatAnims { get; private set; }
+        public int DrinkAnims { get; private set; }
         public Vector3? VendingPosition { get; set; }
         public bool EateryNearby { get; set; }
 
         public void SpawnFoodProp(Vector3 position, string model) { SpawnedCount++; LastSpawn = position; }
         public void PlayEatAnim() => EatAnims++;
+        public void PlayDrinkAnim() => DrinkAnims++;
         public Vector3? FindVendingMachine(Vector3 center, float radiusM) => VendingPosition;
         public bool TryFindEatery(Vector3 center, float radiusM, out Vector3 spot) { spot = Vector3.Zero; return EateryNearby; }
+    }
+
+    internal sealed class FakeCompanionBoundary : ICompanionBoundary
+    {
+        public int SendCount { get; private set; }
+        public int DismissCount { get; private set; }
+        public bool Near { get; set; }
+        public string? LastModel { get; private set; }
+
+        public void SendCompanion(Vector3 playerPosition, string model) { SendCount++; LastModel = model; }
+        public bool IsCompanionNear(Vector3 playerPosition) => Near;
+        public void DismissCompanion() => DismissCount++;
     }
 
     internal sealed class FakeSleepBoundary : ISleepBoundary
@@ -35,7 +49,7 @@ public class NeedsServiceTests
     }
 
     private static (NeedsService needs, FakePlayer player, FakeRecordStore store, FakeNotifier notifier,
-        FakeFoodBoundary food, FakeSleepBoundary sleep, FakeVfx vfx, FakeInput input) Build(bool withFood = true)
+        FakeFoodBoundary food, FakeSleepBoundary sleep, FakeVfx vfx, FakeInput input, FakeCompanionBoundary escort) Build(bool withFood = true)
     {
         var player = new FakePlayer { Money = 1000, IsVisible = true };
         var store = new FakeRecordStore();
@@ -44,17 +58,18 @@ public class NeedsServiceTests
         var sleep = new FakeSleepBoundary();
         var vfx = new FakeVfx();
         var input = new FakeInput();
+        var escort = new FakeCompanionBoundary();
         var needs = new NeedsService(
             player, store, new NeedsConfig { GameHourRealSeconds = 120 },
-            notifier, new FakeLog(), food, sleep, vfx, input: input);
+            notifier, new FakeLog(), food, sleep, vfx, input: input, escort: escort);
         needs.Load();
-        return (needs, player, store, notifier, food!, sleep, vfx, input);
+        return (needs, player, store, notifier, food!, sleep, vfx, input, escort);
     }
 
     [Fact]
     public void Decay_AppliesPerGameHour()
     {
-        var (needs, _, _, _, _, _, _, _) = Build();
+        var (needs, _, _, _, _, _, _, _, _) = Build();
         int before = needs.State.Thirst;
 
         needs.Tick(120);                    // 1 game hour
@@ -65,7 +80,7 @@ public class NeedsServiceTests
     [Fact]
     public void Decay_FractionalHours_Carry()
     {
-        var (needs, _, _, _, _, _, _, _) = Build();
+        var (needs, _, _, _, _, _, _, _, _) = Build();
         needs.Tick(60);                     // half an hour — nothing decays yet
         int before = needs.State.Hunger;
 
@@ -77,7 +92,7 @@ public class NeedsServiceTests
     [Fact]
     public void TierTransitions_NotifyOnce()
     {
-        var (needs, _, _, notifier, _, _, _, _) = Build();
+        var (needs, _, _, notifier, _, _, _, _, _) = Build();
         // decay hunger to 39 (bad) — 61 points × (24h/100) = 14.6 game hours
         needs.Tick(120 * 15);
 
@@ -91,7 +106,7 @@ public class NeedsServiceTests
     [Fact]
     public void Effects_BlockRegenAndDrainHealth_WhenCritical()
     {
-        var (needs, player, _, _, _, _, _, _) = Build();
+        var (needs, player, _, _, _, _, _, _, _) = Build();
         needs.Tick(120 * 30);               // hunger + thirst way down
 
         Assert.Contains(0f, player.HealthRechargeCalls);   // regen blocked
@@ -101,7 +116,7 @@ public class NeedsServiceTests
     [Fact]
     public void EnergyBad_SlowsRun()
     {
-        var (needs, player, _, _, _, _, _, _) = Build();
+        var (needs, player, _, _, _, _, _, _, _) = Build();
         needs.Tick(120 * 40);               // energy critical
 
         Assert.Contains(0.7f, player.RunSpeedCalls);       // critical multiplier
@@ -110,7 +125,7 @@ public class NeedsServiceTests
     [Fact]
     public void ThirstCritical_DrunkVisual()
     {
-        var (needs, player, _, _, _, _, _, _) = Build();
+        var (needs, player, _, _, _, _, _, _, _) = Build();
         needs.Tick(120 * 25);               // thirst < 15
 
         Assert.Contains(true, player.DrunkCalls);
@@ -119,7 +134,7 @@ public class NeedsServiceTests
     [Fact]
     public void PassOut_WhenEnergyCritical_NeverKills()
     {
-        var (needs, player, store, notifier, _, _, vfx, _) = Build();
+        var (needs, player, store, notifier, _, _, vfx, _, _) = Build();
         store.Status.Needs = new NeedsState { Hunger = 100, Thirst = 100, Energy = 5, Mood = 100 };
         needs.Load();
 
@@ -134,7 +149,7 @@ public class NeedsServiceTests
     [Fact]
     public void Sleep_AtSpot_RestoresEnergyAndMood()
     {
-        var (needs, _, _, notifier, _, sleep, _, _) = Build();
+        var (needs, _, _, notifier, _, sleep, _, _, _) = Build();
         sleep.SpotAvailable = true;
         needs.Tick(120 * 10);               // some decay first
         int moodBefore = needs.State.Mood;
@@ -149,7 +164,7 @@ public class NeedsServiceTests
     [Fact]
     public void Sleep_NoSpot_Refused()
     {
-        var (needs, _, _, notifier, _, sleep, _, _) = Build();
+        var (needs, _, _, notifier, _, sleep, _, _, _) = Build();
         sleep.SpotAvailable = false;
 
         Assert.False(needs.TrySleep());
@@ -159,7 +174,7 @@ public class NeedsServiceTests
     [Fact]
     public void EatAtEatery_Nearby_PaysAndRestores()
     {
-        var (needs, player, _, notifier, food, _, _, _) = Build();
+        var (needs, player, _, notifier, food, _, _, _, _) = Build();
         food.EateryNearby = true;
         needs.Tick(120 * 10);               // hunger down
         int hungerBefore = needs.State.Hunger;
@@ -175,7 +190,7 @@ public class NeedsServiceTests
     [Fact]
     public void BuyDrink_RestoresThirst()
     {
-        var (needs, player, _, notifier, _, _, _, _) = Build();
+        var (needs, player, _, notifier, _, _, _, _, _) = Build();
         needs.Tick(120 * 10);
         int thirstBefore = needs.State.Thirst;
         int moneyBefore = player.Money;
@@ -191,7 +206,7 @@ public class NeedsServiceTests
     [Fact]
     public void Delivery_OrderPayArriveEat_FullLoop()
     {
-        var (needs, player, _, notifier, food, _, _, _) = Build();
+        var (needs, player, _, notifier, food, _, _, _, _) = Build();
         needs.Tick(120 * 10);               // hunger down
         int hungerBefore = needs.State.Hunger;
         int moneyBefore = player.Money;
@@ -215,7 +230,7 @@ public class NeedsServiceTests
     [Fact]
     public void Delivery_OrderedTwice_SecondRefused()
     {
-        var (needs, _, _, notifier, _, _, _, _) = Build();
+        var (needs, _, _, notifier, _, _, _, _, _) = Build();
         Assert.True(needs.TryOrderMeal(0));
 
         Assert.False(needs.TryOrderMeal(1));
@@ -225,7 +240,7 @@ public class NeedsServiceTests
     [Fact]
     public void Delivery_Broke_Refused()
     {
-        var (needs, player, _, notifier, _, _, _, _) = Build();
+        var (needs, player, _, notifier, _, _, _, _, _) = Build();
         player.Money = 10;
 
         Assert.False(needs.TryOrderMeal(0));
@@ -235,7 +250,7 @@ public class NeedsServiceTests
     [Fact]
     public void Delivery_TeleportMidOrder_SpawnsAtNewPosition()
     {
-        var (needs, player, _, _, food, _, _, _) = Build();
+        var (needs, player, _, _, food, _, _, _, _) = Build();
         needs.TryOrderMeal(0);
         player.Position = new Vector3(999, 999, 10);   // player moves across town
 
@@ -247,7 +262,7 @@ public class NeedsServiceTests
     [Fact]
     public void Needs_PersistEvery10Seconds()
     {
-        var (needs, _, store, _, _, _, _, _) = Build();
+        var (needs, _, store, _, _, _, _, _, _) = Build();
         int savesBefore = store.SaveCount;
 
         needs.Tick(5);
@@ -256,5 +271,116 @@ public class NeedsServiceTests
 
         Assert.True(store.SaveCount > savesBefore);
         Assert.NotNull(store.Status.Needs);
+    }
+
+    // ── v0.12 escort (FR-D2) ──
+
+    [Fact]
+    public void Escort_FullLoop_PaysAndBoostsMood()
+    {
+        var (needs, player, _, notifier, _, _, _, _, escort) = Build();
+        needs.Tick(120 * 10);               // mood + energy down a bit
+        int moodBefore = needs.State.Mood;
+        int energyBefore = needs.State.Energy;
+        int moneyBefore = player.Money;
+
+        Assert.True(needs.TryOrderEscort());
+        Assert.Equal(moneyBefore - 100, player.Money);        // paid
+        Assert.Contains(notifier.Messages, m => m.Contains("ESCORT on the way"));
+
+        needs.Tick(25);                     // past 20s ETA → she arrives
+        Assert.Equal(1, escort.SendCount);
+        Assert.Contains(notifier.Messages, m => m.Contains("companion is here"));
+
+        needs.Tick(0.1);                    // still walking — no payoff yet
+        Assert.DoesNotContain(notifier.Messages, m => m.Contains("refreshing"));
+
+        escort.Near = true;                 // she reaches you
+        needs.Tick(0.1);
+
+        Assert.True(needs.State.Mood > moodBefore);           // mood payoff
+        Assert.True(needs.State.Energy > energyBefore);       // energy payoff
+        Assert.Equal(1, escort.DismissCount);
+        Assert.Contains(notifier.Messages, m => m.Contains("refreshing"));
+    }
+
+    [Fact]
+    public void Escort_Broke_Refused()
+    {
+        var (needs, player, _, notifier, _, _, _, _, _) = Build();
+        player.Money = 50;
+
+        Assert.False(needs.TryOrderEscort());
+        Assert.Contains(notifier.Messages, m => m.Contains("Not enough cash for the escort"));
+    }
+
+    [Fact]
+    public void Escort_DuplicateOrder_Refused()
+    {
+        var (needs, _, _, notifier, _, _, _, _, _) = Build();
+        needs.TryOrderEscort();
+
+        Assert.False(needs.TryOrderEscort());
+        Assert.Contains(notifier.Messages, m => m.Contains("already have company"));
+    }
+
+    [Fact]
+    public void Escort_ForceCompletes_IfSheNeverReaches()
+    {
+        var (needs, _, _, notifier, _, _, _, _, escort) = Build();
+        needs.TryOrderEscort();
+        needs.Tick(25);                     // she arrives but stays far
+        Assert.Equal(1, escort.SendCount);
+
+        needs.Tick(46);                     // > 45s force timer
+
+        Assert.Equal(1, escort.DismissCount);                 // never a soft-lock
+        Assert.Contains(notifier.Messages, m => m.Contains("refreshing"));
+    }
+
+    [Fact]
+    public void Escort_BlockedWhileDeliveryPending()
+    {
+        var (needs, _, _, notifier, _, _, _, _, _) = Build();
+        needs.TryOrderMeal(0);              // delivery first
+
+        Assert.False(needs.TryOrderEscort());
+        Assert.Contains(notifier.Messages, m => m.Contains("Finish your delivery first"));
+    }
+
+    // ── v0.12 phone drinks (FR-D1) ──
+
+    [Fact]
+    public void Delivery_Drink_RestoresThirst_NoPropSpawned()
+    {
+        var (needs, _, _, notifier, food, _, _, _, _) = Build();
+        needs.Tick(120 * 10);               // thirst down
+        int thirstBefore = needs.State.Thirst;
+
+        Assert.True(needs.TryOrderDrink(0));                 // bottled water
+        needs.Tick(70);                     // past delivery ETA
+        Assert.True(needs.Delivery.HasArrivedFood);
+        Assert.Equal(0, food.SpawnedCount);                  // drinks: no world prop
+
+        Assert.True(needs.Delivery.TryConsume());
+
+        Assert.True(needs.State.Thirst > thirstBefore);      // thirst restored
+        Assert.True(food.DrinkAnims >= 1);                   // drink anim, not eat
+        Assert.Equal(0, food.EatAnims);
+        Assert.Contains(notifier.Messages, m => m.Contains("thirst quenched"));
+    }
+
+    [Fact]
+    public void Delivery_EnergyDrink_RestoresEnergy()
+    {
+        var (needs, _, _, _, food, _, _, _, _) = Build();
+        needs.Tick(120 * 40);               // energy critical
+        int energyBefore = needs.State.Energy;
+
+        needs.TryOrderDrink(2);                             // energy drink
+        needs.Tick(70);
+        needs.Delivery.TryConsume();
+
+        Assert.True(needs.State.Energy > energyBefore);
     }
 }

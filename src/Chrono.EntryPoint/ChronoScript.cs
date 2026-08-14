@@ -122,7 +122,8 @@ public class ChronoScript : Script
             _energy = new PowerEnergyService(config.Powers);
             _needs = new NeedsService(player, recordStore, config.Needs, notifier, _log,
                 food: new FoodBoundary(), sleep: new SleepBoundary(),
-                vfx: vfx, media: media, input: input);
+                vfx: vfx, media: media, input: input,
+                escort: new CompanionBoundary(_log));   // v0.12 (FR-D2)
             _needs.Load();
             var combat = new CombatPowerService(
                 new PowerFxBoundary(_log), player, _energy, _justice, config.Powers,

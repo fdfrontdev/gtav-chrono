@@ -14,6 +14,9 @@ public interface IFoodBoundary
     /// <summary>Play the eat animation (verified dict; missing anim = still consumed).</summary>
     void PlayEatAnim();
 
+    /// <summary>Play the drink animation (v0.12 phone drinks; missing dict = still consumed).</summary>
+    void PlayDrinkAnim();
+
     /// <summary>Nearest vending machine within radius (FR-C9), or null.</summary>
     Vector3? FindVendingMachine(Vector3 center, float radiusM);
 

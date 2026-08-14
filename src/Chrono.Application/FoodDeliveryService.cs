@@ -68,7 +68,14 @@ public sealed class FoodDeliveryService
         return true;
     }
 
-    /// <summary>Per-frame countdown; arrival spawns the prop at the CURRENT position.</summary>
+    /// <summary>v0.12: order a drink from the phone catalog (FR-D1).</summary>
+    public bool TryOrderDrink(int drinkIndex, int money)
+    {
+        if (drinkIndex < 0 || drinkIndex >= FoodCatalog.DeliveryDrinks.Length) return false;
+        return TryOrder(FoodCatalog.DeliveryDrinks[drinkIndex], money);
+    }
+
+    /// <summary>Per-frame countdown; arrival spawns the prop at the CURRENT position (meals only — drinks have no prop).</summary>
     public void Tick(double deltaSeconds)
     {
         if (_pending == null || _arrived) return;
@@ -76,21 +83,25 @@ public sealed class FoodDeliveryService
         if (_etaSeconds > 0) return;
 
         _arrived = true;
-        _food.SpawnFoodProp(_player.Position, _pending.PropModel);
-        _notifier.Show($"DELIVERY ARRIVED — press G to eat your {_pending.Name}");
+        if (!string.IsNullOrEmpty(_pending.PropModel))
+            _food.SpawnFoodProp(_player.Position, _pending.PropModel!);
+        string verb = _pending.IsDrink ? "drink" : "eat";
+        _notifier.Show($"DELIVERY ARRIVED — press G to {verb} your {_pending.Name}");
     }
 
-    /// <summary>Eat the delivered food (interact key or menu).</summary>
+    /// <summary>Consume the delivered item (interact key or menu).</summary>
     public bool TryConsume()
     {
         if (_pending == null || !_arrived) return false;
         var meal = _pending;
         _pending = null;
         _arrived = false;
-        _food.PlayEatAnim();
+        if (meal.IsDrink) _food.PlayDrinkAnim();
+        else _food.PlayEatAnim();
         _onEaten(meal);
-        _notifier.Show($"Ate the {meal.Name} — hunger restored");
-        _log.Info($"Delivered meal eaten: {meal.Name}");
+        string msg = meal.IsDrink ? $"Drank the {meal.Name} — thirst quenched" : $"Ate the {meal.Name} — hunger restored";
+        _notifier.Show(msg);
+        _log.Info($"Delivered item consumed: {meal.Name}");
         return true;
     }
 

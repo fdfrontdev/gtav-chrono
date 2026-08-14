@@ -20,6 +20,7 @@ public sealed class NeedsService
     private readonly ILogSink _log;
     private readonly IFoodBoundary? _food;
     private readonly ISleepBoundary? _sleep;
+    private readonly ICompanionBoundary? _escort;   // v0.12 (FR-D2)
     private readonly IVfxBoundary? _vfx;
     private readonly MediaService? _media;
     private readonly IGameInput? _input;
@@ -32,6 +33,12 @@ public sealed class NeedsService
     private bool _drunkApplied;
     private double _persistAccumulator;
 
+    // v0.12 escort state (FR-D2): pending = ETA countdown, arriving = walking in
+    private bool _escortPending;
+    private double _escortEta;
+    private bool _escortArriving;
+    private double _escortForceTimer;
+
     public NeedsService(
         IPlayerContext player,
         IRecordStore store,
@@ -42,7 +49,8 @@ public sealed class NeedsService
         ISleepBoundary? sleep = null,
         IVfxBoundary? vfx = null,
         MediaService? media = null,
-        IGameInput? input = null)
+        IGameInput? input = null,
+        ICompanionBoundary? escort = null)   // v0.12 (FR-D2)
     {
         _player = player;
         _store = store;
@@ -54,11 +62,15 @@ public sealed class NeedsService
         _vfx = vfx;
         _media = media;
         _input = input;
+        _escort = escort;
         _delivery = new FoodDeliveryService(
             food ?? new NullFoodBoundary(), player, config, notifier, log,
             meal =>
             {
+                // v0.12: drinks restore thirst/energy too (FR-D1)
                 _state.Restore(NeedKind.Hunger, meal.HungerRestore);
+                _state.Restore(NeedKind.Thirst, meal.ThirstRestore);
+                _state.Restore(NeedKind.Energy, meal.EnergyRestore);
                 _state.Restore(NeedKind.Mood, meal.MoodGain);
                 Persist();
             });
@@ -90,6 +102,7 @@ public sealed class NeedsService
         ApplyEffects(deltaSeconds);
         CheckTierTransitions();
         _delivery.Tick(deltaSeconds);
+        UpdateEscort(deltaSeconds);   // v0.12 (FR-D2)
         CheckWorldPrompts();
 
         _persistAccumulator += deltaSeconds;
@@ -238,9 +251,70 @@ public sealed class NeedsService
     /// <summary>Phone delivery order (menu action) (FR-C10).</summary>
     public bool TryOrderMeal(int mealIndex)
     {
+        if (_escortPending || _escortArriving)
+        {
+            _notifier.Show("Deal with your companion first");
+            return false;
+        }
         if (mealIndex < 0 || mealIndex >= FoodCatalog.Meals.Length) return false;
         return _delivery.TryOrder(FoodCatalog.Meals[mealIndex], _player.GetMoney());
     }
+
+    /// <summary>v0.12: phone drink order (FR-D1).</summary>
+    public bool TryOrderDrink(int drinkIndex)
+    {
+        if (_escortPending || _escortArriving)
+        {
+            _notifier.Show("Deal with your companion first");
+            return false;
+        }
+        return _delivery.TryOrderDrink(drinkIndex, _player.GetMoney());
+    }
+
+    /// <summary>
+    /// v0.12: phone escort (FR-D2, ADR 08) — pay → she walks to you → fade →
+    /// time skip + mood/energy boost. One service at a time.
+    /// </summary>
+    public bool TryOrderEscort()
+    {
+        if (!_config.EscortEnabled)
+        {
+            _notifier.Show("Escort service unavailable");
+            return false;
+        }
+        if (_escort == null)
+        {
+            _notifier.Show("Escort service unavailable in this area");
+            return false;
+        }
+        if (_escortPending || _escortArriving)
+        {
+            _notifier.Show("You already have company on the way");
+            return false;
+        }
+        if (_delivery.HasPendingOrder)
+        {
+            _notifier.Show("Finish your delivery first");
+            return false;
+        }
+        if (_player.GetMoney() < _config.EscortPrice)
+        {
+            _notifier.Show($"Not enough cash for the escort (${_config.EscortPrice:#,##0})");
+            return false;
+        }
+        _player.AddMoney(-_config.EscortPrice);
+        _escortPending = true;
+        _escortEta = _config.EscortEtaSeconds;
+        _notifier.Show($"ESCORT on the way — {Math.Ceiling(_escortEta)}s (${_config.EscortPrice:#,##0})");
+        _log.Info($"Escort ordered (${_config.EscortPrice})");
+        return true;
+    }
+
+    /// <summary>v0.12: phone status line for the escort service.</summary>
+    public string EscortStatusLine
+        => _escortPending ? $"Escort en route — {Math.Ceiling(_escortEta)}s"
+           : _escortArriving ? "Your companion is arriving"
+           : "Escort idle";
 
     /// <summary>Sleep at the nearest bed/spot (FR-C12).</summary>
     public bool TrySleep()
@@ -291,6 +365,44 @@ public sealed class NeedsService
         _ => "CRITICAL"
     };
 
+    /// <summary>
+    /// v0.12 escort state machine (FR-D2): ETA → companion walks in →
+    /// fade + time skip + mood/energy payoff. 45s force-complete if she
+    /// can't reach the player (never a soft-lock).
+    /// </summary>
+    private void UpdateEscort(double dt)
+    {
+        if (_escort == null || (!_escortPending && !_escortArriving)) return;
+
+        if (_escortPending)
+        {
+            _escortEta -= dt;
+            if (_escortEta > 0) return;
+            _escortPending = false;
+            _escortArriving = true;
+            _escortForceTimer = 0;
+            _escort.SendCompanion(_player.Position, _config.EscortModel);
+            _notifier.Show("Your companion is here");
+            _log.Info("Escort arrived — walking to player");
+            return;
+        }
+
+        _escortForceTimer += dt;
+        if (_escort.IsCompanionNear(_player.Position) || _escortForceTimer > 45)
+        {
+            _escortArriving = false;
+            _vfx?.ScreenFadeOut(500);
+            _state.ApplyGameHours(_config.EscortSkipGameHours, _config, active: false, includeMood: false);
+            _state.Restore(NeedKind.Mood, _config.EscortMoodGain);
+            _state.Restore(NeedKind.Energy, _config.EscortEnergyGain);
+            _vfx?.ScreenFadeIn(500);
+            _escort.DismissCompanion();
+            _notifier.Show("That was... refreshing. Mood restored");
+            _log.Info("Escort completed");
+            Persist();
+        }
+    }
+
     private void Persist()
     {
         var status = _store.LoadStatus();
@@ -303,6 +415,7 @@ public sealed class NeedsService
     {
         public void SpawnFoodProp(System.Numerics.Vector3 position, string model) { }
         public void PlayEatAnim() { }
+        public void PlayDrinkAnim() { }   // v0.12
         public System.Numerics.Vector3? FindVendingMachine(System.Numerics.Vector3 center, float radiusM) => null;
         public bool TryFindEatery(System.Numerics.Vector3 center, float radiusM, out System.Numerics.Vector3 spot) { spot = default; return false; }
     }

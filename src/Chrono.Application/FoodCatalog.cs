@@ -1,7 +1,11 @@
 namespace Chrono.Application;
 
-/// <summary>Meal offered by delivery + eateries (SRS FR-C8/C10).</summary>
-public sealed record FoodItem(string Name, int Price, int HungerRestore, int MoodGain, string PropModel);
+/// <summary>
+/// Meal/drink offered by delivery (v0.10 meals, v0.12 drinks via phone).
+/// PropModel null = no world prop on arrival (drinks consumed at prompt).
+/// </summary>
+public sealed record FoodItem(string Name, int Price, int HungerRestore, int MoodGain, string? PropModel = null,
+    int ThirstRestore = 0, int EnergyRestore = 0, bool IsDrink = false);
 
 /// <summary>Drink offered by vending machines (SRS FR-C9).</summary>
 public sealed record DrinkItem(string Name, int Price, int ThirstRestore, int EnergyRestore);
@@ -25,5 +29,13 @@ public static class FoodCatalog
         new("Bottled water", 8, 40, 0),
         new("eCola", 10, 35, 0),
         new("Energy drink", 15, 25, 25),
+    };
+
+    /// <summary>Drinks orderable by phone (v0.12, FR-D1) — same prices as vending + fee.</summary>
+    public static readonly FoodItem[] DeliveryDrinks =
+    {
+        new("Bottled water", 8, 0, 0, null, 40, 0, IsDrink: true),
+        new("eCola", 10, 0, 0, null, 35, 0, IsDrink: true),
+        new("Energy drink", 15, 0, 0, null, 25, 25, IsDrink: true),
     };
 }

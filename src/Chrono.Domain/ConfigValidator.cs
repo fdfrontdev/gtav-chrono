@@ -299,6 +299,10 @@ public static class ConfigValidator
         if (n.DeliveryFee < 0 || n.DeliveryFee > 1000) { n.DeliveryFee = 25; warnings.Add("needs.deliveryFee outside [0,1000] → 25"); }
         if (n.DeliverySecondsMin < 5 || n.DeliverySecondsMax < n.DeliverySecondsMin) { n.DeliverySecondsMin = 30; n.DeliverySecondsMax = 60; warnings.Add("needs.deliverySeconds invalid → 30-60"); }
         if (n.EateryRadiusM < 2f || n.EateryRadiusM > 30f) { n.EateryRadiusM = 8f; warnings.Add("needs.eateryRadiusM outside [2,30] → 8"); }
+        // v0.12 escort (FR-D1..D3)
+        if (n.EscortPrice < 1 || n.EscortPrice > 10000) { n.EscortPrice = 100; warnings.Add("needs.escortPrice outside [1,10000] → 100"); }
+        if (n.EscortEtaSeconds < 5 || n.EscortEtaSeconds > 120) { n.EscortEtaSeconds = 20; warnings.Add("needs.escortEtaSeconds outside [5,120] → 20"); }
+        if (n.EscortMoodGain < 0 || n.EscortMoodGain > 100) { n.EscortMoodGain = 30; warnings.Add("needs.escortMoodGain outside [0,100] → 30"); }
     }
 
     private static void ValidateCheat(CheatConfig c, List<string> warnings)

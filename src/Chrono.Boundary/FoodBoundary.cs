@@ -56,6 +56,20 @@ public sealed class FoodBoundary : IFoodBoundary
         }
     }
 
+    public void PlayDrinkAnim()
+    {
+        try
+        {
+            var ped = Game.Player.Character;
+            if (ped == null || !ped.Exists()) return;
+            ped.Task.PlayAnimation("mp_player_intdrink", "mp_player_int_drink", 8f, 4000, AnimationFlags.None);
+        }
+        catch
+        {
+            // anim dict missing → the drink is still consumed (flavor only)
+        }
+    }
+
     public Vector3? FindVendingMachine(Vector3 center, float radiusM)
     {
         try
