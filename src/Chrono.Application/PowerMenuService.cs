@@ -38,6 +38,7 @@ public sealed class PowerMenuService
     private readonly CombatPowerService? _combat;   // v0.10: offensive/defensive powers
     private readonly NeedsService? _needs;          // v0.10: survivor needs (phone/sleep)
     private readonly PowerEnergyService? _energy;   // v0.10: energy readout
+    private readonly CheatService? _cheat;          // v0.11: money/health/needs cheats
 
     private MenuScreen? _rootScreen;
     private MenuScreen? _webnetScreen;   // S14: WEBNET lives INSIDE the menu now
@@ -78,7 +79,8 @@ public sealed class PowerMenuService
         PowerReactionService? powerReaction = null,   // S22 v8 r4: world reacts to powers
         CombatPowerService? combat = null,   // v0.10
         NeedsService? needs = null,          // v0.10
-        PowerEnergyService? energy = null)   // v0.10
+        PowerEnergyService? energy = null,   // v0.10
+        CheatService? cheat = null)          // v0.11
     {
         _menu = menu;
         _timeStop = timeStop;
@@ -103,6 +105,7 @@ public sealed class PowerMenuService
         _needs = needs;
         _energy = energy;
         _hud = hud;
+        _cheat = cheat;
     }
 
     /// <summary>Build the menu tree (called once at startup after config load).</summary>
@@ -180,18 +183,61 @@ public sealed class PowerMenuService
         _rootScreen = new MenuScreen
         {
             Title = UiStrings.MenuTitle,
-            Items = new[]
-            {
-                new MenuItem { Title = UiStrings.ItemSuperpowers, Submenu = powers },
-                new MenuItem { Title = UiStrings.ItemJustice, Submenu = BuildJusticeScreen() },
-                _webnetItem = new MenuItem { Title = UiStrings.ItemWebnet, Submenu = RebuildWebnetScreen() },
-                _phoneItem = new MenuItem { Title = UiStrings.ItemPhone, Submenu = BuildPhoneScreen() },
-                new MenuItem { Title = UiStrings.ItemSettings, Submenu = settings }
-            }
+            Items = BuildRootItems(powers, settings)
         };
 
         RefreshPowerLabels();
         RefreshTimeStopLabel();
+    }
+
+    /// <summary>
+    /// Root menu items. v0.11: Cheats submenu only when config Cheat.Enabled
+    /// (FR-C1) — hidden entirely when disabled.
+    /// </summary>
+    private IReadOnlyList<MenuItem> BuildRootItems(MenuScreen powers, MenuScreen settings)
+    {
+        _webnetItem = new MenuItem { Title = UiStrings.ItemWebnet, Submenu = RebuildWebnetScreen() };
+        _phoneItem = new MenuItem { Title = UiStrings.ItemPhone, Submenu = BuildPhoneScreen() };
+        var items = new List<MenuItem>
+        {
+            new MenuItem { Title = UiStrings.ItemSuperpowers, Submenu = powers },
+            new MenuItem { Title = UiStrings.ItemJustice, Submenu = BuildJusticeScreen() },
+            _webnetItem,
+            _phoneItem
+        };
+        if (_cheat != null && _config.Cheat.Enabled)
+        {
+            items.Add(new MenuItem { Title = UiStrings.ItemCheats, Submenu = BuildCheatScreen() });
+        }
+        items.Add(new MenuItem { Title = UiStrings.ItemSettings, Submenu = settings });
+        return items;
+    }
+
+    /// <summary>v0.11 Cheats submenu: money / health / needs (FR-C1, FR-B1..B3).</summary>
+    private MenuScreen BuildCheatScreen()
+    {
+        return new MenuScreen
+        {
+            Title = UiStrings.ItemCheats,
+            Items = new[]
+            {
+                new MenuItem
+                {
+                    Title = $"{UiStrings.CheatGiveMoney} (${_config.Cheat.MoneyAmount:N0})",
+                    OnActivate = () => _cheat?.GiveMoney()
+                },
+                new MenuItem
+                {
+                    Title = UiStrings.CheatRefillHealth,
+                    OnActivate = () => _cheat?.RefillHealth()
+                },
+                new MenuItem
+                {
+                    Title = UiStrings.CheatFillNeeds,
+                    OnActivate = () => _cheat?.FillNeeds()
+                }
+            }
+        };
     }
 
     /// <summary>

@@ -30,6 +30,9 @@ public sealed class ChronoConfig
     public PowersConfig Powers { get; set; } = new();
     public HackConfig Hack { get; set; } = new();
     public NeedsConfig Needs { get; set; } = new();
+
+    // --- v0.11 (VA 06): cheat menu (money / health / needs) ---
+    public CheatConfig Cheat { get; set; } = new();
 }
 
 public sealed class DashConfig
@@ -180,4 +183,15 @@ public sealed class NeedsConfig
     public int MealPrice { get; set; } = 20;
     public float EateryRadiusM { get; set; } = 8f;        // interact range at eateries/vending
     public bool HudBarsEnabled { get; set; } = true;          // FR-C14
+}
+
+/// <summary>
+/// v0.11 (VA 06): cheat menu — money / health / needs. Manual, menu-only,
+/// visible actions (notifier on every use). Survivor loop untouched unless
+/// explicitly invoked.
+/// </summary>
+public sealed class CheatConfig
+{
+    public bool Enabled { get; set; } = true;      // FR-A1: false → Cheats submenu not built
+    public int MoneyAmount { get; set; } = 10000;  // FR-A2: per-activation grant (validator 1..1,000,000)
 }

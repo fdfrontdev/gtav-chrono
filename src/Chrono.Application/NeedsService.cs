@@ -261,6 +261,19 @@ public sealed class NeedsService
         return true;
     }
 
+    /// <summary>v0.11 cheat: restore all four needs to full, reset tier flags (FR-B3).</summary>
+    public void FillAll()
+    {
+        _state.Hunger = 100;
+        _state.Thirst = 100;
+        _state.Energy = 100;
+        _state.Mood = 100;
+        _passOutFired = false;
+        _lastTier.Clear();
+        Persist();
+        _log.Info("Cheat: all needs filled");
+    }
+
     /// <summary>Needs status lines for the menu (label, value, tier word).</summary>
     public (string Label, int Value, string Tier)[] StatusLines()
         => new[]

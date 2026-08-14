@@ -138,6 +138,8 @@ public class ChronoScript : Script
                 notifier, _log, config.Justice, clock, player, config.Hack,
                 vfxService, reputation, media);
             var stats = new JusticeStatsService(recordStore, identity, warrant, clock, config.Justice, reputation);
+            // ── v0.11 (VA 06): cheat menu — money / health / needs ──
+            var cheat = new CheatService(player, notifier, _log, config, _needs);
             // S22 v8 r4 (user: "citizens don't react to superpowers, webnet is
             // dead"): the world sees your powers — crowd surprise + WEBNET +
             // small notoriety, witness-gated.
@@ -154,7 +156,8 @@ public class ChronoScript : Script
                 cutsceneActive: () => _cutscene?.IsActive ?? false,
                 hud: _hud,
                 powerReaction: powerReaction,
-                combat: combat, needs: _needs, energy: _energy);   // v0.10
+                combat: combat, needs: _needs, energy: _energy,
+                cheat: cheat);   // v0.10 + v0.11
             _menu.BuildMenu();
 
             CreateClinicBlip();

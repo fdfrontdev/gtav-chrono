@@ -37,6 +37,7 @@ public static class ConfigValidator
         ValidatePowers(cfg.Powers, warnings);
         ValidateHack(cfg.Hack, warnings);
         ValidateNeeds(cfg.Needs, warnings);
+        ValidateCheat(cfg.Cheat, warnings);
 
         return new ValidationResult(cfg, warnings);
     }
@@ -298,6 +299,11 @@ public static class ConfigValidator
         if (n.DeliveryFee < 0 || n.DeliveryFee > 1000) { n.DeliveryFee = 25; warnings.Add("needs.deliveryFee outside [0,1000] → 25"); }
         if (n.DeliverySecondsMin < 5 || n.DeliverySecondsMax < n.DeliverySecondsMin) { n.DeliverySecondsMin = 30; n.DeliverySecondsMax = 60; warnings.Add("needs.deliverySeconds invalid → 30-60"); }
         if (n.EateryRadiusM < 2f || n.EateryRadiusM > 30f) { n.EateryRadiusM = 8f; warnings.Add("needs.eateryRadiusM outside [2,30] → 8"); }
+    }
+
+    private static void ValidateCheat(CheatConfig c, List<string> warnings)
+    {
+        if (c.MoneyAmount < 1 || c.MoneyAmount > 1_000_000) { c.MoneyAmount = 10000; warnings.Add("cheat.moneyAmount outside [1,1e6] → 10000"); }
     }
 
     private static string Format(float v) => v.ToString(CultureInfo.InvariantCulture);

@@ -18,6 +18,10 @@ public static class UiStrings
     public const string ItemWebnet = "WEBNET News";   // S14: feed lives in the menu
     public const string ItemSettings = "Settings";
     public const string ItemPhone = "Phone";            // v0.10: survivor life
+    public const string ItemCheats = "Cheats";          // v0.11: money/health/needs
+    public const string CheatGiveMoney = "Give Money";
+    public const string CheatRefillHealth = "Refill Health";
+    public const string CheatFillNeeds = "Fill Needs";
     public const string ItemFoodDelivery = "Food Delivery";
     public const string ItemEatAtEatery = "Eat at Eatery";
     public const string ItemSleep = "Sleep";
