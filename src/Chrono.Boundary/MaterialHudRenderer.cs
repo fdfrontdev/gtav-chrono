@@ -156,9 +156,10 @@ public sealed class MaterialHudRenderer : IHudRenderer
                     seg = "";
                 }
 
-                // Text box height ≈ scale × 0.08 → star at the same height,
-                // centered on the text line (y = text TOP).
-                float starH = scale * 0.085f;
+                // S23 r4 (user UAT: "the star is too big"): star height = ~70%
+                // of the text box (scale × 0.08) → it matches the DIGIT height
+                // instead of towering over it (was scale × 0.085 ≈ 1.0-1.3×).
+                float starH = scale * 0.055f;
                 float starW = starH * 1.3f;   // 13 cells × 10-cell rows
                 DrawStar(cursor + starW / 2f, y + starH / 2f, starH, r, g, b, a);
                 cursor += starW + scale * 0.006f;   // footprint + gap
