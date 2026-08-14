@@ -66,11 +66,13 @@ public sealed class MaterialHudRenderer : IHudRenderer
             DrawSpan(kpi.Value, ban.R, ban.G, ban.B);
         }
 
-        // ── v0.10: combat energy bar (thin; amber when low) ──
+        // ── v0.10: combat energy bar (thin; amber when low) — label row above ──
         if (state.EnergyMax > 0)
         {
             var eTrack = layout.EnergyTrack;
             Rect(eTrack.X + eTrack.W / 2f, eTrack.Y, eTrack.W, eTrack.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 255);
+            // ENERGY label (UAT r48 r2: bar was unlabeled + unreadable sliver)
+            Text("ENERGY", eTrack.X, eTrack.Y - 0.016f, 0.18f, 190, 190, 190, 255, bold: false, font: (int)HudLayoutEngine.Font);
             var eFill = layout.EnergyFill;
             if (eFill.W > 0.001f)
             {
@@ -97,8 +99,8 @@ public sealed class MaterialHudRenderer : IHudRenderer
                     };
                     Rect(fill.X + fill.W / 2f, fill.Y, fill.W, fill.H, tierColor.R, tierColor.G, tierColor.B, 255);
                 }
-                // tiny label above the bar
-                Text(state.Needs[i].Label, track.X, track.Y - 0.010f, 0.13f, 170, 170, 170, 255, bold: false, font: (int)HudLayoutEngine.Font);
+                // label above the bar (UAT r48 r2: 0.13 → 0.18 — readable)
+                Text(state.Needs[i].Label, track.X, track.Y - 0.020f, 0.18f, 190, 190, 190, 255, bold: false, font: (int)HudLayoutEngine.Font);
             }
         }
 

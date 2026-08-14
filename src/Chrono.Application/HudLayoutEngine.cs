@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Chrono.Application.Ports;
 
@@ -102,8 +102,10 @@ public sealed class HudLayoutEngine
         float feedBlockH = 0.006f + 0.008f + feedRows * 0.024f + 0.034f;
         // S22 v8: KPI tile row height (label + BAN numeral inside one tile)
         float kpiH = kpis != null && kpis.Count > 0 ? 0.040f : 0f;
-        // v0.10: needs row (4 compact bars) under the KPI tiles
-        float needsH = needs != null && needs.Count > 0 ? 0.030f : 0f;
+        // v0.10: life-systems band (energy bar + 4 need bars) under the KPI
+        // tiles. UAT r48 r2 (user: labels unreadable): band 0.030 -> 0.090,
+        // labels 0.13 -> 0.18, bars 0.006 -> 0.008 — readable at 1080p.
+        float needsH = needs != null && needs.Count > 0 ? 0.090f : 0f;
         float cardH = HeaderH + DividerH + RowH * 2.5f + DividerH + kpiH + needsH + feedBlockH;
 
         float right = 1f - RightMargin;
@@ -156,14 +158,17 @@ public sealed class HudLayoutEngine
 
         float identityY = countdownY + RowH + kpiH + needsH;
 
-        // ── v0.10: energy bar (thin, under the countdown) + survivor need bars ──
+        // ── v0.10: life-systems band — energy bar (own label row) + 4 need bars.
+        // Band top = identityY - needsH; rows: energy label, energy bar,
+        // need labels, need bars. (UAT r48 r2 geometry: see block above.)
+        float bandTop = identityY - needsH;
         Rect energyTrack = default, energyFill = default;
         if (energyMax > 0)
         {
-            float eTop = countdownY + 0.011f;
-            energyTrack = new Rect(x + 0.016f, eTop, maxW, 0.004f);
+            float eCenterY = bandTop + 0.030f;              // energy bar row
+            energyTrack = new Rect(x + 0.016f, eCenterY - 0.004f, maxW, 0.008f);
             float ratio = Math.Max(0f, Math.Min(1f, (float)energy / energyMax));
-            energyFill = new Rect(x + 0.016f, eTop, maxW * ratio, 0.004f);
+            energyFill = new Rect(x + 0.016f, eCenterY - 0.004f, maxW * ratio, 0.008f);
         }
 
         var needBars = new List<(Rect Track, Rect Fill)>();
@@ -171,13 +176,13 @@ public sealed class HudLayoutEngine
         {
             float gap = 0.008f;
             float barW = (maxW - gap * (needs.Count - 1)) / needs.Count;
-            float needsBarTop = identityY - 0.020f;         // bar row sits inside the needs band
+            float needsBarCenterY = bandTop + 0.072f;       // need bar row (label above)
             for (int i = 0; i < needs.Count; i++)
             {
                 float bx = textX + i * (barW + gap);
-                var nTrack = new Rect(bx, needsBarTop, barW, 0.006f);
+                var nTrack = new Rect(bx, needsBarCenterY - 0.004f, barW, 0.008f);
                 float ratio = Math.Max(0f, Math.Min(1f, needs[i].Value / 100f));
-                var nFill = new Rect(bx, needsBarTop, barW * ratio, 0.006f);
+                var nFill = new Rect(bx, needsBarCenterY - 0.004f, barW * ratio, 0.008f);
                 needBars.Add((nTrack, nFill));
             }
         }
