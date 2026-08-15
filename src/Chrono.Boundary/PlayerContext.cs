@@ -218,8 +218,12 @@ public sealed class PlayerContext : IPlayerContext
     {
         try
         {
-            // SET_RUN_SPEED_MULTIPLIER 0x3B3CAD6166916D87 (missing from SHVDN's Hash enum)
-            Function.Call((Hash)0x3B3CAD6166916D87, Game.Player.Handle, multiplier);
+            // SET_PED_MOVE_RATE_OVERRIDE — the real movement-speed multiplier native.
+            // (FIX 2026-08-16: old code hardcoded 0x3B3CAD6166916D87 labelled
+            // "SET_RUN_SPEED_MULTIPLIER" — that native does NOT exist in GTA V; the hash
+            // actually maps to PRELOAD_SCRIPT_CONVERSATION (AUDIO), so the speed effect
+            // silently never applied. Verified: enum 0x085BF80FA50A39D1 == legacy == gen9.)
+            Function.Call(Hash.SET_PED_MOVE_RATE_OVERRIDE, Game.Player.Handle, multiplier);
         }
         catch { /* cosmetic — ignore */ }
     }
@@ -252,8 +256,10 @@ public sealed class PlayerContext : IPlayerContext
         {
             var pos = Game.Player.Character?.Position;
             if (pos == null) return true;
-            // GET_INTERIOR_AT_COORDS 0xB0F7A866A4B0E1E4 (missing from SHVDN's Hash enum)
-            return Function.Call<int>((Hash)0xB0F7A866A4B0E1E4, pos.Value.X, pos.Value.Y, pos.Value.Z) == 0;
+            // GET_INTERIOR_AT_COORDS 0xB0F7F8663821D9C3 — verified in nativedb legacy AND gen9
+            // (FIX 2026-08-16: old code used 0xB0F7A866A4B0E1E4 which exists in NO native table —
+            // SHV "FATAL: Can't find native" → critical error popup every launch since v0.13.)
+            return Function.Call<int>((Hash)0xB0F7F8663821D9C3, pos.Value.X, pos.Value.Y, pos.Value.Z) == 0;
         }
         catch { return true; }   // fail-open: no interior data → treat as outdoors
     }
