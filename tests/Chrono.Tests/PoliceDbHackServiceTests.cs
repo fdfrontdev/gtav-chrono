@@ -21,7 +21,7 @@ public class PoliceDbHackServiceTests
             new JusticeConfig(), clock);
         var hack = new PoliceDbHackService(
             wanted, store, identity, warrant, justice, notifier, new FakeLog(),
-            new JusticeConfig(), clock);
+            new JusticeConfig(), clock, player, new HackConfig { BaseCost = 10000, PerEventCost = 1500 });
         return (hack, justice, wanted, store, notifier, clock);
     }
 
@@ -66,15 +66,14 @@ public class PoliceDbHackServiceTests
     }
 
     [Fact]
-    public void Hack_CooldownActive_Refused()
+    public void Hack_NoCooldown_HackAgainSameDaySucceeds()   // v0.10 (FR-A2): money is the gate
     {
-        var (hack, _, _, store, notifier, clock) = Build();
-        store.Status.LastHackDay = clock.CurrentGameDay;         // hacked today
+        var (hack, _, _, store, _, clock) = Build();
+        store.Status.LastHackDay = clock.CurrentGameDay;      // "hacked today" — irrelevant now
 
         bool ok = hack.TryHack();
 
-        Assert.False(ok);
-        Assert.Contains(notifier.Messages, m => m.Contains("locked down"));
+        Assert.True(ok);                                       // no lock (ADR D1)
     }
 
     [Fact]

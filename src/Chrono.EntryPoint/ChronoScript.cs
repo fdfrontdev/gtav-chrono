@@ -30,6 +30,9 @@ public class ChronoScript : Script
     private bool _wasMissionActive;                    // S22: mission edge for cutscene abort
     private ChronoConfig? _config;                     // S22: mission gate reads PauseDuringMissions
     private readonly Stopwatch _clock = Stopwatch.StartNew();
+    private PowerEnergyService? _energy;               // v0.10: combat energy
+    private NeedsService? _needs;                      // v0.10: survivor needs
+    private long _lastTickMs;                          // v0.10: service dt
 
     public ChronoScript()
     {
@@ -62,7 +65,8 @@ public class ChronoScript : Script
             ICrimeProbe crimeProbe = _crimeProbe;
             var hudFeed = new HudFeedBuffer();         // S21 v2: shared widget feed (notifier + WEBNET)
             INotifier notifier = new Notifier(hudFeed);
-            IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey, config.Justice.InteractKey);
+            IGameInput input = new GameInput(config.MenuKey, config.Dash.Hotkey, config.TimeStop.Hotkey, config.Invisible.Hotkey, config.Justice.InteractKey,
+                config.Powers.PushHotkey, config.Powers.BlastHotkey, config.Powers.BulletTimeHotkey, config.Powers.RegenHotkey);
             IVfxBoundary vfx = new VfxBoundary();
             IMenuRenderer renderer = new MaterialMenuRenderer();   // S21: Vuetify-style (was ModernMenuRenderer)
             IHudRenderer hudRenderer = new MaterialHudRenderer();  // S21: persistent justice widget
@@ -113,7 +117,18 @@ public class ChronoScript : Script
                 reputation, probe, null, cutscene, prisonOutfit, crimeProbe, escort);
             _crimeDetection = new CrimeDetectionService(
                 crimeProbe, probe, player, _justice, _log, config.Justice);
-            _hud = new JusticeHudWidget(_justice, hudRenderer, config.Justice, hudFeed);   // S21 v2: live feed
+            _crowd = new CrowdReactionService(player, probe, identity, reputation, notifier, _log);
+            // ── v0.10 (VA 04): combat powers + survivor needs ──
+            _energy = new PowerEnergyService(config.Powers);
+            _needs = new NeedsService(player, recordStore, config.Needs, notifier, _log,
+                food: new FoodBoundary(), sleep: new SleepBoundary(),
+                vfx: vfx, media: media, input: input,
+                escort: new CompanionBoundary(_log));   // v0.12 (FR-D2)
+            _needs.Load();
+            var combat = new CombatPowerService(
+                new PowerFxBoundary(_log), player, _energy, _justice, config.Powers,
+                notifier, _log, media, _crowd);
+            _hud = new JusticeHudWidget(_justice, hudRenderer, config.Justice, hudFeed, _energy, _needs);   // S21 v2: live feed + v0.10 bars
             // S22 v8 r3 (user: "feed seems too quiet"): ambient city chatter —
             // police blotter + WEBNET color when the world is calm.
             _ambient = new AmbientFeedService(hudFeed, config.Justice, clock, _log);
@@ -121,9 +136,11 @@ public class ChronoScript : Script
                 player, recordStore, identity, notifier, _log, config.Justice, clock, input, vfxService);
             var hack = new PoliceDbHackService(
                 wantedMonitor, recordStore, identity, warrant, _justice,
-                notifier, _log, config.Justice, clock, vfxService, reputation, media);
+                notifier, _log, config.Justice, clock, player, config.Hack,
+                vfxService, reputation, media);
             var stats = new JusticeStatsService(recordStore, identity, warrant, clock, config.Justice, reputation);
-            _crowd = new CrowdReactionService(player, probe, identity, reputation, notifier, _log);
+            // ── v0.11 (VA 06): cheat menu — money / health / needs ──
+            var cheat = new CheatService(player, notifier, _log, config, _needs);
             // S22 v8 r4 (user: "citizens don't react to superpowers, webnet is
             // dead"): the world sees your powers — crowd surprise + WEBNET +
             // small notoriety, witness-gated.
@@ -139,7 +156,9 @@ public class ChronoScript : Script
                 hack: hack, stats: stats, feedProvider: () => media.Feed,
                 cutsceneActive: () => _cutscene?.IsActive ?? false,
                 hud: _hud,
-                powerReaction: powerReaction);
+                powerReaction: powerReaction,
+                combat: combat, needs: _needs, energy: _energy,
+                cheat: cheat);   // v0.10 + v0.11
             _menu.BuildMenu();
 
             CreateClinicBlip();
@@ -189,6 +208,10 @@ public class ChronoScript : Script
             if (_justice != null) _justice.MissionStandby = storyTime;
             if (_crowd != null) _crowd.Standby = storyTime || !justiceOn;   // crowd = justice world sim
 
+            // v0.10: needs + energy run on the same standby gate (NFR-6) —
+            // missions own the clock; the player doesn't starve mid-cutscene.
+            if (_needs != null) _needs.Standby = storyTime;
+
             // S22 v2 (user UAT: "the toggle on/off didn't work"): the widget
             // must reflect the toggles — Mod OFF hides it, Justice OFF suspends.
             if (_hud != null)
@@ -202,6 +225,15 @@ public class ChronoScript : Script
                 _crimeDetection?.Tick(_clock.ElapsedMilliseconds);
                 _justice?.Tick();
                 _cutscene?.Tick(_clock.ElapsedMilliseconds);
+            }
+            // v0.10: survivor needs (frozen in missions) + energy regen
+            long nowMs = _clock.ElapsedMilliseconds;
+            double dt = _lastTickMs == 0 ? 0 : (nowMs - _lastTickMs) / 1000.0;
+            _lastTickMs = nowMs;
+            if (!storyTime)
+            {
+                _energy?.Tick(dt);
+                _needs?.Tick(dt);
             }
             _hud?.Tick();                        // S21: persistent justice widget (shows standby)
             // S22 v8 r3: ambient chatter only when the world is calm — free +

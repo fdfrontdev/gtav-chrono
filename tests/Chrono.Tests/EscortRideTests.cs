@@ -20,6 +20,7 @@ public class EscortRideTests
         public bool WasSkipped { get; private set; }
         public int BeginCalls { get; private set; }
         public int EndCalls { get; private set; }
+        public int TickCalls { get; private set; }   // S23: watchdog forwarded from the service
         public bool ArriveNextTick { get; set; }
         public Vector3? LastDestination { get; private set; }
 
@@ -29,6 +30,8 @@ public class EscortRideTests
             LastDestination = destination;
             IsRiding = true;
         }
+
+        public void Tick() => TickCalls++;
 
         public bool HasArrived(Vector3 destination, float arrivalRadiusM = 20f)
             => ArriveNextTick;
@@ -85,6 +88,19 @@ public class EscortRideTests
 
         Assert.True(service.IsActive);
         Assert.Equal(0, boundary.EndCalls);
+    }
+
+    // S23: the per-tick watchdog (re-seat a bailed driver, reassert custody
+    // suppression) must reach the boundary on every ride tick.
+    [Fact]
+    public void Tick_ForwardsToBoundaryWatchdog()
+    {
+        var (service, boundary, _, _) = Build();
+        service.Begin(EscortService.BolingbrokeGate);
+
+        service.Tick();
+
+        Assert.Equal(1, boundary.TickCalls);
     }
 
     [Fact]

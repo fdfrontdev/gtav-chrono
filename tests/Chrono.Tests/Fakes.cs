@@ -107,6 +107,8 @@ public sealed class FakePlayer : IPlayerContext
     public void PlaceOnGround() => PlaceOnGroundCount++;
     public List<bool> AwarenessCalls { get; } = new();
     public void SetNpcAwareness(bool enabled) => AwarenessCalls.Add(enabled);
+    public List<bool> LawIgnoreCalls { get; } = new();   // S23
+    public void SetLawEnforcementIgnore(bool enabled) => LawIgnoreCalls.Add(enabled);
     public bool IsVisible { get; set; } = true;
     public string DistrictName { get; set; } = "Vinewood";
     public string GetDistrictName() => DistrictName;
@@ -119,6 +121,21 @@ public sealed class FakePlayer : IPlayerContext
     public bool IsDead { get; set; }
     public List<bool> ControlCalls { get; } = new();
     public void SetControlEnabled(bool enabled) => ControlCalls.Add(enabled);
+
+    // ── v0.10 survivor-need effects (SRS FR-C4..C7) ──
+    public List<float> HealthRechargeCalls { get; } = new();
+    public void SetHealthRechargeMultiplier(float multiplier) => HealthRechargeCalls.Add(multiplier);
+    public List<float> RunSpeedCalls { get; } = new();
+    public void SetRunSpeedMultiplier(float multiplier) => RunSpeedCalls.Add(multiplier);
+    public List<bool> DrunkCalls { get; } = new();
+    public void SetDrunkVisual(bool enabled) => DrunkCalls.Add(enabled);
+    public float DamageTaken { get; private set; }
+    public void ApplyHealthDamage(float amount) => DamageTaken += amount;
+
+    // v0.13: fresh-air mood passive (ADR 09) — default FALSE so older tests
+    // don't silently gain mood; mood tests opt in explicitly.
+    public bool Outdoors { get; set; } = false;
+    public bool IsOutdoors() => Outdoors;
 }
 
 public sealed class FakeProbe : IWorldProbe
@@ -255,6 +272,13 @@ public sealed class FakeInput : IGameInput
     public bool InteractHotkey { get; set; }
     private bool _tsWasPressed, _invWasPressed, _interactWasPressed;
 
+    // v0.10: combat hotkeys (N/K/V/U)
+    public bool PushHotkey { get; set; }
+    public bool BlastHotkey { get; set; }
+    public bool BulletTimeHotkey { get; set; }
+    public bool RegenHotkey { get; set; }
+    private bool _pushWasPressed, _blastWasPressed, _btWasPressed, _regenWasPressed;
+
     public void UpdateHotkeys()
     {
         IsTimeStopHotkeyJustPressed = TimeStopHotkey && !_tsWasPressed;
@@ -263,11 +287,23 @@ public sealed class FakeInput : IGameInput
         _invWasPressed = InvisibleHotkey;
         IsInteractKeyJustPressed = InteractHotkey && !_interactWasPressed;
         _interactWasPressed = InteractHotkey;
+        IsPushHotkeyJustPressed = PushHotkey && !_pushWasPressed;
+        _pushWasPressed = PushHotkey;
+        IsBlastHotkeyJustPressed = BlastHotkey && !_blastWasPressed;
+        _blastWasPressed = BlastHotkey;
+        IsBulletTimeHotkeyJustPressed = BulletTimeHotkey && !_btWasPressed;
+        _btWasPressed = BulletTimeHotkey;
+        IsRegenHotkeyJustPressed = RegenHotkey && !_regenWasPressed;
+        _regenWasPressed = RegenHotkey;
     }
 
     public bool IsTimeStopHotkeyJustPressed { get; private set; }
     public bool IsInvisibleHotkeyJustPressed { get; private set; }
     public bool IsInteractKeyJustPressed { get; private set; }
+    public bool IsPushHotkeyJustPressed { get; private set; }
+    public bool IsBlastHotkeyJustPressed { get; private set; }
+    public bool IsBulletTimeHotkeyJustPressed { get; private set; }
+    public bool IsRegenHotkeyJustPressed { get; private set; }
 
     // --- flight controls ---
     public bool FlyForward { get; set; }

@@ -75,6 +75,10 @@ public sealed class EscortService
     {
         if (!_active) return;
 
+        // S23: the boundary watchdog reasserts the custody suppression and
+        // re-seats a bailed driver every tick (user UAT: officer got out).
+        _boundary.Tick();
+
         // Skip: the interact key during the ride → cut to intake NOW
         // (S22 v8 r2: skip must END the ride, not just flag it — otherwise
         // the player waits for arrival/timeout anyway).

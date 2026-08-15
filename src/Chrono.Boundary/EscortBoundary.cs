@@ -21,6 +21,7 @@ public sealed class EscortBoundary : IEscortBoundary
     private Vehicle? _cruiser;
     private Ped? _driver;
     private bool _skipped;
+    private Vector3 _destination;   // S23: kept for the driver re-task watchdog
 
     public bool IsRiding => _cruiser != null && _cruiser.Exists() && _driver != null && _driver.Exists();
 
@@ -30,6 +31,17 @@ public sealed class EscortBoundary : IEscortBoundary
 
         try
         {
+            _destination = destination;   // S23: watchdog needs the route
+
+            // S23 (user UAT 2026-08-13: "police still shooting me even though
+            // I'm already in custody"): the arrest chase must END here — flush
+            // the wanted level (pending crime memory included) and make police
+            // + civilians ignore the cuffed suspect for the ride's duration.
+            Game.Player.Wanted.SetWantedLevel(0, false);
+            Function.Call(Hash.SET_PLAYER_WANTED_LEVEL_NOW, Game.Player.Handle, false);
+            Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Game.Player.Handle, true);
+            Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, true);
+
             // Spawn the cruiser just ahead of the arrest point (off the player's nose)
             var heading = Game.Player.Character?.Heading ?? 0f;
             var spawn = playerPosition + new Vector3(
@@ -52,6 +64,10 @@ public sealed class EscortBoundary : IEscortBoundary
             // task was issued to a ped standing BESIDE the car, which GTA's AI
             // can't honor — the officer walked away and the ride never moved.
             Function.Call(Hash.SET_PED_INTO_VEHICLE, _driver.Handle, _cruiser.Handle, -1);
+            // S23: the driver must not drop the route for ambient events (e.g.
+            // a nearby gunfight from the leftover chase) — block non-temporary
+            // event interruption so the escort task sticks.
+            Function.Call(Hash.TASK_SET_BLOCKING_OF_NON_TEMPORARY_EVENTS, _driver.Handle, true);
             // Then the long-range drive task: ~108 km/h — an escort runs hot
             // (the lawful 65 km/h made the cross-city trip an eternity).
             Function.Call(Hash.TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE,
@@ -84,6 +100,34 @@ public sealed class EscortBoundary : IEscortBoundary
         if (!IsRiding) return false;
         var pos = _cruiser!.Position;
         return Vector3.Distance(EntityFreezer.ToNumerics(pos), destination) <= arrivalRadiusM;
+    }
+
+    /// <summary>
+    /// S23 — per-tick watchdog (user UAT 2026-08-13: "the officer that should
+    /// drive got out of the car, the others still shoot me"): reassert the
+    /// custody suppression and, if the driver AI bailed (left the cruiser),
+    /// re-seat him and re-issue the drive task so the ride always completes.
+    /// </summary>
+    public void Tick()
+    {
+        if (!IsRiding) return;
+
+        Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Game.Player.Handle, true);
+        Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, true);
+        Game.Player.Wanted.SetWantedLevel(0, false);
+        Function.Call(Hash.SET_PLAYER_WANTED_LEVEL_NOW, Game.Player.Handle, false);
+
+        // Driver bailed (walked away from the car)? Put him back + re-issue the route.
+        if (!Function.Call<bool>(Hash.IS_PED_IN_VEHICLE, _driver!.Handle, _cruiser!.Handle, false))
+        {
+            Function.Call(Hash.SET_PED_INTO_VEHICLE, _driver.Handle, _cruiser.Handle, -1);
+            Function.Call(Hash.TASK_SET_BLOCKING_OF_NON_TEMPORARY_EVENTS, _driver.Handle, true);
+            Function.Call(Hash.TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE,
+                _driver.Handle, _cruiser.Handle,
+                _destination.X, _destination.Y, _destination.Z,
+                30f, 786603, 10f);
+            _log?.Info("Escort watchdog: driver re-seated + re-tasked to Bolingbroke");
+        }
     }
 
     public void Skip()

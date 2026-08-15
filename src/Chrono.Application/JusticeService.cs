@@ -93,6 +93,14 @@ public sealed class JusticeService
     private bool _wasDead;
     private bool _diedWanted;         // died during a wanted episode → custody on respawn
     private int _deathMoneySnapshot;  // hospital fee refund (justice, not GTA's $5k)
+    /// <summary>
+    /// S23 — custody suppression edge: while CAPTURED or in PRISON the street
+    /// chase is over (police ignore + civilians stop reporting). Tracked so the
+    /// boundary flag is set on enter and cleared on release/escape — never
+    /// re-set every tick (the game resets the flag, so it IS reasserted per
+    /// tick — but only the edge calls the boundary; see Tick).
+    /// </summary>
+    private bool _lawIgnoreOn;
 
     public JusticeService(
         IWantedMonitor wanted,
@@ -186,6 +194,27 @@ public sealed class JusticeService
         }
 
         int stars = _wanted.CurrentStars;
+
+        // ── S23: custody/prison — the street chase is OVER ──────────────
+        // (user UAT 2026-08-13: prison panel showed WANTED 2★ at Day 10/56;
+        // civilians kept calling police; cops shot during the custody ride).
+        // 1) Police stop targeting + civilians stop reporting (edge-driven so
+        //    the flag is only touched on transitions; the boundary reasserts
+        //    per tick while the ride is live).
+        // 2) The wanted level is forced back to 0 every tick — the game's
+        //    own crime memory re-raises it after the single SetStars(0) at
+        //    capture, and nobody was re-clearing it (hence the prison 2★).
+        bool suppressLaw = State == JusticeState.Captured || State == JusticeState.Prison;
+        if (suppressLaw != _lawIgnoreOn)
+        {
+            _lawIgnoreOn = suppressLaw;
+            _player.SetLawEnforcementIgnore(suppressLaw);
+        }
+        if (suppressLaw && stars > 0)
+        {
+            _wanted.SetStars(0);   // reassert — never a star while cuffed/serving
+            stars = 0;             // the rest of this tick sees a clean slate
+        }
 
         // Death edge FIRST — GTA may reset stars/state on death, so the wanted flag
         // must be captured before any cleanup runs (S7)
@@ -442,16 +471,26 @@ public sealed class JusticeService
                 _warrant.Activate(evt.GameTime);
         }
 
-        if (State != JusticeState.Captured)
+        if (State != JusticeState.Captured && State != JusticeState.Prison)
             State = JusticeState.Wanted;
 
         // Drive the wanted level from the ACT (ADR-04 D1) — but ONLY EVER UP:
         // a Minor act (1★) committed during a 5★ chase/manhunt must NOT regress
         // the heat (user UAT r38: "star regress from 5 to 1 — didn't make sense").
         // The act raises the level or holds it; the chase level is never lowered.
-        int targetStars = Math.Max(_wanted.CurrentStars, crime.Stars);
-        _wanted.SetStars(targetStars);
-        _suppressStars = targetStars;
+        // S23: while cuffed/serving, the street chase is over — the act joins
+        // the case but never drives stars (the per-tick reassert zeroes them
+        // anyway; skipping the call keeps the state machine honest).
+        if (State == JusticeState.Captured || State == JusticeState.Prison)
+        {
+            _log.Info($"Crime in custody (added to the case, no chase): {crime.Name}");
+        }
+        else
+        {
+            int targetStars = Math.Max(_wanted.CurrentStars, crime.Stars);
+            _wanted.SetStars(targetStars);
+            _suppressStars = targetStars;
+        }
 
         _log.Info($"Crime detected: {crime.Name} ({crime.Severity}) burned={burned} in {evt.District}");
         _notifier.Show(burned
@@ -910,6 +949,7 @@ public sealed class JusticeService
         _warrant.Activate(DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss"));
         _manhuntUntilDay = _clock.CurrentGameDay + 1;
         _wanted.SetStars(ManhuntStars);
+        _suppressStars = ManhuntStars;   // S23: the 4★ edge is the escape's own heat — no phantom crime
         _media?.ReportEscape("Bolingbroke");
         _reputation?.OnEscape();                     // S9
 

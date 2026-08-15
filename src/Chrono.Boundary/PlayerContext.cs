@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Chrono.Application.Ports;
 using GTA;
@@ -147,6 +148,15 @@ public sealed class PlayerContext : IPlayerContext
         Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, !enabled);
     }
 
+    // S23 (user UAT 2026-08-13): custody/prison — the street chase is over.
+    // Police stop targeting the player and civilians stop calling it in.
+    // Restored on release/escape so the manhunt can engage normally.
+    public void SetLawEnforcementIgnore(bool enabled)
+    {
+        Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Game.Player.Handle, enabled);
+        Function.Call(Hash.SET_EVERYONE_IGNORE_PLAYER, Game.Player.Handle, enabled);
+    }
+
     public bool IsVisible
     {
         get
@@ -194,4 +204,57 @@ public sealed class PlayerContext : IPlayerContext
 
     public void SetControlEnabled(bool enabled)
         => Game.Player.SetControlState(enabled, SetPlayerControlFlags.None);
+
+    // ── v0.10 survivor needs (SRS FR-C4..C7) — cosmetic/balance natives,
+    // all guarded: a missing native must never crash the mod. ──
+
+    public void SetHealthRechargeMultiplier(float multiplier)
+    {
+        try { Function.Call(Hash.SET_PLAYER_HEALTH_RECHARGE_MULTIPLIER, Game.Player.Handle, multiplier); }
+        catch { /* cosmetic — ignore */ }
+    }
+
+    public void SetRunSpeedMultiplier(float multiplier)
+    {
+        try
+        {
+            // SET_RUN_SPEED_MULTIPLIER 0x3B3CAD6166916D87 (missing from SHVDN's Hash enum)
+            Function.Call((Hash)0x3B3CAD6166916D87, Game.Player.Handle, multiplier);
+        }
+        catch { /* cosmetic — ignore */ }
+    }
+
+    public void SetDrunkVisual(bool enabled)
+    {
+        try
+        {
+            var ped = Game.Player.Character;
+            if (ped != null && ped.Exists())
+                Function.Call(Hash.SET_PED_IS_DRUNK, ped.Handle, enabled);
+        }
+        catch { /* cosmetic — ignore */ }
+    }
+
+    public void ApplyHealthDamage(float amount)
+    {
+        try
+        {
+            var ped = Game.Player.Character;
+            if (ped == null || !ped.Exists() || ped.IsDead) return;
+            ped.Health = (int)Math.Max(1, ped.Health - amount);
+        }
+        catch { /* never a crash vector */ }
+    }
+
+    public bool IsOutdoors()
+    {
+        try
+        {
+            var pos = Game.Player.Character?.Position;
+            if (pos == null) return true;
+            // GET_INTERIOR_AT_COORDS 0xB0F7A866A4B0E1E4 (missing from SHVDN's Hash enum)
+            return Function.Call<int>((Hash)0xB0F7A866A4B0E1E4, pos.Value.X, pos.Value.Y, pos.Value.Z) == 0;
+        }
+        catch { return true; }   // fail-open: no interior data → treat as outdoors
+    }
 }

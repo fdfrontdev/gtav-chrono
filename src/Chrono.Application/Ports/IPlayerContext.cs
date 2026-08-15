@@ -36,6 +36,16 @@ public interface IPlayerContext
     /// <summary>false = NPCs &amp; police cannot perceive/track the player (SET_*_IGNORE_PLAYER).</summary>
     void SetNpcAwareness(bool enabled);
 
+    // --- custody suppression (S23) ---
+    /// <summary>
+    /// S23 (user UAT: \"wanted level stays in custody/prison; civilians keep
+    /// calling police\"): while the player is CAPTURED or in PRISON the street
+    /// chase is over — police stop targeting and civilians stop reporting
+    /// (SET_POLICE_IGNORE_PLAYER + SET_EVERYONE_IGNORE_PLAYER). Restored on
+    /// release/escape so the manhunt can engage normally.
+    /// </summary>
+    void SetLawEnforcementIgnore(bool enabled);
+
     // --- justice (v0.9.0, S1) ---
     /// <summary>true when the player is visually present (invisible power → false → no burning).</summary>
     bool IsVisible { get; }
@@ -61,4 +71,20 @@ public interface IPlayerContext
 
     /// <summary>Current cash.</summary>
     int GetMoney();
+
+    // --- v0.10 survivor needs (SRS FR-C4..C7) ---
+    /// <summary>Health recharge multiplier (0 = no passive regen when hungry/thirsty).</summary>
+    void SetHealthRechargeMultiplier(float multiplier);
+
+    /// <summary>Run-speed multiplier (tired).</summary>
+    void SetRunSpeedMultiplier(float multiplier);
+
+    /// <summary>Drunken-blur visual (critical thirst).</summary>
+    void SetDrunkVisual(bool enabled);
+
+    /// <summary>Direct health damage (starvation / dehydration drain).</summary>
+    void ApplyHealthDamage(float amount);
+
+    /// <summary>v0.13: true when the player is not inside an interior (fresh-air mood, ADR 09).</summary>
+    bool IsOutdoors();
 }

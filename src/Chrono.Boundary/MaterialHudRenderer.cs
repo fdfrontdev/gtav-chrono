@@ -29,7 +29,9 @@ public sealed class MaterialHudRenderer : IHudRenderer
             hasIdentity: !string.IsNullOrEmpty(state.SecondLine),
             countdownUrgent: state.CountdownLine.Contains("YARD OPEN") || state.StatusLine.Contains("MANHUNT")
                 || state.CountdownLine.Contains("TRANSPORT"),   // S22 v8: ride = action prompt (E to skip)
-            kpis: state.Kpis);   // S22 v8: dashboard KPI tiles — MUST forward (game bug: preview passed them, renderer didn't)
+            kpis: state.Kpis,   // S22 v8: dashboard KPI tiles — MUST forward (game bug: preview passed them, renderer didn't)
+            energy: state.Energy, energyMax: state.EnergyMax,   // v0.10: combat energy
+            needs: state.Needs);                                // v0.10: survivor bars
 
         // ── Elevation: shadow → surface ──
         var s = layout.Shadow;
@@ -62,6 +64,44 @@ public sealed class MaterialHudRenderer : IHudRenderer
             // BAN value inherits the status alert color — the eye lands on it
             var ban = HudLayoutEngine.KindColor(state.Kind);
             DrawSpan(kpi.Value, ban.R, ban.G, ban.B);
+        }
+
+        // ── v0.10: combat energy bar (thin; amber when low) — label row above ──
+        if (state.EnergyMax > 0)
+        {
+            var eTrack = layout.EnergyTrack;
+            Rect(eTrack.X + eTrack.W / 2f, eTrack.Y, eTrack.W, eTrack.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 255);
+            // ENERGY label (UAT r48 r2: bar was unlabeled + unreadable sliver)
+            Text("ENERGY", eTrack.X, eTrack.Y - 0.016f, 0.18f, 190, 190, 190, 255, bold: false, font: (int)HudLayoutEngine.Font);
+            var eFill = layout.EnergyFill;
+            if (eFill.W > 0.001f)
+            {
+                bool low = state.Energy < 30;
+                (int R, int G, int B) ec = low ? (255, 179, 64) : (76, 175, 80);
+                Rect(eFill.X + eFill.W / 2f, eFill.Y, eFill.W, eFill.H, ec.R, ec.G, ec.B, 255);
+            }
+        }
+
+        // ── v0.10: survivor need bars (tier-colored fills) ──
+        if (state.Needs != null && layout.NeedBars.Count == state.Needs.Count)
+        {
+            for (int i = 0; i < state.Needs.Count; i++)
+            {
+                var (track, fill) = layout.NeedBars[i];
+                Rect(track.X + track.W / 2f, track.Y, track.W, track.H, SurfaceVariant.R, SurfaceVariant.G, SurfaceVariant.B, 255);
+                if (fill.W > 0.001f)
+                {
+                    (int R, int G, int B) tierColor = state.Needs[i].Tier switch
+                    {
+                        Chrono.Domain.NeedsTier.Critical => (239, 83, 80),
+                        Chrono.Domain.NeedsTier.Bad => (255, 179, 64),
+                        _ => (76, 175, 80)
+                    };
+                    Rect(fill.X + fill.W / 2f, fill.Y, fill.W, fill.H, tierColor.R, tierColor.G, tierColor.B, 255);
+                }
+                // label above the bar (UAT r48 r2: 0.13 → 0.18 — readable)
+                Text(state.Needs[i].Label, track.X, track.Y - 0.020f, 0.18f, 190, 190, 190, 255, bold: false, font: (int)HudLayoutEngine.Font);
+            }
         }
 
         DrawRow(layout.Identity);
@@ -122,6 +162,91 @@ public sealed class MaterialHudRenderer : IHudRenderer
     }
 
     private static void Text(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold = false, int font = 0)
+    {
+        // S23 (user UAT 2026-08-13: "the star symbol shows as a rectangle"):
+        // the ★ glyph (U+2605) is NOT in GTA's font 0 — it renders as a box.
+        // Draw real wanted-star sprites instead (the game's own HUD dict).
+        if (text.IndexOf('★') >= 0)
+        {
+            DrawTextWithStars(text, x, y, scale, r, g, b, a, bold, font);
+            return;
+        }
+
+        DrawTextCore(text, x, y, scale, r, g, b, a, bold, font);
+    }
+
+    /// <summary>S23: draw text segment-by-segment, replacing every ★ with a
+    /// procedurally drawn star (the text cursor advances by measured width;
+    /// the star by its own footprint). No textures, no font glyphs — the
+    /// game's wanted stars are scaleform vector art (verified: zero
+    /// 'wanted*' / '*star*.ytd' strings across every .rpf in the install),
+    /// so a texture-based approach can never work here.</summary>
+    private static void DrawTextWithStars(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold, int font)
+    {
+        float cursor = x;
+        string seg = "";
+        foreach (char ch in text)
+        {
+            if (ch == '★')
+            {
+                if (seg.Length > 0)
+                {
+                    DrawTextCore(seg, cursor, y, scale, r, g, b, a, bold, font);
+                    cursor += Measure(seg, scale, font);
+                    seg = "";
+                }
+
+                // S23 r4 (user UAT: "the star is too big"): star height = ~70%
+                // of the text box (scale × 0.08) → it matches the DIGIT height
+                // instead of towering over it (was scale × 0.085 ≈ 1.0-1.3×).
+                float starH = scale * 0.055f;
+                float starW = starH * 1.3f;   // 13 cells × 10-cell rows
+                DrawStar(cursor + starW / 2f, y + starH / 2f, starH, r, g, b, a);
+                cursor += starW + scale * 0.006f;   // footprint + gap
+            }
+            else seg += ch;
+        }
+        if (seg.Length > 0)
+            DrawTextCore(seg, cursor, y, scale, r, g, b, a, bold, font);
+    }
+
+    /// <summary>S23 r3 — real 5-point star (13×11 cells, supersampled from a
+    /// 10-vertex star polygon: 5 outer points + 5 inner notches). 12 rects per
+    /// star: top point, wide arms, tapered waist, and TWO legs with a notch
+    /// between them — the notches are what make it READ as a star at HUD size
+    /// (r2's notch-less fat silhouette rendered as a blob).</summary>
+    private static readonly (int Row, int X, int W)[] StarCells =
+    {
+        (1, 6, 1),   // top point
+        (2, 6, 1),
+        (3, 5, 3),
+        (4, 1, 11),  // arms (widest row)
+        (5, 2, 9),
+        (6, 3, 7),   // waist taper
+        (7, 4, 5),
+        (8, 4, 5),
+        (9, 3, 3),   // left leg
+        (9, 7, 3),   // right leg  (notch between the legs)
+        (10, 3, 1),  // leg tips
+        (10, 9, 1),
+    };
+
+    /// <summary>Draw a filled star centered at (cx, cy) with the given height.</summary>
+    private static void DrawStar(float cx, float cy, float height, int r, int g, int b, int a)
+    {
+        float cell = height / 10f;   // rows 1..10
+        float totalW = 13f * cell;
+        float yTop = cy - height / 2f;
+        float xLeft = cx - totalW / 2f;
+        foreach (var (row, x0, w) in StarCells)
+        {
+            float x = xLeft + (x0 + w / 2f) * cell;
+            float y = yTop + (row - 1) * cell + cell / 2f;
+            Rect(x, y, w * cell, cell, r, g, b, a);
+        }
+    }
+
+    private static void DrawTextCore(string text, float x, float y, float scale, int r, int g, int b, int a, bool bold = false, int font = 0)
     {
         Function.Call(Hash.SET_TEXT_FONT, font);
         Function.Call(Hash.SET_TEXT_SCALE, scale, scale);

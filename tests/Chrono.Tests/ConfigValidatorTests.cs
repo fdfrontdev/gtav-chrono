@@ -125,4 +125,26 @@ public class ConfigValidatorTests
         else
             Assert.Equal("info", result.Config.Logging.Level);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-500)]
+    [InlineData(2_000_000)]
+    public void Validate_CheatMoneyAmountOutOfBounds_Defaults(int amount)
+    {
+        var cfg = new ChronoConfig();
+        cfg.Cheat.MoneyAmount = amount;
+        var result = ConfigValidator.Validate(cfg);
+        Assert.Equal(10000, result.Config.Cheat.MoneyAmount); // FR-A2 fail-soft
+        Assert.Contains(result.Warnings, w => w.Contains("cheat.moneyAmount"));
+    }
+
+    [Fact]
+    public void Validate_CheatMoneyAmountInBounds_Kept()
+    {
+        var cfg = new ChronoConfig();
+        cfg.Cheat.MoneyAmount = 25000;
+        var result = ConfigValidator.Validate(cfg);
+        Assert.Equal(25000, result.Config.Cheat.MoneyAmount);
+    }
 }

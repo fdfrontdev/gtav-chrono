@@ -1,3 +1,5 @@
+using System;
+using System.Numerics;
 using Chrono.Application.Ports;
 
 namespace Chrono.Application;
@@ -28,6 +30,16 @@ public sealed class CrowdReactionService
     /// reactions freeze (scripted NPCs are the story's, not the mod's).
     /// </summary>
     public bool Standby { get; set; }
+
+    /// <summary>
+    /// v0.10 (SRS FR-B11): direct flee trigger — combat powers scare civilians
+    /// in a radius (witness-gated by the caller; this is the world reaction).
+    /// </summary>
+    public void FleeFrom(Vector3 position, float radiusM)
+    {
+        if (Standby) return;
+        _probe.MakeNearbyCiviliansFlee(position, radiusM);
+    }
 
     public CrowdReactionService(
         IPlayerContext player,

@@ -19,6 +19,8 @@ public sealed class JusticeHudWidget
     private readonly IHudRenderer _renderer;
     private readonly JusticeConfig _config;
     private readonly HudFeedBuffer _feed;
+    private readonly PowerEnergyService? _energy;   // v0.10: combat energy bar
+    private readonly NeedsService? _needs;          // v0.10: survivor need bars
 
     public bool Enabled { get; set; }   // menu toggle — Settings → Show HUD
 
@@ -29,12 +31,14 @@ public sealed class JusticeHudWidget
     public bool JusticeOff { get; set; }
 
     public JusticeHudWidget(JusticeService justice, IHudRenderer renderer, JusticeConfig config,
-        HudFeedBuffer? feed = null)
+        HudFeedBuffer? feed = null, PowerEnergyService? energy = null, NeedsService? needs = null)
     {
         _justice = justice;
         _renderer = renderer;
         _config = config;
         _feed = feed ?? new HudFeedBuffer();
+        _energy = energy;
+        _needs = needs;
         Enabled = config.HudEnabled;
     }
 
@@ -91,7 +95,7 @@ public sealed class JusticeHudWidget
         {
             case JusticeState.Captured: status = "IN CUSTODY — COURT AWAITS"; break;
             case JusticeState.Prison:   status = $"PRISON — DAY {j.ServedDays + 1}/{j.SentenceDays}"; break;
-            case JusticeState.Wanted:   status = stars > 0 ? $"WANTED {stars}*" : "WANTED"; break;
+            case JusticeState.Wanted:   status = stars > 0 ? $"WANTED {stars}★" : "WANTED"; break;
             default:                    status = "FREE"; break;
         }
 
@@ -157,7 +161,7 @@ public sealed class JusticeHudWidget
         // with the heat countdown on the countdown line.
         if (j.IsManhunt)
         {
-            status = $"MANHUNT — PRISON BREAK {stars}*";
+            status = $"MANHUNT — PRISON BREAK {stars}★";
             countdown = $"HEAT UNTIL DAY {j.ManhuntUntilDay}";
             progress = 1f;
             prison = true;   // reuse the countdown bar + urgent color for the heat timer
@@ -176,7 +180,10 @@ public sealed class JusticeHudWidget
         // third metric. Big numerals in enclosed tiles (Big Book of Dashboards).
         var kpis = new List<(string Label, string Value)>
         {
-            ("WANTED", stars > 0 ? $"{stars}★" : "—"),
+            // S23 (user UAT 2026-08-13): in custody/prison the street chase is
+            // over — the WANTED tile shows a dash, NEVER a star (the game's
+            // level is forced to 0 anyway; the tile must not contradict it).
+            ("WANTED", state is JusticeState.Captured or JusticeState.Prison || stars == 0 ? "—" : $"{stars}★"),
         };
         if (state == JusticeState.Prison)
             kpis.Add(("DAY", $"{j.ServedDays + 1}/{j.SentenceDays}"));
@@ -217,7 +224,23 @@ public sealed class JusticeHudWidget
             Feed: tiered,
             Kind: kind,
             Progress: progress,
-            Kpis: kpis));   // S22 v8: dashboard KPI tiles
+            Kpis: kpis,
+            Energy: _energy?.Current ?? 0,          // v0.10: combat energy (FR-B3)
+            EnergyMax: _energy?.Max ?? 0,
+            Needs: _needs?.Enabled == true ? NeedsBars() : null));   // v0.10: survivor bars (FR-C14)
+    }
+
+    /// <summary>v0.10 — the four survivor bars (label, value, tier).</summary>
+    private IReadOnlyList<NeedBar> NeedsBars()
+    {
+        var s = _needs!.State;
+        return new[]
+        {
+            new NeedBar("HUN", s.Hunger, s.Tier(NeedKind.Hunger)),
+            new NeedBar("THR", s.Thirst, s.Tier(NeedKind.Thirst)),
+            new NeedBar("ENG", s.Energy, s.Tier(NeedKind.Energy)),
+            new NeedBar("MOD", s.Mood, s.Tier(NeedKind.Mood)),
+        };
     }
 
     private static string FormatClock(double seconds)
