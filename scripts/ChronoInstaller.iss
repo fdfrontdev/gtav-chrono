@@ -6,7 +6,7 @@
 ; and AUTO-INSTALLS missing dependencies from BUNDLED copies (no stale
 ; download links — the user asked for self-contained installs).
 #define AppName "CHRONO — Firdaus Builds"
-#define AppVersion "1.0.0"
+#define AppVersion "1.0.2"
 #define AppPublisher "Firdaus Builds"
 #define AppURL "https://github.com/fdfrontdev"
 
