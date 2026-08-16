@@ -104,50 +104,50 @@ Renamed Types:
 
 [Chrono.Application]Chrono.Application.JusticeHudWidget/<>c -> [Chrono.Application]Chrono.Application.JusticeHudWidget/A
 {
-	[Chrono.Application]Chrono.Application.JusticeHudWidget/<>c::<Tick>b__19_0[1]( [Chrono.Application]Chrono.Application.HudFeedItem ) -> A
+	[Chrono.Application]Chrono.Application.JusticeHudWidget/<>c::<Tick>b__21_0[1]( [Chrono.Application]Chrono.Application.HudFeedItem ) -> A
 
 	[Chrono.Application]Chrono.Application.JusticeHudWidget/<>c::.cctor[0]( ) skipped:  special name
 	[Chrono.Application]Chrono.Application.JusticeHudWidget/<>c::.ctor[0]( ) skipped:  special name
 
 	Chrono.Application.JusticeHudWidget/<>c [Chrono.Application]Chrono.Application.JusticeHudWidget/<>c Chrono.Application.JusticeHudWidget/<>c::<>9 -> A
-	System.Func`2<Chrono.Application.HudFeedItem,System.Int32> [Chrono.Application]System.Func`2<Chrono.Application.HudFeedItem,System.Int32> Chrono.Application.JusticeHudWidget/<>c::<>9__19_0 -> A
+	System.Func`2<Chrono.Application.HudFeedItem,System.Int32> [Chrono.Application]System.Func`2<Chrono.Application.HudFeedItem,System.Int32> Chrono.Application.JusticeHudWidget/<>c::<>9__21_0 -> A
 }
 
 [Chrono.Application]Chrono.Application.JusticeService/<>c -> [Chrono.Application]Chrono.Application.JusticeService/A
 {
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<.ctor>b__64_0[0]( ) -> A
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<OnTrialVerdict>b__99_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> A
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<OnTrialVerdict>b__99_1[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> a
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<OnTrialVerdict>b__99_2[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> B
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<ChargeSummary>b__100_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> b
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<ChargeSummary>b__100_1[1]( [System.Core]System.Linq.IGrouping`2<[Chrono.Domain]Chrono.Domain.CrimeSeverity,[Chrono.Domain]Chrono.Domain.CrimeEvent> ) -> A
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<ChargeSummary>b__100_2[1]( [mscorlib]System.String ) -> A
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<BailCost>b__138_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> C
-	[Chrono.Application]Chrono.Application.JusticeService/<>c::<BailCost>b__138_1[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> c
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<.ctor>b__65_0[0]( ) -> A
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<OnTrialVerdict>b__100_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> A
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<OnTrialVerdict>b__100_1[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> a
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<OnTrialVerdict>b__100_2[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> B
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<ChargeSummary>b__101_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> b
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<ChargeSummary>b__101_1[1]( [System.Core]System.Linq.IGrouping`2<[Chrono.Domain]Chrono.Domain.CrimeSeverity,[Chrono.Domain]Chrono.Domain.CrimeEvent> ) -> A
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<ChargeSummary>b__101_2[1]( [mscorlib]System.String ) -> A
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<BailCost>b__139_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> C
+	[Chrono.Application]Chrono.Application.JusticeService/<>c::<BailCost>b__139_1[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> c
 
 	[Chrono.Application]Chrono.Application.JusticeService/<>c::.cctor[0]( ) skipped:  special name
 	[Chrono.Application]Chrono.Application.JusticeService/<>c::.ctor[0]( ) skipped:  special name
 
 	Chrono.Application.JusticeService/<>c [Chrono.Application]Chrono.Application.JusticeService/<>c Chrono.Application.JusticeService/<>c::<>9 -> A
-	System.Func`1<System.Double> [Chrono.Application]System.Func`1<System.Double> Chrono.Application.JusticeService/<>c::<>9__64_0 -> A
-	System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> Chrono.Application.JusticeService/<>c::<>9__99_0 -> A
-	System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> Chrono.Application.JusticeService/<>c::<>9__99_1 -> A
-	System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> Chrono.Application.JusticeService/<>c::<>9__99_2 -> a
-	System.Func`2<Chrono.Domain.CrimeEvent,Chrono.Domain.CrimeSeverity> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,Chrono.Domain.CrimeSeverity> Chrono.Application.JusticeService/<>c::<>9__100_0 -> A
-	System.Func`2<System.Linq.IGrouping`2<Chrono.Domain.CrimeSeverity,Chrono.Domain.CrimeEvent>,System.String> [Chrono.Application]System.Func`2<System.Linq.IGrouping`2<Chrono.Domain.CrimeSeverity,Chrono.Domain.CrimeEvent>,System.String> Chrono.Application.JusticeService/<>c::<>9__100_1 -> A
-	System.Func`2<System.String,System.String> [Chrono.Application]System.Func`2<System.String,System.String> Chrono.Application.JusticeService/<>c::<>9__100_2 -> A
-	System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> Chrono.Application.JusticeService/<>c::<>9__138_0 -> a
-	System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> Chrono.Application.JusticeService/<>c::<>9__138_1 -> B
+	System.Func`1<System.Double> [Chrono.Application]System.Func`1<System.Double> Chrono.Application.JusticeService/<>c::<>9__65_0 -> A
+	System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> Chrono.Application.JusticeService/<>c::<>9__100_0 -> A
+	System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> Chrono.Application.JusticeService/<>c::<>9__100_1 -> A
+	System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> Chrono.Application.JusticeService/<>c::<>9__100_2 -> a
+	System.Func`2<Chrono.Domain.CrimeEvent,Chrono.Domain.CrimeSeverity> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,Chrono.Domain.CrimeSeverity> Chrono.Application.JusticeService/<>c::<>9__101_0 -> A
+	System.Func`2<System.Linq.IGrouping`2<Chrono.Domain.CrimeSeverity,Chrono.Domain.CrimeEvent>,System.String> [Chrono.Application]System.Func`2<System.Linq.IGrouping`2<Chrono.Domain.CrimeSeverity,Chrono.Domain.CrimeEvent>,System.String> Chrono.Application.JusticeService/<>c::<>9__101_1 -> A
+	System.Func`2<System.String,System.String> [Chrono.Application]System.Func`2<System.String,System.String> Chrono.Application.JusticeService/<>c::<>9__101_2 -> A
+	System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> Chrono.Application.JusticeService/<>c::<>9__139_0 -> a
+	System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Int32> Chrono.Application.JusticeService/<>c::<>9__139_1 -> B
 }
 
-[Chrono.Application]Chrono.Application.JusticeService/<>c__DisplayClass99_0 -> [Chrono.Application]Chrono.Application.JusticeService/a
+[Chrono.Application]Chrono.Application.JusticeService/<>c__DisplayClass100_0 -> [Chrono.Application]Chrono.Application.JusticeService/a
 {
-	[Chrono.Application]Chrono.Application.JusticeService/<>c__DisplayClass99_0::<OnTrialVerdict>b__3[0]( ) -> A
+	[Chrono.Application]Chrono.Application.JusticeService/<>c__DisplayClass100_0::<OnTrialVerdict>b__3[0]( ) -> A
 
-	[Chrono.Application]Chrono.Application.JusticeService/<>c__DisplayClass99_0::.ctor[0]( ) skipped:  special name
+	[Chrono.Application]Chrono.Application.JusticeService/<>c__DisplayClass100_0::.ctor[0]( ) skipped:  special name
 
-	Chrono.Application.JusticeService [Chrono.Application]Chrono.Application.JusticeService Chrono.Application.JusticeService/<>c__DisplayClass99_0::<>4__this -> A
-	Chrono.Domain.Sentence [Chrono.Application]Chrono.Domain.Sentence Chrono.Application.JusticeService/<>c__DisplayClass99_0::sentence -> A
+	Chrono.Application.JusticeService [Chrono.Application]Chrono.Application.JusticeService Chrono.Application.JusticeService/<>c__DisplayClass100_0::<>4__this -> A
+	Chrono.Domain.Sentence [Chrono.Application]Chrono.Domain.Sentence Chrono.Application.JusticeService/<>c__DisplayClass100_0::sentence -> A
 }
 
 [Chrono.Application]Chrono.Application.JusticeStatsService/<>c -> [Chrono.Application]Chrono.Application.JusticeStatsService/A
@@ -174,13 +174,33 @@ Renamed Types:
 
 [Chrono.Application]Chrono.Application.PowerMenuService/<>c -> [Chrono.Application]Chrono.Application.PowerMenuService/A
 {
-	[Chrono.Application]Chrono.Application.PowerMenuService/<>c::<RebuildRecordScreen>b__39_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> A
+	[Chrono.Application]Chrono.Application.PowerMenuService/<>c::<RebuildRecordScreen>b__50_0[1]( [Chrono.Domain]Chrono.Domain.CrimeEvent ) -> A
 
 	[Chrono.Application]Chrono.Application.PowerMenuService/<>c::.cctor[0]( ) skipped:  special name
 	[Chrono.Application]Chrono.Application.PowerMenuService/<>c::.ctor[0]( ) skipped:  special name
 
 	Chrono.Application.PowerMenuService/<>c [Chrono.Application]Chrono.Application.PowerMenuService/<>c Chrono.Application.PowerMenuService/<>c::<>9 -> A
-	System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> Chrono.Application.PowerMenuService/<>c::<>9__39_0 -> A
+	System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> [Chrono.Application]System.Func`2<Chrono.Domain.CrimeEvent,System.Boolean> Chrono.Application.PowerMenuService/<>c::<>9__50_0 -> A
+}
+
+[Chrono.Application]Chrono.Application.PowerMenuService/<>c__DisplayClass46_0 -> [Chrono.Application]Chrono.Application.PowerMenuService/a
+{
+	[Chrono.Application]Chrono.Application.PowerMenuService/<>c__DisplayClass46_0::<BuildDeliveryScreen>b__0[0]( ) -> A
+
+	[Chrono.Application]Chrono.Application.PowerMenuService/<>c__DisplayClass46_0::.ctor[0]( ) skipped:  special name
+
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.PowerMenuService/<>c__DisplayClass46_0::idx -> A
+	Chrono.Application.PowerMenuService [Chrono.Application]Chrono.Application.PowerMenuService Chrono.Application.PowerMenuService/<>c__DisplayClass46_0::<>4__this -> A
+}
+
+[Chrono.Application]Chrono.Application.PowerMenuService/<>c__DisplayClass46_1 -> [Chrono.Application]Chrono.Application.PowerMenuService/B
+{
+	[Chrono.Application]Chrono.Application.PowerMenuService/<>c__DisplayClass46_1::<BuildDeliveryScreen>b__1[0]( ) -> A
+
+	[Chrono.Application]Chrono.Application.PowerMenuService/<>c__DisplayClass46_1::.ctor[0]( ) skipped:  special name
+
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.PowerMenuService/<>c__DisplayClass46_1::idx -> A
+	Chrono.Application.PowerMenuService [Chrono.Application]Chrono.Application.PowerMenuService Chrono.Application.PowerMenuService/<>c__DisplayClass46_1::<>4__this -> A
 }
 
 [Chrono.Application]Chrono.Application.PowerReactionService/<>c -> [Chrono.Application]Chrono.Application.PowerReactionService/a
@@ -276,13 +296,13 @@ Renamed Types:
 	System.Int32 [Chrono]System.Int32 System.Runtime.CompilerServices.RefSafetyRulesAttribute::Version -> A
 }
 
-[Chrono]Chrono.EntryPoint.ChronoScript/<>c__DisplayClass15_0 -> [Chrono]Chrono.EntryPoint.ChronoScript/A
+[Chrono]Chrono.EntryPoint.ChronoScript/<>c__DisplayClass18_0 -> [Chrono]Chrono.EntryPoint.ChronoScript/A
 {
-	[Chrono]Chrono.EntryPoint.ChronoScript/<>c__DisplayClass15_0::<.ctor>b__4[0]( ) -> A
+	[Chrono]Chrono.EntryPoint.ChronoScript/<>c__DisplayClass18_0::<.ctor>b__4[0]( ) -> A
 
-	[Chrono]Chrono.EntryPoint.ChronoScript/<>c__DisplayClass15_0::.ctor[0]( ) skipped:  special name
+	[Chrono]Chrono.EntryPoint.ChronoScript/<>c__DisplayClass18_0::.ctor[0]( ) skipped:  special name
 
-	Chrono.Application.MediaService [Chrono]Chrono.Application.MediaService Chrono.EntryPoint.ChronoScript/<>c__DisplayClass15_0::media -> A
+	Chrono.Application.MediaService [Chrono]Chrono.Application.MediaService Chrono.EntryPoint.ChronoScript/<>c__DisplayClass18_0::media -> A
 }
 
 [Chrono.Domain]Microsoft.CodeAnalysis.EmbeddedAttribute -> [Chrono.Domain]A.A
@@ -307,6 +327,17 @@ Renamed Types:
 {
 
 	[Chrono.Application]System.Runtime.CompilerServices.RequiredMemberAttribute::.ctor[0]( ) skipped:  special name
+}
+
+[Chrono.Application]Chrono.Application.NeedsService/NullFoodBoundary -> [Chrono.Application]Chrono.Application.NeedsService/A
+{
+
+	[Chrono.Application]Chrono.Application.NeedsService/NullFoodBoundary::SpawnFoodProp[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.String ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService/NullFoodBoundary::PlayEatAnim[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService/NullFoodBoundary::PlayDrinkAnim[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService/NullFoodBoundary::FindVendingMachine[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService/NullFoodBoundary::TryFindEatery[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [System.Numerics]System.Numerics.Vector3& ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService/NullFoodBoundary::.ctor[0]( ) skipped:  special name
 }
 
 [Chrono.Boundary]Microsoft.CodeAnalysis.EmbeddedAttribute -> [Chrono.Boundary]A.A
@@ -391,6 +422,14 @@ Skipped Types:
 	[Chrono.Domain]Chrono.Domain.ChronoConfig::set_Visual[1]( [Chrono.Domain]Chrono.Domain.VisualConfig ) skipped:  skip by property
 	[Chrono.Domain]Chrono.Domain.ChronoConfig::get_Logging[0]( ) skipped:  skip by property
 	[Chrono.Domain]Chrono.Domain.ChronoConfig::set_Logging[1]( [Chrono.Domain]Chrono.Domain.LoggingConfig ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::get_Powers[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::set_Powers[1]( [Chrono.Domain]Chrono.Domain.PowersConfig ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::get_Hack[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::set_Hack[1]( [Chrono.Domain]Chrono.Domain.HackConfig ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::get_Needs[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::set_Needs[1]( [Chrono.Domain]Chrono.Domain.NeedsConfig ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::get_Cheat[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.ChronoConfig::set_Cheat[1]( [Chrono.Domain]Chrono.Domain.CheatConfig ) skipped:  skip by property
 	[Chrono.Domain]Chrono.Domain.ChronoConfig::.ctor[0]( ) skipped:  special name
 
 	System.String [Chrono.Domain]System.String Chrono.Domain.ChronoConfig::<MenuKey>k__BackingField -> A
@@ -406,6 +445,10 @@ Skipped Types:
 	Chrono.Domain.JusticeConfig [Chrono.Domain]Chrono.Domain.JusticeConfig Chrono.Domain.ChronoConfig::<Justice>k__BackingField -> A
 	Chrono.Domain.VisualConfig [Chrono.Domain]Chrono.Domain.VisualConfig Chrono.Domain.ChronoConfig::<Visual>k__BackingField -> A
 	Chrono.Domain.LoggingConfig [Chrono.Domain]Chrono.Domain.LoggingConfig Chrono.Domain.ChronoConfig::<Logging>k__BackingField -> A
+	Chrono.Domain.PowersConfig [Chrono.Domain]Chrono.Domain.PowersConfig Chrono.Domain.ChronoConfig::<Powers>k__BackingField -> A
+	Chrono.Domain.HackConfig [Chrono.Domain]Chrono.Domain.HackConfig Chrono.Domain.ChronoConfig::<Hack>k__BackingField -> A
+	Chrono.Domain.NeedsConfig [Chrono.Domain]Chrono.Domain.NeedsConfig Chrono.Domain.ChronoConfig::<Needs>k__BackingField -> A
+	Chrono.Domain.CheatConfig [Chrono.Domain]Chrono.Domain.CheatConfig Chrono.Domain.ChronoConfig::<Cheat>k__BackingField -> A
 
 
 	System.String [Chrono.Domain]System.String Chrono.Domain.ChronoConfig::MenuKey skipped:  KeepPublicApi option in configuration
@@ -421,6 +464,10 @@ Skipped Types:
 	Chrono.Domain.JusticeConfig [Chrono.Domain]Chrono.Domain.JusticeConfig Chrono.Domain.ChronoConfig::Justice skipped:  KeepPublicApi option in configuration
 	Chrono.Domain.VisualConfig [Chrono.Domain]Chrono.Domain.VisualConfig Chrono.Domain.ChronoConfig::Visual skipped:  KeepPublicApi option in configuration
 	Chrono.Domain.LoggingConfig [Chrono.Domain]Chrono.Domain.LoggingConfig Chrono.Domain.ChronoConfig::Logging skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.PowersConfig [Chrono.Domain]Chrono.Domain.PowersConfig Chrono.Domain.ChronoConfig::Powers skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.HackConfig [Chrono.Domain]Chrono.Domain.HackConfig Chrono.Domain.ChronoConfig::Hack skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedsConfig [Chrono.Domain]Chrono.Domain.NeedsConfig Chrono.Domain.ChronoConfig::Needs skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.CheatConfig [Chrono.Domain]Chrono.Domain.CheatConfig Chrono.Domain.ChronoConfig::Cheat skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Domain]Chrono.Domain.DashConfig skipped:  KeepPublicApi option in configuration
@@ -616,6 +663,290 @@ Skipped Types:
 
 
 	System.String [Chrono.Domain]System.String Chrono.Domain.LoggingConfig::Level skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.PowersConfig skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_EnergyMax[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_EnergyMax[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_EnergyRegenPerSecond[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_EnergyRegenPerSecond[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_PushCost[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_PushCost[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_PushRangeM[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_PushRangeM[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_PushConeDeg[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_PushConeDeg[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_PushVehicleImpulse[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_PushVehicleImpulse[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_PushHotkey[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_PushHotkey[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BlastCost[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BlastCost[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BlastRadiusM[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BlastRadiusM[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BlastRangeM[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BlastRangeM[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BlastDamageScale[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BlastDamageScale[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BlastHotkey[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BlastHotkey[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BulletTimeCostPerSecond[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BulletTimeCostPerSecond[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BulletTimeScale[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BulletTimeScale[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_BulletTimeHotkey[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_BulletTimeHotkey[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_RegenCost[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_RegenCost[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_RegenSeconds[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_RegenSeconds[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_RegenDamageResist[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_RegenDamageResist[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::get_RegenHotkey[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::set_RegenHotkey[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowersConfig::.ctor[0]( ) skipped:  special name
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::<EnergyMax>k__BackingField -> A
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.PowersConfig::<EnergyRegenPerSecond>k__BackingField -> A
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::<PushCost>k__BackingField -> a
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<PushRangeM>k__BackingField -> A
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<PushConeDeg>k__BackingField -> a
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<PushVehicleImpulse>k__BackingField -> B
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::<PushHotkey>k__BackingField -> A
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::<BlastCost>k__BackingField -> B
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<BlastRadiusM>k__BackingField -> b
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<BlastRangeM>k__BackingField -> C
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<BlastDamageScale>k__BackingField -> c
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::<BlastHotkey>k__BackingField -> a
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::<BulletTimeCostPerSecond>k__BackingField -> b
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<BulletTimeScale>k__BackingField -> D
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::<BulletTimeHotkey>k__BackingField -> B
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::<RegenCost>k__BackingField -> C
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::<RegenSeconds>k__BackingField -> c
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::<RegenDamageResist>k__BackingField -> d
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::<RegenHotkey>k__BackingField -> b
+
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::EnergyMax skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.PowersConfig::EnergyRegenPerSecond skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::PushCost skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::PushRangeM skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::PushConeDeg skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::PushVehicleImpulse skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::PushHotkey skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::BlastCost skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::BlastRadiusM skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::BlastRangeM skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::BlastDamageScale skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::BlastHotkey skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::BulletTimeCostPerSecond skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::BulletTimeScale skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::BulletTimeHotkey skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::RegenCost skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowersConfig::RegenSeconds skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.PowersConfig::RegenDamageResist skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Domain]System.String Chrono.Domain.PowersConfig::RegenHotkey skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.HackConfig skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Domain]Chrono.Domain.HackConfig::get_BaseCost[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.HackConfig::set_BaseCost[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.HackConfig::get_PerEventCost[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.HackConfig::set_PerEventCost[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.HackConfig::.ctor[0]( ) skipped:  special name
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.HackConfig::<BaseCost>k__BackingField -> A
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.HackConfig::<PerEventCost>k__BackingField -> a
+
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.HackConfig::BaseCost skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.HackConfig::PerEventCost skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.NeedsConfig skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_Enabled[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_Enabled[1]( [mscorlib]System.Boolean ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_GameHourRealSeconds[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_GameHourRealSeconds[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_ThirstPerGameHour[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_ThirstPerGameHour[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_HungerPerGameHour[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_HungerPerGameHour[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_MoodPerGameHour[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_MoodPerGameHour[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EnergyIdlePerGameHour[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EnergyIdlePerGameHour[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EnergyActiveMultiplier[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EnergyActiveMultiplier[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_CriticalHungerDrainPerSecond[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_CriticalHungerDrainPerSecond[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_CriticalThirstDrainPerSecond[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_CriticalThirstDrainPerSecond[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_BadRunMultiplier[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_BadRunMultiplier[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_CriticalRunMultiplier[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_CriticalRunMultiplier[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_PassOutSkipGameHours[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_PassOutSkipGameHours[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_PassOutEnergyRestore[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_PassOutEnergyRestore[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_SleepSkipGameHours[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_SleepSkipGameHours[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_SleepMoodGain[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_SleepMoodGain[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_DeliveryFee[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_DeliveryFee[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_DeliverySecondsMin[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_DeliverySecondsMin[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_DeliverySecondsMax[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_DeliverySecondsMax[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EatRestoreHunger[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EatRestoreHunger[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EatMoodGain[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EatMoodGain[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_DrinkRestoreThirst[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_DrinkRestoreThirst[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EnergyDrinkRestore[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EnergyDrinkRestore[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_DrinkPrice[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_DrinkPrice[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EnergyDrinkPrice[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EnergyDrinkPrice[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_MealPrice[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_MealPrice[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EateryRadiusM[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EateryRadiusM[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_HudBarsEnabled[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_HudBarsEnabled[1]( [mscorlib]System.Boolean ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EscortEnabled[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EscortEnabled[1]( [mscorlib]System.Boolean ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EscortPrice[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EscortPrice[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EscortEtaSeconds[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EscortEtaSeconds[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EscortMoodGain[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EscortMoodGain[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EscortEnergyGain[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EscortEnergyGain[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EscortSkipGameHours[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EscortSkipGameHours[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_EscortModel[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_EscortModel[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_MoodFreshAirPerHour[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_MoodFreshAirPerHour[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_MoodDrivePerHour[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_MoodDrivePerHour[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_MoodDriveMinSpeedMps[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_MoodDriveMinSpeedMps[1]( [mscorlib]System.Single ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_TvMoodGain[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_TvMoodGain[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::get_TvSkipGameHours[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::set_TvSkipGameHours[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsConfig::.ctor[0]( ) skipped:  special name
+
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.NeedsConfig::<Enabled>k__BackingField -> A
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<GameHourRealSeconds>k__BackingField -> A
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<ThirstPerGameHour>k__BackingField -> a
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<HungerPerGameHour>k__BackingField -> B
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<MoodPerGameHour>k__BackingField -> b
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<EnergyIdlePerGameHour>k__BackingField -> C
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<EnergyActiveMultiplier>k__BackingField -> c
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<CriticalHungerDrainPerSecond>k__BackingField -> D
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<CriticalThirstDrainPerSecond>k__BackingField -> d
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<BadRunMultiplier>k__BackingField -> E
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<CriticalRunMultiplier>k__BackingField -> e
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<PassOutSkipGameHours>k__BackingField -> A
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<PassOutEnergyRestore>k__BackingField -> a
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<SleepSkipGameHours>k__BackingField -> B
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<SleepMoodGain>k__BackingField -> b
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<DeliveryFee>k__BackingField -> C
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<DeliverySecondsMin>k__BackingField -> c
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<DeliverySecondsMax>k__BackingField -> D
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EatRestoreHunger>k__BackingField -> d
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EatMoodGain>k__BackingField -> E
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<DrinkRestoreThirst>k__BackingField -> e
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EnergyDrinkRestore>k__BackingField -> F
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<DrinkPrice>k__BackingField -> f
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EnergyDrinkPrice>k__BackingField -> G
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<MealPrice>k__BackingField -> g
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.NeedsConfig::<EateryRadiusM>k__BackingField -> A
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.NeedsConfig::<HudBarsEnabled>k__BackingField -> a
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.NeedsConfig::<EscortEnabled>k__BackingField -> B
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EscortPrice>k__BackingField -> H
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EscortEtaSeconds>k__BackingField -> h
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EscortMoodGain>k__BackingField -> I
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EscortEnergyGain>k__BackingField -> i
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<EscortSkipGameHours>k__BackingField -> J
+	System.String [Chrono.Domain]System.String Chrono.Domain.NeedsConfig::<EscortModel>k__BackingField -> A
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<MoodFreshAirPerHour>k__BackingField -> F
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::<MoodDrivePerHour>k__BackingField -> f
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.NeedsConfig::<MoodDriveMinSpeedMps>k__BackingField -> a
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<TvMoodGain>k__BackingField -> j
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::<TvSkipGameHours>k__BackingField -> K
+
+
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.NeedsConfig::Enabled skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::GameHourRealSeconds skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::ThirstPerGameHour skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::HungerPerGameHour skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::MoodPerGameHour skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::EnergyIdlePerGameHour skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::EnergyActiveMultiplier skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::CriticalHungerDrainPerSecond skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::CriticalThirstDrainPerSecond skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::BadRunMultiplier skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::CriticalRunMultiplier skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::PassOutSkipGameHours skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::PassOutEnergyRestore skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::SleepSkipGameHours skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::SleepMoodGain skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::DeliveryFee skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::DeliverySecondsMin skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::DeliverySecondsMax skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EatRestoreHunger skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EatMoodGain skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::DrinkRestoreThirst skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EnergyDrinkRestore skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::DrinkPrice skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EnergyDrinkPrice skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::MealPrice skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.NeedsConfig::EateryRadiusM skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.NeedsConfig::HudBarsEnabled skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.NeedsConfig::EscortEnabled skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EscortPrice skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EscortEtaSeconds skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EscortMoodGain skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EscortEnergyGain skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::EscortSkipGameHours skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Domain]System.String Chrono.Domain.NeedsConfig::EscortModel skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::MoodFreshAirPerHour skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsConfig::MoodDrivePerHour skipped:  KeepPublicApi option in configuration
+	System.Single [Chrono.Domain]System.Single Chrono.Domain.NeedsConfig::MoodDriveMinSpeedMps skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::TvMoodGain skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsConfig::TvSkipGameHours skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.CheatConfig skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Domain]Chrono.Domain.CheatConfig::get_Enabled[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.CheatConfig::set_Enabled[1]( [mscorlib]System.Boolean ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.CheatConfig::get_MoneyAmount[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.CheatConfig::set_MoneyAmount[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.CheatConfig::.ctor[0]( ) skipped:  special name
+
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.CheatConfig::<Enabled>k__BackingField -> A
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.CheatConfig::<MoneyAmount>k__BackingField -> A
+
+
+	System.Boolean [Chrono.Domain]System.Boolean Chrono.Domain.CheatConfig::Enabled skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.CheatConfig::MoneyAmount skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Domain]Chrono.Domain.ValidationResult skipped:  KeepPublicApi option in configuration
@@ -1278,6 +1609,8 @@ Skipped Types:
 	[Chrono.Domain]Chrono.Domain.JusticeStatus::set_Notoriety[1]( [mscorlib]System.Int32 ) skipped:  skip by property
 	[Chrono.Domain]Chrono.Domain.JusticeStatus::get_Fame[0]( ) skipped:  skip by property
 	[Chrono.Domain]Chrono.Domain.JusticeStatus::set_Fame[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.JusticeStatus::get_Needs[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.JusticeStatus::set_Needs[1]( [Chrono.Domain]Chrono.Domain.NeedsState ) skipped:  skip by property
 	[Chrono.Domain]Chrono.Domain.JusticeStatus::.ctor[0]( ) skipped:  special name
 
 	Chrono.Domain.IdentityState [Chrono.Domain]Chrono.Domain.IdentityState Chrono.Domain.JusticeStatus::<Identity>k__BackingField -> A
@@ -1287,6 +1620,7 @@ Skipped Types:
 	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.JusticeStatus::<LastHackDay>k__BackingField -> a
 	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.JusticeStatus::<Notoriety>k__BackingField -> B
 	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.JusticeStatus::<Fame>k__BackingField -> b
+	Chrono.Domain.NeedsState [Chrono.Domain]Chrono.Domain.NeedsState Chrono.Domain.JusticeStatus::<Needs>k__BackingField -> A
 
 
 	Chrono.Domain.IdentityState [Chrono.Domain]Chrono.Domain.IdentityState Chrono.Domain.JusticeStatus::Identity skipped:  KeepPublicApi option in configuration
@@ -1296,6 +1630,109 @@ Skipped Types:
 	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.JusticeStatus::LastHackDay skipped:  KeepPublicApi option in configuration
 	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.JusticeStatus::Notoriety skipped:  KeepPublicApi option in configuration
 	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.JusticeStatus::Fame skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedsState [Chrono.Domain]Chrono.Domain.NeedsState Chrono.Domain.JusticeStatus::Needs skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.NeedKind skipped:  KeepPublicApi option in configuration
+{
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedKind::value__ skipped:  special name
+	Chrono.Domain.NeedKind [Chrono.Domain]Chrono.Domain.NeedKind Chrono.Domain.NeedKind::Hunger skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedKind [Chrono.Domain]Chrono.Domain.NeedKind Chrono.Domain.NeedKind::Thirst skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedKind [Chrono.Domain]Chrono.Domain.NeedKind Chrono.Domain.NeedKind::Energy skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedKind [Chrono.Domain]Chrono.Domain.NeedKind Chrono.Domain.NeedKind::Mood skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.NeedsTier skipped:  KeepPublicApi option in configuration
+{
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsTier::value__ skipped:  special name
+	Chrono.Domain.NeedsTier [Chrono.Domain]Chrono.Domain.NeedsTier Chrono.Domain.NeedsTier::Ok skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedsTier [Chrono.Domain]Chrono.Domain.NeedsTier Chrono.Domain.NeedsTier::Bad skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedsTier [Chrono.Domain]Chrono.Domain.NeedsTier Chrono.Domain.NeedsTier::Critical skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.NeedsState skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Domain]Chrono.Domain.NeedsState::Decay[2]( [mscorlib]System.Int32, [mscorlib]System.Double ) -> A
+
+	[Chrono.Domain]Chrono.Domain.NeedsState::get_Hunger[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::set_Hunger[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::get_Thirst[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::set_Thirst[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::get_Energy[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::set_Energy[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::get_Mood[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::set_Mood[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::get_FractionalHours[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::set_FractionalHours[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.NeedsState::Value[1]( [Chrono.Domain]Chrono.Domain.NeedKind ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.NeedsState::Tier[1]( [Chrono.Domain]Chrono.Domain.NeedKind ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.NeedsState::IsCritical[1]( [Chrono.Domain]Chrono.Domain.NeedKind ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.NeedsState::ApplyGameHours[4]( [mscorlib]System.Double, [Chrono.Domain]Chrono.Domain.NeedsConfig, [mscorlib]System.Boolean, [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.NeedsState::Restore[2]( [Chrono.Domain]Chrono.Domain.NeedKind, [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.NeedsState::.ctor[0]( ) skipped:  special name
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::<Hunger>k__BackingField -> A
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::<Thirst>k__BackingField -> a
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::<Energy>k__BackingField -> B
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::<Mood>k__BackingField -> b
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsState::<FractionalHours>k__BackingField -> A
+
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::Hunger skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::Thirst skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::Energy skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.NeedsState::Mood skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.NeedsState::FractionalHours skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.PowerEnergy skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::get_EqualityContract[0]( ) -> A
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::PrintMembers[1]( [mscorlib]System.Text.StringBuilder ) -> A
+
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::get_Current[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::set_Current[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::get_Max[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::set_Max[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::get_RegenPerSecond[0]( ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::set_RegenPerSecond[1]( [mscorlib]System.Double ) skipped:  skip by property
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::ToString[0]( ) skipped:  external base class or interface
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::GetHashCode[0]( ) skipped:  external base class or interface
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::Equals[1]( [mscorlib]System.Object ) skipped:  external base class or interface
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::Equals[1]( [Chrono.Domain]Chrono.Domain.PowerEnergy ) skipped:  external base class or interface
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::.ctor[3]( [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Double ) skipped:  special name
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::Create[2]( [mscorlib]System.Int32, [mscorlib]System.Double ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::Tick[1]( [mscorlib]System.Double ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::Spend[1]( [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::CanAfford[1]( [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::op_Inequality[2]( [Chrono.Domain]Chrono.Domain.PowerEnergy, [Chrono.Domain]Chrono.Domain.PowerEnergy ) skipped:  special name
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::op_Equality[2]( [Chrono.Domain]Chrono.Domain.PowerEnergy, [Chrono.Domain]Chrono.Domain.PowerEnergy ) skipped:  special name
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::<Clone>$[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::.ctor[1]( [Chrono.Domain]Chrono.Domain.PowerEnergy ) skipped:  special name
+	[Chrono.Domain]Chrono.Domain.PowerEnergy::Deconstruct[3]( [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.Double& ) skipped:  KeepPublicApi option in configuration
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowerEnergy::<Current>k__BackingField -> A
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowerEnergy::<Max>k__BackingField -> a
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.PowerEnergy::<RegenPerSecond>k__BackingField -> A
+
+	System.Type [Chrono.Domain]System.Type Chrono.Domain.PowerEnergy::EqualityContract -> A
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowerEnergy::Current skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowerEnergy::Max skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Domain]System.Double Chrono.Domain.PowerEnergy::RegenPerSecond skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.PowerHarmKind skipped:  KeepPublicApi option in configuration
+{
+
+	System.Int32 [Chrono.Domain]System.Int32 Chrono.Domain.PowerHarmKind::value__ skipped:  special name
+	Chrono.Domain.PowerHarmKind [Chrono.Domain]Chrono.Domain.PowerHarmKind Chrono.Domain.PowerHarmKind::PushImpact skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.PowerHarmKind [Chrono.Domain]Chrono.Domain.PowerHarmKind Chrono.Domain.PowerHarmKind::BlastPedKill skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.PowerHarmKind [Chrono.Domain]Chrono.Domain.PowerHarmKind Chrono.Domain.PowerHarmKind::BlastPedHurt skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.PowerHarmKind [Chrono.Domain]Chrono.Domain.PowerHarmKind Chrono.Domain.PowerHarmKind::BlastVehicleDamage skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.PowerHarmKind [Chrono.Domain]Chrono.Domain.PowerHarmKind Chrono.Domain.PowerHarmKind::BlastPropDamage skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Domain]Chrono.Domain.PrisonCalendar skipped:  KeepPublicApi option in configuration
@@ -1450,6 +1887,21 @@ Skipped Types:
 	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.AmbientFeedService::_lastDay -> A
 }
 
+[Chrono.Application]Chrono.Application.CheatService skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.CheatService::.ctor[5]( [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [Chrono.Domain]Chrono.Domain.ChronoConfig, [Chrono.Application]Chrono.Application.NeedsService ) skipped:  special name
+	[Chrono.Application]Chrono.Application.CheatService::GiveMoney[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.CheatService::RefillHealth[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.CheatService::FillNeeds[0]( ) skipped:  KeepPublicApi option in configuration
+
+	Chrono.Application.Ports.IPlayerContext [Chrono.Application]Chrono.Application.Ports.IPlayerContext Chrono.Application.CheatService::_player -> A
+	Chrono.Application.Ports.INotifier [Chrono.Application]Chrono.Application.Ports.INotifier Chrono.Application.CheatService::_notifier -> A
+	Chrono.Application.Ports.ILogSink [Chrono.Application]Chrono.Application.Ports.ILogSink Chrono.Application.CheatService::_log -> A
+	Chrono.Domain.CheatConfig [Chrono.Application]Chrono.Domain.CheatConfig Chrono.Application.CheatService::_config -> A
+	Chrono.Application.NeedsService [Chrono.Application]Chrono.Application.NeedsService Chrono.Application.CheatService::_needs -> A
+}
+
 [Chrono.Application]Chrono.Application.ClinicService skipped:  KeepPublicApi option in configuration
 {
 
@@ -1473,6 +1925,39 @@ Skipped Types:
 	System.Numerics.Vector3 [Chrono.Application]System.Numerics.Vector3 Chrono.Application.ClinicService::ClinicDoor skipped:  KeepPublicApi option in configuration
 }
 
+[Chrono.Application]Chrono.Application.CombatPowerService skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Application]Chrono.Application.CombatPowerService::ReportHarm[3]( [Chrono.Application]Chrono.Application.Ports.PowerHitReport, [Chrono.Domain]Chrono.Domain.PowerHarmKind, [mscorlib]System.String ) -> A
+	[Chrono.Application]Chrono.Application.CombatPowerService::OutOfEnergy[0]( ) -> A
+
+	[Chrono.Application]Chrono.Application.CombatPowerService::get_IsBulletTimeActive[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.CombatPowerService::.ctor[10]( [Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary, [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Application]Chrono.Application.PowerEnergyService, [Chrono.Application]Chrono.Application.JusticeService, [Chrono.Domain]Chrono.Domain.PowersConfig, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [Chrono.Application]Chrono.Application.MediaService, [Chrono.Application]Chrono.Application.CrowdReactionService, [Chrono.Application]Chrono.Application.NpcReactionService ) skipped:  special name
+	[Chrono.Application]Chrono.Application.CombatPowerService::TryForcePush[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.CombatPowerService::TryEnergyBlast[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.CombatPowerService::ToggleBulletTime[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.CombatPowerService::TryRegenerate[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.CombatPowerService::Tick[1]( [mscorlib]System.Double ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.CombatPowerService::Deactivate[0]( ) skipped:  KeepPublicApi option in configuration
+
+	Chrono.Application.Ports.IPowerFxBoundary [Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary Chrono.Application.CombatPowerService::_fx -> A
+	Chrono.Application.Ports.IPlayerContext [Chrono.Application]Chrono.Application.Ports.IPlayerContext Chrono.Application.CombatPowerService::_player -> A
+	Chrono.Application.PowerEnergyService [Chrono.Application]Chrono.Application.PowerEnergyService Chrono.Application.CombatPowerService::_energy -> A
+	Chrono.Application.JusticeService [Chrono.Application]Chrono.Application.JusticeService Chrono.Application.CombatPowerService::_justice -> A
+	Chrono.Domain.PowersConfig [Chrono.Application]Chrono.Domain.PowersConfig Chrono.Application.CombatPowerService::_config -> A
+	Chrono.Application.MediaService [Chrono.Application]Chrono.Application.MediaService Chrono.Application.CombatPowerService::_media -> A
+	Chrono.Application.CrowdReactionService [Chrono.Application]Chrono.Application.CrowdReactionService Chrono.Application.CombatPowerService::_crowd -> A
+	Chrono.Application.Ports.INotifier [Chrono.Application]Chrono.Application.Ports.INotifier Chrono.Application.CombatPowerService::_notifier -> A
+	Chrono.Application.Ports.ILogSink [Chrono.Application]Chrono.Application.Ports.ILogSink Chrono.Application.CombatPowerService::_log -> A
+	Chrono.Application.NpcReactionService [Chrono.Application]Chrono.Application.NpcReactionService Chrono.Application.CombatPowerService::_npcReaction -> A
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.CombatPowerService::_bulletTimeActive -> A
+	System.Double [Chrono.Application]System.Double Chrono.Application.CombatPowerService::_bulletTimeAccumulator -> A
+	System.Double [Chrono.Application]System.Double Chrono.Application.CombatPowerService::_healSecondsLeft -> a
+	System.Double [Chrono.Application]System.Double Chrono.Application.CombatPowerService::_healTick -> B
+
+
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.CombatPowerService::IsBulletTimeActive skipped:  KeepPublicApi option in configuration
+}
+
 [Chrono.Application]Chrono.Application.CrimeDetectionService skipped:  KeepPublicApi option in configuration
 {
 	[Chrono.Application]Chrono.Application.CrimeDetectionService::WitnessCount[0]( ) -> A
@@ -1494,6 +1979,7 @@ Skipped Types:
 
 	[Chrono.Application]Chrono.Application.CrowdReactionService::get_Standby[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.CrowdReactionService::set_Standby[1]( [mscorlib]System.Boolean ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.CrowdReactionService::FleeFrom[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.CrowdReactionService::.ctor[6]( [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Application]Chrono.Application.Ports.IWorldProbe, [Chrono.Application]Chrono.Application.IdentityService, [Chrono.Application]Chrono.Application.ReputationService, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink ) skipped:  special name
 	[Chrono.Application]Chrono.Application.CrowdReactionService::Tick[1]( [mscorlib]System.Int64 ) skipped:  KeepPublicApi option in configuration
 
@@ -1570,6 +2056,138 @@ Skipped Types:
 
 
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.FlyService::IsEnabled skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.FoodItem skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Application]Chrono.Application.FoodItem::get_EqualityContract[0]( ) -> A
+	[Chrono.Application]Chrono.Application.FoodItem::PrintMembers[1]( [mscorlib]System.Text.StringBuilder ) -> A
+
+	[Chrono.Application]Chrono.Application.FoodItem::get_Name[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_Name[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::get_Price[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_Price[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::get_HungerRestore[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_HungerRestore[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::get_MoodGain[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_MoodGain[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::get_PropModel[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_PropModel[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::get_ThirstRestore[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_ThirstRestore[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::get_EnergyRestore[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_EnergyRestore[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::get_IsDrink[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::set_IsDrink[1]( [mscorlib]System.Boolean ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodItem::ToString[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.FoodItem::GetHashCode[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.FoodItem::Equals[1]( [mscorlib]System.Object ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.FoodItem::Equals[1]( [Chrono.Application]Chrono.Application.FoodItem ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.FoodItem::.ctor[8]( [mscorlib]System.String, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.String, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Boolean ) skipped:  special name
+	[Chrono.Application]Chrono.Application.FoodItem::op_Inequality[2]( [Chrono.Application]Chrono.Application.FoodItem, [Chrono.Application]Chrono.Application.FoodItem ) skipped:  special name
+	[Chrono.Application]Chrono.Application.FoodItem::op_Equality[2]( [Chrono.Application]Chrono.Application.FoodItem, [Chrono.Application]Chrono.Application.FoodItem ) skipped:  special name
+	[Chrono.Application]Chrono.Application.FoodItem::<Clone>$[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.FoodItem::.ctor[1]( [Chrono.Application]Chrono.Application.FoodItem ) skipped:  special name
+	[Chrono.Application]Chrono.Application.FoodItem::Deconstruct[8]( [mscorlib]System.String&, [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.String&, [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.Boolean& ) skipped:  KeepPublicApi option in configuration
+
+	System.String [Chrono.Application]System.String Chrono.Application.FoodItem::<Name>k__BackingField -> A
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::<Price>k__BackingField -> A
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::<HungerRestore>k__BackingField -> a
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::<MoodGain>k__BackingField -> B
+	System.String [Chrono.Application]System.String Chrono.Application.FoodItem::<PropModel>k__BackingField -> a
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::<ThirstRestore>k__BackingField -> b
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::<EnergyRestore>k__BackingField -> C
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.FoodItem::<IsDrink>k__BackingField -> A
+
+	System.Type [Chrono.Application]System.Type Chrono.Application.FoodItem::EqualityContract -> A
+
+	System.String [Chrono.Application]System.String Chrono.Application.FoodItem::Name skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::Price skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::HungerRestore skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::MoodGain skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.FoodItem::PropModel skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::ThirstRestore skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.FoodItem::EnergyRestore skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.FoodItem::IsDrink skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.DrinkItem skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Application]Chrono.Application.DrinkItem::get_EqualityContract[0]( ) -> A
+	[Chrono.Application]Chrono.Application.DrinkItem::PrintMembers[1]( [mscorlib]System.Text.StringBuilder ) -> A
+
+	[Chrono.Application]Chrono.Application.DrinkItem::get_Name[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::set_Name[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::get_Price[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::set_Price[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::get_ThirstRestore[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::set_ThirstRestore[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::get_EnergyRestore[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::set_EnergyRestore[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.DrinkItem::ToString[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.DrinkItem::GetHashCode[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.DrinkItem::Equals[1]( [mscorlib]System.Object ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.DrinkItem::Equals[1]( [Chrono.Application]Chrono.Application.DrinkItem ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.DrinkItem::.ctor[4]( [mscorlib]System.String, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32 ) skipped:  special name
+	[Chrono.Application]Chrono.Application.DrinkItem::op_Inequality[2]( [Chrono.Application]Chrono.Application.DrinkItem, [Chrono.Application]Chrono.Application.DrinkItem ) skipped:  special name
+	[Chrono.Application]Chrono.Application.DrinkItem::op_Equality[2]( [Chrono.Application]Chrono.Application.DrinkItem, [Chrono.Application]Chrono.Application.DrinkItem ) skipped:  special name
+	[Chrono.Application]Chrono.Application.DrinkItem::<Clone>$[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.DrinkItem::.ctor[1]( [Chrono.Application]Chrono.Application.DrinkItem ) skipped:  special name
+	[Chrono.Application]Chrono.Application.DrinkItem::Deconstruct[4]( [mscorlib]System.String&, [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.Int32& ) skipped:  KeepPublicApi option in configuration
+
+	System.String [Chrono.Application]System.String Chrono.Application.DrinkItem::<Name>k__BackingField -> A
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.DrinkItem::<Price>k__BackingField -> A
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.DrinkItem::<ThirstRestore>k__BackingField -> a
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.DrinkItem::<EnergyRestore>k__BackingField -> B
+
+	System.Type [Chrono.Application]System.Type Chrono.Application.DrinkItem::EqualityContract -> A
+
+	System.String [Chrono.Application]System.String Chrono.Application.DrinkItem::Name skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.DrinkItem::Price skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.DrinkItem::ThirstRestore skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.DrinkItem::EnergyRestore skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.FoodCatalog skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.FoodCatalog::.cctor[0]( ) skipped:  special name
+
+
+	Chrono.Application.FoodItem[] [Chrono.Application]Chrono.Application.FoodItem[] Chrono.Application.FoodCatalog::Meals skipped:  KeepPublicApi option in configuration
+	Chrono.Application.DrinkItem[] [Chrono.Application]Chrono.Application.DrinkItem[] Chrono.Application.FoodCatalog::Drinks skipped:  KeepPublicApi option in configuration
+	Chrono.Application.FoodItem[] [Chrono.Application]Chrono.Application.FoodItem[] Chrono.Application.FoodCatalog::DeliveryDrinks skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.FoodDeliveryService skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::get_HasPendingOrder[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::get_HasArrivedFood[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::get_PendingMealName[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::get_EtaSeconds[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::.ctor[6]( [Chrono.Application]Chrono.Application.Ports.IFoodBoundary, [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Domain]Chrono.Domain.NeedsConfig, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [mscorlib]System.Action`1<[Chrono.Application]Chrono.Application.FoodItem> ) skipped:  special name
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::TryOrder[2]( [Chrono.Application]Chrono.Application.FoodItem, [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::TryOrderDrink[2]( [mscorlib]System.Int32, [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::Tick[1]( [mscorlib]System.Double ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::TryConsume[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.FoodDeliveryService::Cancel[0]( ) skipped:  KeepPublicApi option in configuration
+
+	Chrono.Application.Ports.IFoodBoundary [Chrono.Application]Chrono.Application.Ports.IFoodBoundary Chrono.Application.FoodDeliveryService::_food -> A
+	Chrono.Application.Ports.IPlayerContext [Chrono.Application]Chrono.Application.Ports.IPlayerContext Chrono.Application.FoodDeliveryService::_player -> A
+	Chrono.Domain.NeedsConfig [Chrono.Application]Chrono.Domain.NeedsConfig Chrono.Application.FoodDeliveryService::_config -> A
+	Chrono.Application.Ports.INotifier [Chrono.Application]Chrono.Application.Ports.INotifier Chrono.Application.FoodDeliveryService::_notifier -> A
+	Chrono.Application.Ports.ILogSink [Chrono.Application]Chrono.Application.Ports.ILogSink Chrono.Application.FoodDeliveryService::_log -> A
+	System.Action`1<Chrono.Application.FoodItem> [Chrono.Application]System.Action`1<Chrono.Application.FoodItem> Chrono.Application.FoodDeliveryService::_onEaten -> A
+	Chrono.Application.FoodItem [Chrono.Application]Chrono.Application.FoodItem Chrono.Application.FoodDeliveryService::_pending -> A
+	System.Double [Chrono.Application]System.Double Chrono.Application.FoodDeliveryService::_etaSeconds -> A
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.FoodDeliveryService::_arrived -> A
+
+
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.FoodDeliveryService::HasPendingOrder skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.FoodDeliveryService::HasArrivedFood skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.FoodDeliveryService::PendingMealName skipped:  KeepPublicApi option in configuration
+	System.Double [Chrono.Application]System.Double Chrono.Application.FoodDeliveryService::EtaSeconds skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Application]Chrono.Application.GodModeService skipped:  KeepPublicApi option in configuration
@@ -1652,7 +2270,7 @@ Skipped Types:
 [Chrono.Application]Chrono.Application.HudLayoutEngine skipped:  KeepPublicApi option in configuration
 {
 
-	[Chrono.Application]Chrono.Application.HudLayoutEngine::Compute[12]( [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudFeedItem>, [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind, [mscorlib]System.Single, [mscorlib]System.Int32, [mscorlib]System.Func`4<[mscorlib]System.String,[mscorlib]System.Single,[mscorlib]System.Int32,[mscorlib]System.Single>, [mscorlib]System.Boolean, [mscorlib]System.Boolean, [mscorlib]System.Boolean, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[mscorlib]System.ValueTuple`2<[mscorlib]System.String,[mscorlib]System.String>> ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.HudLayoutEngine::Compute[15]( [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudFeedItem>, [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind, [mscorlib]System.Single, [mscorlib]System.Int32, [mscorlib]System.Func`4<[mscorlib]System.String,[mscorlib]System.Single,[mscorlib]System.Int32,[mscorlib]System.Single>, [mscorlib]System.Boolean, [mscorlib]System.Boolean, [mscorlib]System.Boolean, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[mscorlib]System.ValueTuple`2<[mscorlib]System.String,[mscorlib]System.String>>, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.Ports.NeedBar> ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.HudLayoutEngine::KindColor[1]( [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.HudLayoutEngine::Truncate[4]( [mscorlib]System.String, [mscorlib]System.Single, [mscorlib]System.Func`4<[mscorlib]System.String,[mscorlib]System.Single,[mscorlib]System.Int32,[mscorlib]System.Single>, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.HudLayoutEngine::.ctor[0]( ) skipped:  special name
@@ -1752,6 +2370,7 @@ Skipped Types:
 
 [Chrono.Application]Chrono.Application.JusticeHudWidget skipped:  KeepPublicApi option in configuration
 {
+	[Chrono.Application]Chrono.Application.JusticeHudWidget::NeedsBars[0]( ) -> A
 	[Chrono.Application]Chrono.Application.JusticeHudWidget::FormatClock[1]( [mscorlib]System.Double ) -> A
 
 	[Chrono.Application]Chrono.Application.JusticeHudWidget::get_Enabled[0]( ) skipped:  skip by property
@@ -1761,13 +2380,15 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.JusticeHudWidget::get_JusticeOff[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.JusticeHudWidget::set_JusticeOff[1]( [mscorlib]System.Boolean ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.JusticeHudWidget::get_Feed[0]( ) skipped:  skip by property
-	[Chrono.Application]Chrono.Application.JusticeHudWidget::.ctor[4]( [Chrono.Application]Chrono.Application.JusticeService, [Chrono.Application]Chrono.Application.Ports.IHudRenderer, [Chrono.Domain]Chrono.Domain.JusticeConfig, [Chrono.Application]Chrono.Application.HudFeedBuffer ) skipped:  special name
+	[Chrono.Application]Chrono.Application.JusticeHudWidget::.ctor[6]( [Chrono.Application]Chrono.Application.JusticeService, [Chrono.Application]Chrono.Application.Ports.IHudRenderer, [Chrono.Domain]Chrono.Domain.JusticeConfig, [Chrono.Application]Chrono.Application.HudFeedBuffer, [Chrono.Application]Chrono.Application.PowerEnergyService, [Chrono.Application]Chrono.Application.NeedsService ) skipped:  special name
 	[Chrono.Application]Chrono.Application.JusticeHudWidget::Tick[0]( ) skipped:  KeepPublicApi option in configuration
 
 	Chrono.Application.JusticeService [Chrono.Application]Chrono.Application.JusticeService Chrono.Application.JusticeHudWidget::_justice -> A
 	Chrono.Application.Ports.IHudRenderer [Chrono.Application]Chrono.Application.Ports.IHudRenderer Chrono.Application.JusticeHudWidget::_renderer -> A
 	Chrono.Domain.JusticeConfig [Chrono.Application]Chrono.Domain.JusticeConfig Chrono.Application.JusticeHudWidget::_config -> A
 	Chrono.Application.HudFeedBuffer [Chrono.Application]Chrono.Application.HudFeedBuffer Chrono.Application.JusticeHudWidget::_feed -> A
+	Chrono.Application.PowerEnergyService [Chrono.Application]Chrono.Application.PowerEnergyService Chrono.Application.JusticeHudWidget::_energy -> A
+	Chrono.Application.NeedsService [Chrono.Application]Chrono.Application.NeedsService Chrono.Application.JusticeHudWidget::_needs -> A
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeHudWidget::<Enabled>k__BackingField -> A
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeHudWidget::<ModOff>k__BackingField -> a
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeHudWidget::<JusticeOff>k__BackingField -> B
@@ -1907,12 +2528,13 @@ Skipped Types:
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::_wasDead -> F
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::_diedWanted -> f
 	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.JusticeService::_deathMoneySnapshot -> g
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::_lawIgnoreOn -> G
 	Chrono.Domain.JusticeState [Chrono.Application]Chrono.Domain.JusticeState Chrono.Application.JusticeService::<State>k__BackingField -> A
-	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::_confinementStarted -> G
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::_confinementStarted -> g
 	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.JusticeService::CellIdleMs -> H
-	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::_escapeChoiceOpen -> g
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::_escapeChoiceOpen -> H
 	System.Double [Chrono.Application]System.Double Chrono.Application.JusticeService::_escapeChoiceDeadlineMs -> B
-	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::<MissionStandby>k__BackingField -> H
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.JusticeService::<MissionStandby>k__BackingField -> h
 
 
 	Chrono.Domain.JusticeState [Chrono.Application]Chrono.Domain.JusticeState Chrono.Application.JusticeService::State skipped:  KeepPublicApi option in configuration
@@ -2188,6 +2810,71 @@ Skipped Types:
 	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.MenuScreen::SelectedIndex skipped:  KeepPublicApi option in configuration
 }
 
+[Chrono.Application]Chrono.Application.NeedsService skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Application]Chrono.Application.NeedsService::ApplyEffects[1]( [mscorlib]System.Double ) -> A
+	[Chrono.Application]Chrono.Application.NeedsService::CheckTierTransitions[0]( ) -> A
+	[Chrono.Application]Chrono.Application.NeedsService::CheckWorldPrompts[0]( ) -> a
+	[Chrono.Application]Chrono.Application.NeedsService::TierWord[1]( [Chrono.Domain]Chrono.Domain.NeedKind ) -> A
+	[Chrono.Application]Chrono.Application.NeedsService::ApplyMoodPassives[2]( [mscorlib]System.Double, [mscorlib]System.Double ) -> A
+	[Chrono.Application]Chrono.Application.NeedsService::UpdateEscort[1]( [mscorlib]System.Double ) -> a
+	[Chrono.Application]Chrono.Application.NeedsService::Persist[0]( ) -> B
+	[Chrono.Application]Chrono.Application.NeedsService::<.ctor>b__24_0[1]( [Chrono.Application]Chrono.Application.FoodItem ) -> A
+
+	[Chrono.Application]Chrono.Application.NeedsService::get_State[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.NeedsService::get_Delivery[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.NeedsService::get_Enabled[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.NeedsService::get_Standby[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.NeedsService::set_Standby[1]( [mscorlib]System.Boolean ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.NeedsService::get_EscortStatusLine[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.NeedsService::.ctor[11]( [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Application]Chrono.Application.Ports.IRecordStore, [Chrono.Domain]Chrono.Domain.NeedsConfig, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [Chrono.Application]Chrono.Application.Ports.IFoodBoundary, [Chrono.Application]Chrono.Application.Ports.ISleepBoundary, [Chrono.Application]Chrono.Application.Ports.IVfxBoundary, [Chrono.Application]Chrono.Application.MediaService, [Chrono.Application]Chrono.Application.Ports.IGameInput, [Chrono.Application]Chrono.Application.Ports.ICompanionBoundary ) skipped:  special name
+	[Chrono.Application]Chrono.Application.NeedsService::Load[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::Tick[1]( [mscorlib]System.Double ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::TryBuyDrink[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::TryEatAtEatery[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::TryOrderMeal[1]( [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::TryOrderDrink[1]( [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::TryOrderEscort[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::TrySleep[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::FillAll[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::StatusLines[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.NeedsService::TryWatchTv[0]( ) skipped:  KeepPublicApi option in configuration
+
+	Chrono.Application.Ports.IPlayerContext [Chrono.Application]Chrono.Application.Ports.IPlayerContext Chrono.Application.NeedsService::_player -> A
+	Chrono.Application.Ports.IRecordStore [Chrono.Application]Chrono.Application.Ports.IRecordStore Chrono.Application.NeedsService::_store -> A
+	Chrono.Domain.NeedsConfig [Chrono.Application]Chrono.Domain.NeedsConfig Chrono.Application.NeedsService::_config -> A
+	Chrono.Application.Ports.INotifier [Chrono.Application]Chrono.Application.Ports.INotifier Chrono.Application.NeedsService::_notifier -> A
+	Chrono.Application.Ports.ILogSink [Chrono.Application]Chrono.Application.Ports.ILogSink Chrono.Application.NeedsService::_log -> A
+	Chrono.Application.Ports.IFoodBoundary [Chrono.Application]Chrono.Application.Ports.IFoodBoundary Chrono.Application.NeedsService::_food -> A
+	Chrono.Application.Ports.ISleepBoundary [Chrono.Application]Chrono.Application.Ports.ISleepBoundary Chrono.Application.NeedsService::_sleep -> A
+	Chrono.Application.Ports.ICompanionBoundary [Chrono.Application]Chrono.Application.Ports.ICompanionBoundary Chrono.Application.NeedsService::_escort -> A
+	Chrono.Application.Ports.IVfxBoundary [Chrono.Application]Chrono.Application.Ports.IVfxBoundary Chrono.Application.NeedsService::_vfx -> A
+	Chrono.Application.MediaService [Chrono.Application]Chrono.Application.MediaService Chrono.Application.NeedsService::_media -> A
+	Chrono.Application.Ports.IGameInput [Chrono.Application]Chrono.Application.Ports.IGameInput Chrono.Application.NeedsService::_input -> A
+	Chrono.Application.FoodDeliveryService [Chrono.Application]Chrono.Application.FoodDeliveryService Chrono.Application.NeedsService::_delivery -> A
+	Chrono.Domain.NeedsState [Chrono.Application]Chrono.Domain.NeedsState Chrono.Application.NeedsService::_state -> A
+	System.Collections.Generic.Dictionary`2<Chrono.Domain.NeedKind,Chrono.Domain.NeedsTier> [Chrono.Application]System.Collections.Generic.Dictionary`2<Chrono.Domain.NeedKind,Chrono.Domain.NeedsTier> Chrono.Application.NeedsService::_lastTier -> A
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::_loaded -> A
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::_passOutFired -> a
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::_drunkApplied -> B
+	System.Double [Chrono.Application]System.Double Chrono.Application.NeedsService::_persistAccumulator -> A
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::_escortPending -> b
+	System.Double [Chrono.Application]System.Double Chrono.Application.NeedsService::_escortEta -> a
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::_escortArriving -> C
+	System.Double [Chrono.Application]System.Double Chrono.Application.NeedsService::_escortForceTimer -> B
+	System.Numerics.Vector3 [Chrono.Application]System.Numerics.Vector3 Chrono.Application.NeedsService::_lastPos -> A
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::_hasLastPos -> c
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::<Standby>k__BackingField -> D
+	System.Double [Chrono.Application]System.Double Chrono.Application.NeedsService::_moodAccumulator -> b
+
+
+	Chrono.Domain.NeedsState [Chrono.Application]Chrono.Domain.NeedsState Chrono.Application.NeedsService::State skipped:  KeepPublicApi option in configuration
+	Chrono.Application.FoodDeliveryService [Chrono.Application]Chrono.Application.FoodDeliveryService Chrono.Application.NeedsService::Delivery skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::Enabled skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.NeedsService::Standby skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.NeedsService::EscortStatusLine skipped:  KeepPublicApi option in configuration
+}
+
 [Chrono.Application]Chrono.Application.NpcReactionService skipped:  KeepPublicApi option in configuration
 {
 
@@ -2209,7 +2896,7 @@ Skipped Types:
 [Chrono.Application]Chrono.Application.PoliceDbHackService skipped:  KeepPublicApi option in configuration
 {
 
-	[Chrono.Application]Chrono.Application.PoliceDbHackService::.ctor[12]( [Chrono.Application]Chrono.Application.Ports.IWantedMonitor, [Chrono.Application]Chrono.Application.Ports.IRecordStore, [Chrono.Application]Chrono.Application.IdentityService, [Chrono.Application]Chrono.Application.WarrantService, [Chrono.Application]Chrono.Application.JusticeService, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [Chrono.Domain]Chrono.Domain.JusticeConfig, [Chrono.Application]Chrono.Application.Ports.IGameClock, [Chrono.Application]Chrono.Application.VfxService, [Chrono.Application]Chrono.Application.ReputationService, [Chrono.Application]Chrono.Application.MediaService ) skipped:  special name
+	[Chrono.Application]Chrono.Application.PoliceDbHackService::.ctor[14]( [Chrono.Application]Chrono.Application.Ports.IWantedMonitor, [Chrono.Application]Chrono.Application.Ports.IRecordStore, [Chrono.Application]Chrono.Application.IdentityService, [Chrono.Application]Chrono.Application.WarrantService, [Chrono.Application]Chrono.Application.JusticeService, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [Chrono.Domain]Chrono.Domain.JusticeConfig, [Chrono.Application]Chrono.Application.Ports.IGameClock, [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Domain]Chrono.Domain.HackConfig, [Chrono.Application]Chrono.Application.VfxService, [Chrono.Application]Chrono.Application.ReputationService, [Chrono.Application]Chrono.Application.MediaService ) skipped:  special name
 	[Chrono.Application]Chrono.Application.PoliceDbHackService::TryHack[0]( ) skipped:  KeepPublicApi option in configuration
 
 	Chrono.Application.Ports.IWantedMonitor [Chrono.Application]Chrono.Application.Ports.IWantedMonitor Chrono.Application.PoliceDbHackService::_wanted -> A
@@ -2221,44 +2908,80 @@ Skipped Types:
 	Chrono.Application.Ports.ILogSink [Chrono.Application]Chrono.Application.Ports.ILogSink Chrono.Application.PoliceDbHackService::_log -> A
 	Chrono.Domain.JusticeConfig [Chrono.Application]Chrono.Domain.JusticeConfig Chrono.Application.PoliceDbHackService::_config -> A
 	Chrono.Application.Ports.IGameClock [Chrono.Application]Chrono.Application.Ports.IGameClock Chrono.Application.PoliceDbHackService::_clock -> A
+	Chrono.Application.Ports.IPlayerContext [Chrono.Application]Chrono.Application.Ports.IPlayerContext Chrono.Application.PoliceDbHackService::_player -> A
+	Chrono.Domain.HackConfig [Chrono.Application]Chrono.Domain.HackConfig Chrono.Application.PoliceDbHackService::_hackConfig -> A
 	Chrono.Application.VfxService [Chrono.Application]Chrono.Application.VfxService Chrono.Application.PoliceDbHackService::_vfx -> A
 	Chrono.Application.ReputationService [Chrono.Application]Chrono.Application.ReputationService Chrono.Application.PoliceDbHackService::_reputation -> A
 	Chrono.Application.MediaService [Chrono.Application]Chrono.Application.MediaService Chrono.Application.PoliceDbHackService::_media -> A
 }
 
+[Chrono.Application]Chrono.Application.PowerEnergyService skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.PowerEnergyService::get_Current[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.PowerEnergyService::get_Max[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.PowerEnergyService::.ctor[1]( [Chrono.Domain]Chrono.Domain.PowersConfig ) skipped:  special name
+	[Chrono.Application]Chrono.Application.PowerEnergyService::Tick[1]( [mscorlib]System.Double ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.PowerEnergyService::TrySpend[1]( [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.PowerEnergyService::Restore[0]( ) skipped:  KeepPublicApi option in configuration
+
+	Chrono.Domain.PowersConfig [Chrono.Application]Chrono.Domain.PowersConfig Chrono.Application.PowerEnergyService::_config -> A
+	Chrono.Domain.PowerEnergy [Chrono.Application]Chrono.Domain.PowerEnergy Chrono.Application.PowerEnergyService::_energy -> A
+
+
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.PowerEnergyService::Current skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.PowerEnergyService::Max skipped:  KeepPublicApi option in configuration
+}
+
 [Chrono.Application]Chrono.Application.PowerMenuService skipped:  KeepPublicApi option in configuration
 {
-	[Chrono.Application]Chrono.Application.PowerMenuService::RebuildWebnetScreen[0]( ) -> A
+	[Chrono.Application]Chrono.Application.PowerMenuService::BuildRootItems[2]( [Chrono.Application]Chrono.Application.MenuScreen, [Chrono.Application]Chrono.Application.MenuScreen ) -> A
+	[Chrono.Application]Chrono.Application.PowerMenuService::BuildCheatScreen[0]( ) -> A
+	[Chrono.Application]Chrono.Application.PowerMenuService::BuildPhoneScreen[0]( ) -> a
+	[Chrono.Application]Chrono.Application.PowerMenuService::BuildDeliveryScreen[0]( ) -> B
+	[Chrono.Application]Chrono.Application.PowerMenuService::RebuildWebnetScreen[0]( ) -> b
 	[Chrono.Application]Chrono.Application.PowerMenuService::ClampTitle[1]( [mscorlib]System.String ) -> A
-	[Chrono.Application]Chrono.Application.PowerMenuService::BuildJusticeScreen[0]( ) -> a
-	[Chrono.Application]Chrono.Application.PowerMenuService::RebuildRecordScreen[0]( ) -> B
+	[Chrono.Application]Chrono.Application.PowerMenuService::BuildJusticeScreen[0]( ) -> C
+	[Chrono.Application]Chrono.Application.PowerMenuService::RebuildRecordScreen[0]( ) -> c
 	[Chrono.Application]Chrono.Application.PowerMenuService::FormatAge[1]( [mscorlib]System.Int32 ) -> A
-	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteHack[0]( ) -> b
-	[Chrono.Application]Chrono.Application.PowerMenuService::ToggleInvisible[0]( ) -> C
-	[Chrono.Application]Chrono.Application.PowerMenuService::ToggleTimeStop[0]( ) -> c
-	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteDash[0]( ) -> D
-	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteMapTeleport[0]( ) -> d
-	[Chrono.Application]Chrono.Application.PowerMenuService::BuildSettingsScreen[0]( ) -> E
+	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteHack[0]( ) -> D
+	[Chrono.Application]Chrono.Application.PowerMenuService::ExecutePush[0]( ) -> d
+	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteBlast[0]( ) -> E
+	[Chrono.Application]Chrono.Application.PowerMenuService::ToggleBulletTime[0]( ) -> e
+	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteRegen[0]( ) -> F
+	[Chrono.Application]Chrono.Application.PowerMenuService::PowersAvailable[0]( ) -> f
+	[Chrono.Application]Chrono.Application.PowerMenuService::ToggleInvisible[0]( ) -> G
+	[Chrono.Application]Chrono.Application.PowerMenuService::ToggleTimeStop[0]( ) -> g
+	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteDash[0]( ) -> H
+	[Chrono.Application]Chrono.Application.PowerMenuService::ExecuteMapTeleport[0]( ) -> h
+	[Chrono.Application]Chrono.Application.PowerMenuService::BuildSettingsScreen[0]( ) -> I
 	[Chrono.Application]Chrono.Application.PowerMenuService::AdjustFlySpeed[1]( [mscorlib]System.Int32 ) -> a
 	[Chrono.Application]Chrono.Application.PowerMenuService::AdjustDashRange[1]( [mscorlib]System.Int32 ) -> B
-	[Chrono.Application]Chrono.Application.PowerMenuService::PersistConfig[0]( ) -> e
-	[Chrono.Application]Chrono.Application.PowerMenuService::RefreshSettingsValues[0]( ) -> F
-	[Chrono.Application]Chrono.Application.PowerMenuService::RefreshPowerLabels[0]( ) -> f
-	[Chrono.Application]Chrono.Application.PowerMenuService::RefreshTimeStopLabel[0]( ) -> G
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildMenu>b__35_0[0]( ) -> g
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildMenu>b__35_1[0]( ) -> H
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__56_0[0]( ) -> h
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__56_1[0]( ) -> I
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__56_2[0]( ) -> i
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__56_3[0]( ) -> J
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__56_4[0]( ) -> j
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__56_5[0]( ) -> K
-	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__56_6[0]( ) -> k
+	[Chrono.Application]Chrono.Application.PowerMenuService::PersistConfig[0]( ) -> i
+	[Chrono.Application]Chrono.Application.PowerMenuService::RefreshSettingsValues[0]( ) -> J
+	[Chrono.Application]Chrono.Application.PowerMenuService::RefreshPowerLabels[0]( ) -> j
+	[Chrono.Application]Chrono.Application.PowerMenuService::RefreshTimeStopLabel[0]( ) -> K
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildMenu>b__42_0[0]( ) -> k
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildMenu>b__42_1[0]( ) -> L
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildCheatScreen>b__44_0[0]( ) -> l
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildCheatScreen>b__44_1[0]( ) -> M
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildCheatScreen>b__44_2[0]( ) -> m
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildPhoneScreen>b__45_0[0]( ) -> N
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildPhoneScreen>b__45_1[0]( ) -> n
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildPhoneScreen>b__45_2[0]( ) -> O
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildPhoneScreen>b__45_3[0]( ) -> o
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__72_0[0]( ) -> P
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__72_1[0]( ) -> p
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__72_2[0]( ) -> Q
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__72_3[0]( ) -> q
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__72_4[0]( ) -> R
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__72_5[0]( ) -> r
+	[Chrono.Application]Chrono.Application.PowerMenuService::<BuildSettingsScreen>b__72_6[0]( ) -> S
 
 	[Chrono.Application]Chrono.Application.PowerMenuService::get_IsMenuOpen[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.PowerMenuService::get_IsInvisible[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.PowerMenuService::get_IsTimeStopActive[0]( ) skipped:  skip by property
-	[Chrono.Application]Chrono.Application.PowerMenuService::.ctor[20]( [Chrono.Application]Chrono.Application.MenuFramework, [Chrono.Application]Chrono.Application.TimeStopService, [Chrono.Application]Chrono.Application.TeleportService, [Chrono.Application]Chrono.Application.VfxService, [Chrono.Application]Chrono.Application.Ports.IGameInput, [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [Chrono.Domain]Chrono.Domain.ChronoConfig, [Chrono.Application]Chrono.Application.Ports.IConfigStore, [Chrono.Application]Chrono.Application.GodModeService, [Chrono.Application]Chrono.Application.InvisibilityService, [Chrono.Application]Chrono.Application.FlyService, [Chrono.Application]Chrono.Application.NpcReactionService, [Chrono.Application]Chrono.Application.PoliceDbHackService, [Chrono.Application]Chrono.Application.JusticeStatsService, [mscorlib]System.Func`1<[mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.NewsFeedItem>>, [mscorlib]System.Func`1<[mscorlib]System.Boolean>, [Chrono.Application]Chrono.Application.JusticeHudWidget, [Chrono.Application]Chrono.Application.PowerReactionService ) skipped:  special name
+	[Chrono.Application]Chrono.Application.PowerMenuService::.ctor[24]( [Chrono.Application]Chrono.Application.MenuFramework, [Chrono.Application]Chrono.Application.TimeStopService, [Chrono.Application]Chrono.Application.TeleportService, [Chrono.Application]Chrono.Application.VfxService, [Chrono.Application]Chrono.Application.Ports.IGameInput, [Chrono.Application]Chrono.Application.Ports.IPlayerContext, [Chrono.Application]Chrono.Application.Ports.INotifier, [Chrono.Application]Chrono.Application.Ports.ILogSink, [Chrono.Domain]Chrono.Domain.ChronoConfig, [Chrono.Application]Chrono.Application.Ports.IConfigStore, [Chrono.Application]Chrono.Application.GodModeService, [Chrono.Application]Chrono.Application.InvisibilityService, [Chrono.Application]Chrono.Application.FlyService, [Chrono.Application]Chrono.Application.NpcReactionService, [Chrono.Application]Chrono.Application.PoliceDbHackService, [Chrono.Application]Chrono.Application.JusticeStatsService, [mscorlib]System.Func`1<[mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.NewsFeedItem>>, [mscorlib]System.Func`1<[mscorlib]System.Boolean>, [Chrono.Application]Chrono.Application.JusticeHudWidget, [Chrono.Application]Chrono.Application.PowerReactionService, [Chrono.Application]Chrono.Application.CombatPowerService, [Chrono.Application]Chrono.Application.NeedsService, [Chrono.Application]Chrono.Application.PowerEnergyService, [Chrono.Application]Chrono.Application.CheatService ) skipped:  special name
 	[Chrono.Application]Chrono.Application.PowerMenuService::BuildMenu[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.PowerMenuService::ToggleMenu[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.PowerMenuService::SetModEnabled[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
@@ -2287,18 +3010,25 @@ Skipped Types:
 	Chrono.Application.JusticeStatsService [Chrono.Application]Chrono.Application.JusticeStatsService Chrono.Application.PowerMenuService::_stats -> A
 	Chrono.Application.JusticeHudWidget [Chrono.Application]Chrono.Application.JusticeHudWidget Chrono.Application.PowerMenuService::_hud -> A
 	Chrono.Application.PowerReactionService [Chrono.Application]Chrono.Application.PowerReactionService Chrono.Application.PowerMenuService::_powerReaction -> A
+	Chrono.Application.CombatPowerService [Chrono.Application]Chrono.Application.CombatPowerService Chrono.Application.PowerMenuService::_combat -> A
+	Chrono.Application.NeedsService [Chrono.Application]Chrono.Application.NeedsService Chrono.Application.PowerMenuService::_needs -> A
+	Chrono.Application.PowerEnergyService [Chrono.Application]Chrono.Application.PowerEnergyService Chrono.Application.PowerMenuService::_energy -> A
+	Chrono.Application.CheatService [Chrono.Application]Chrono.Application.CheatService Chrono.Application.PowerMenuService::_cheat -> A
 	Chrono.Application.MenuScreen [Chrono.Application]Chrono.Application.MenuScreen Chrono.Application.PowerMenuService::_rootScreen -> A
 	Chrono.Application.MenuScreen [Chrono.Application]Chrono.Application.MenuScreen Chrono.Application.PowerMenuService::_webnetScreen -> a
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_timeStopItem -> a
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_godModeItem -> B
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_invisibleItem -> b
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_flyItem -> C
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_dashItem -> c
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_mapTeleportItem -> D
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_hackItem -> d
-	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_recordItem -> E
-	Chrono.Application.MenuScreen [Chrono.Application]Chrono.Application.MenuScreen Chrono.Application.PowerMenuService::_justiceScreen -> B
-	Chrono.Application.MenuScreen [Chrono.Application]Chrono.Application.MenuScreen Chrono.Application.PowerMenuService::_recordScreen -> b
+	Chrono.Application.MenuScreen [Chrono.Application]Chrono.Application.MenuScreen Chrono.Application.PowerMenuService::_phoneScreen -> B
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_phoneItem -> a
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_timeStopItem -> B
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_godModeItem -> b
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_invisibleItem -> C
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_flyItem -> c
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_dashItem -> D
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_mapTeleportItem -> d
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_hackItem -> E
+	Chrono.Application.MenuItem [Chrono.Application]Chrono.Application.MenuItem Chrono.Application.PowerMenuService::_recordItem -> e
+	Chrono.Application.MenuScreen [Chrono.Application]Chrono.Application.MenuScreen Chrono.Application.PowerMenuService::_justiceScreen -> b
+	Chrono.Application.MenuScreen [Chrono.Application]Chrono.Application.MenuScreen Chrono.Application.PowerMenuService::_recordScreen -> C
+	System.Int64 [Chrono.Application]System.Int64 Chrono.Application.PowerMenuService::_lastCombatMs -> A
 
 
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.PowerMenuService::IsMenuOpen skipped:  KeepPublicApi option in configuration
@@ -2449,6 +3179,20 @@ Skipped Types:
 	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemCriminalRecord skipped:  KeepPublicApi option in configuration
 	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemWebnet skipped:  KeepPublicApi option in configuration
 	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemSettings skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemPhone skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemCheats skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::CheatGiveMoney skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::CheatRefillHealth skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::CheatFillNeeds skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemFoodDelivery skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemEatAtEatery skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemSleep skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemEscort skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemWatchTv skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemForcePush skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemEnergyBlast skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemBulletTime skipped:  KeepPublicApi option in configuration
+	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemRegenerate skipped:  KeepPublicApi option in configuration
 	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemModToggle skipped:  KeepPublicApi option in configuration
 	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemPowersToggle skipped:  KeepPublicApi option in configuration
 	System.String [Chrono.Application]System.String Chrono.Application.UiStrings::ItemJusticeToggle skipped:  KeepPublicApi option in configuration
@@ -2573,16 +3317,22 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::set_Progress[1]( [mscorlib]System.Single ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::get_Kpis[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::set_Kpis[1]( [mscorlib]System.Collections.Generic.IReadOnlyList`1<[mscorlib]System.ValueTuple`2<[mscorlib]System.String,[mscorlib]System.String>> ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::get_Energy[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::set_Energy[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::get_EnergyMax[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::set_EnergyMax[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::get_Needs[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::set_Needs[1]( [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.Ports.NeedBar> ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::ToString[0]( ) skipped:  external base class or interface
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::GetHashCode[0]( ) skipped:  external base class or interface
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::Equals[1]( [mscorlib]System.Object ) skipped:  external base class or interface
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::Equals[1]( [Chrono.Application]Chrono.Application.Ports.JusticeHudState ) skipped:  external base class or interface
-	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::.ctor[11]( [mscorlib]System.Boolean, [mscorlib]System.Int32, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.Boolean, [mscorlib]System.Boolean, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudFeedItem>, [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind, [mscorlib]System.Single, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[mscorlib]System.ValueTuple`2<[mscorlib]System.String,[mscorlib]System.String>> ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::.ctor[14]( [mscorlib]System.Boolean, [mscorlib]System.Int32, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.Boolean, [mscorlib]System.Boolean, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudFeedItem>, [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind, [mscorlib]System.Single, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[mscorlib]System.ValueTuple`2<[mscorlib]System.String,[mscorlib]System.String>>, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.Ports.NeedBar> ) skipped:  special name
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::op_Inequality[2]( [Chrono.Application]Chrono.Application.Ports.JusticeHudState, [Chrono.Application]Chrono.Application.Ports.JusticeHudState ) skipped:  special name
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::op_Equality[2]( [Chrono.Application]Chrono.Application.Ports.JusticeHudState, [Chrono.Application]Chrono.Application.Ports.JusticeHudState ) skipped:  special name
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::<Clone>$[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::.ctor[1]( [Chrono.Application]Chrono.Application.Ports.JusticeHudState ) skipped:  special name
-	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::Deconstruct[11]( [mscorlib]System.Boolean&, [mscorlib]System.Int32&, [mscorlib]System.String&, [mscorlib]System.String&, [mscorlib]System.String&, [mscorlib]System.Boolean&, [mscorlib]System.Boolean&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudFeedItem>&, [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind&, [mscorlib]System.Single&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<System.String,System.String>>& ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.JusticeHudState::Deconstruct[14]( [mscorlib]System.Boolean&, [mscorlib]System.Int32&, [mscorlib]System.String&, [mscorlib]System.String&, [mscorlib]System.String&, [mscorlib]System.Boolean&, [mscorlib]System.Boolean&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudFeedItem>&, [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind&, [mscorlib]System.Single&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<System.String,System.String>>&, [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.Ports.NeedBar>& ) skipped:  KeepPublicApi option in configuration
 
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.JusticeHudState::<Visible>k__BackingField -> A
 	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.JusticeHudState::<Stars>k__BackingField -> A
@@ -2595,6 +3345,9 @@ Skipped Types:
 	Chrono.Application.Ports.JusticeStatusKind [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind Chrono.Application.Ports.JusticeHudState::<Kind>k__BackingField -> A
 	System.Single [Chrono.Application]System.Single Chrono.Application.Ports.JusticeHudState::<Progress>k__BackingField -> A
 	System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<System.String,System.String>> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<System.String,System.String>> Chrono.Application.Ports.JusticeHudState::<Kpis>k__BackingField -> A
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.JusticeHudState::<Energy>k__BackingField -> a
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.JusticeHudState::<EnergyMax>k__BackingField -> B
+	System.Collections.Generic.IReadOnlyList`1<Chrono.Application.Ports.NeedBar> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.Ports.NeedBar> Chrono.Application.Ports.JusticeHudState::<Needs>k__BackingField -> A
 
 	System.Type [Chrono.Application]System.Type Chrono.Application.Ports.JusticeHudState::EqualityContract -> A
 
@@ -2609,6 +3362,9 @@ Skipped Types:
 	Chrono.Application.Ports.JusticeStatusKind [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind Chrono.Application.Ports.JusticeHudState::Kind skipped:  KeepPublicApi option in configuration
 	System.Single [Chrono.Application]System.Single Chrono.Application.Ports.JusticeHudState::Progress skipped:  KeepPublicApi option in configuration
 	System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<System.String,System.String>> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<System.String,System.String>> Chrono.Application.Ports.JusticeHudState::Kpis skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.JusticeHudState::Energy skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.JusticeHudState::EnergyMax skipped:  KeepPublicApi option in configuration
+	System.Collections.Generic.IReadOnlyList`1<Chrono.Application.Ports.NeedBar> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.Ports.NeedBar> Chrono.Application.Ports.JusticeHudState::Needs skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind skipped:  KeepPublicApi option in configuration
@@ -2621,6 +3377,78 @@ Skipped Types:
 	Chrono.Application.Ports.JusticeStatusKind [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind Chrono.Application.Ports.JusticeStatusKind::Prison skipped:  KeepPublicApi option in configuration
 	Chrono.Application.Ports.JusticeStatusKind [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind Chrono.Application.Ports.JusticeStatusKind::OnBail skipped:  KeepPublicApi option in configuration
 	Chrono.Application.Ports.JusticeStatusKind [Chrono.Application]Chrono.Application.Ports.JusticeStatusKind Chrono.Application.Ports.JusticeStatusKind::Manhunt skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.Ports.NeedBar skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::get_EqualityContract[0]( ) -> A
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::PrintMembers[1]( [mscorlib]System.Text.StringBuilder ) -> A
+
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::get_Label[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::set_Label[1]( [mscorlib]System.String ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::get_Value[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::set_Value[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::get_Tier[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::set_Tier[1]( [Chrono.Domain]Chrono.Domain.NeedsTier ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::ToString[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::GetHashCode[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::Equals[1]( [mscorlib]System.Object ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::Equals[1]( [Chrono.Application]Chrono.Application.Ports.NeedBar ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::.ctor[3]( [mscorlib]System.String, [mscorlib]System.Int32, [Chrono.Domain]Chrono.Domain.NeedsTier ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::op_Inequality[2]( [Chrono.Application]Chrono.Application.Ports.NeedBar, [Chrono.Application]Chrono.Application.Ports.NeedBar ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::op_Equality[2]( [Chrono.Application]Chrono.Application.Ports.NeedBar, [Chrono.Application]Chrono.Application.Ports.NeedBar ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::<Clone>$[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::.ctor[1]( [Chrono.Application]Chrono.Application.Ports.NeedBar ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.NeedBar::Deconstruct[3]( [mscorlib]System.String&, [mscorlib]System.Int32&, [Chrono.Domain]Chrono.Domain.NeedsTier& ) skipped:  KeepPublicApi option in configuration
+
+	System.String [Chrono.Application]System.String Chrono.Application.Ports.NeedBar::<Label>k__BackingField -> A
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.NeedBar::<Value>k__BackingField -> A
+	Chrono.Domain.NeedsTier [Chrono.Application]Chrono.Domain.NeedsTier Chrono.Application.Ports.NeedBar::<Tier>k__BackingField -> A
+
+	System.Type [Chrono.Application]System.Type Chrono.Application.Ports.NeedBar::EqualityContract -> A
+
+	System.String [Chrono.Application]System.String Chrono.Application.Ports.NeedBar::Label skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.NeedBar::Value skipped:  KeepPublicApi option in configuration
+	Chrono.Domain.NeedsTier [Chrono.Application]Chrono.Domain.NeedsTier Chrono.Application.Ports.NeedBar::Tier skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.Ports.PowerHitReport skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::get_EqualityContract[0]( ) -> A
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::PrintMembers[1]( [mscorlib]System.Text.StringBuilder ) -> A
+
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::get_PedsInjured[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::set_PedsInjured[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::get_PedsKilled[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::set_PedsKilled[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::get_VehiclesDamaged[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::set_VehiclesDamaged[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::get_PropsDamaged[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::set_PropsDamaged[1]( [mscorlib]System.Int32 ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::get_HasHarm[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::ToString[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::GetHashCode[0]( ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::Equals[1]( [mscorlib]System.Object ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::Equals[1]( [Chrono.Application]Chrono.Application.Ports.PowerHitReport ) skipped:  external base class or interface
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::.ctor[4]( [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32 ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::op_Inequality[2]( [Chrono.Application]Chrono.Application.Ports.PowerHitReport, [Chrono.Application]Chrono.Application.Ports.PowerHitReport ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::op_Equality[2]( [Chrono.Application]Chrono.Application.Ports.PowerHitReport, [Chrono.Application]Chrono.Application.Ports.PowerHitReport ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::<Clone>$[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::.ctor[1]( [Chrono.Application]Chrono.Application.Ports.PowerHitReport ) skipped:  special name
+	[Chrono.Application]Chrono.Application.Ports.PowerHitReport::Deconstruct[4]( [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.Int32&, [mscorlib]System.Int32& ) skipped:  KeepPublicApi option in configuration
+
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::<PedsInjured>k__BackingField -> A
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::<PedsKilled>k__BackingField -> a
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::<VehiclesDamaged>k__BackingField -> B
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::<PropsDamaged>k__BackingField -> b
+
+	System.Type [Chrono.Application]System.Type Chrono.Application.Ports.PowerHitReport::EqualityContract -> A
+
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::PedsInjured skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::PedsKilled skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::VehiclesDamaged skipped:  KeepPublicApi option in configuration
+	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.PowerHitReport::PropsDamaged skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.PowerHitReport::HasHarm skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Application]Chrono.Application.ChronoLogger skipped:  KeepPublicApi option in configuration
@@ -2793,6 +3621,10 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_ProgressTrack[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_ProgressFill[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_ProgressFill[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_EnergyTrack[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_EnergyTrack[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_EnergyFill[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_EnergyFill[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_HeaderTitle[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_HeaderTitle[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_HeaderStars[0]( ) skipped:  skip by property
@@ -2803,6 +3635,8 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_Countdown[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Row ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_Kpis[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_Kpis[1]( [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudLayoutEngine/KpiTile> ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_NeedBars[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_NeedBars[1]( [mscorlib]System.Collections.Generic.IReadOnlyList`1<[mscorlib]System.ValueTuple`2<[Chrono.Application]Chrono.Application.HudLayoutEngine/Rect,[Chrono.Application]Chrono.Application.HudLayoutEngine/Rect>> ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_Identity[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::set_Identity[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Row ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::get_FeedLabel[0]( ) skipped:  skip by property
@@ -2815,12 +3649,12 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::GetHashCode[0]( ) skipped:  external base class or interface
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::Equals[1]( [mscorlib]System.Object ) skipped:  external base class or interface
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::Equals[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Layout ) skipped:  external base class or interface
-	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::.ctor[16]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudLayoutEngine/KpiTile>, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudLayoutEngine/Row>, [mscorlib]System.Single ) skipped:  special name
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::.ctor[19]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudLayoutEngine/KpiTile>, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[mscorlib]System.ValueTuple`2<[Chrono.Application]Chrono.Application.HudLayoutEngine/Rect,[Chrono.Application]Chrono.Application.HudLayoutEngine/Rect>>, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan, [mscorlib]System.Collections.Generic.IReadOnlyList`1<[Chrono.Application]Chrono.Application.HudLayoutEngine/Row>, [mscorlib]System.Single ) skipped:  special name
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::op_Inequality[2]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Layout, [Chrono.Application]Chrono.Application.HudLayoutEngine/Layout ) skipped:  special name
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::op_Equality[2]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Layout, [Chrono.Application]Chrono.Application.HudLayoutEngine/Layout ) skipped:  special name
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::<Clone>$[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::.ctor[1]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Layout ) skipped:  special name
-	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::Deconstruct[16]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan&, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/KpiTile>&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row&, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/Row>&, [mscorlib]System.Single& ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.HudLayoutEngine/Layout::Deconstruct[19]( [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect&, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan&, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/KpiTile>&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<Chrono.Application.HudLayoutEngine/Rect,Chrono.Application.HudLayoutEngine/Rect>>&, [Chrono.Application]Chrono.Application.HudLayoutEngine/Row&, [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan&, [mscorlib]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/Row>&, [mscorlib]System.Single& ) skipped:  KeepPublicApi option in configuration
 
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::<Card>k__BackingField -> A
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::<Shadow>k__BackingField -> a
@@ -2829,11 +3663,14 @@ Skipped Types:
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::<Divider2>k__BackingField -> C
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::<ProgressTrack>k__BackingField -> c
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::<ProgressFill>k__BackingField -> D
+	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::<EnergyTrack>k__BackingField -> d
+	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::<EnergyFill>k__BackingField -> E
 	Chrono.Application.HudLayoutEngine/TextSpan [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan Chrono.Application.HudLayoutEngine/Layout::<HeaderTitle>k__BackingField -> A
 	Chrono.Application.HudLayoutEngine/TextSpan [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan Chrono.Application.HudLayoutEngine/Layout::<HeaderStars>k__BackingField -> a
 	Chrono.Application.HudLayoutEngine/Row [Chrono.Application]Chrono.Application.HudLayoutEngine/Row Chrono.Application.HudLayoutEngine/Layout::<Status>k__BackingField -> A
 	Chrono.Application.HudLayoutEngine/Row [Chrono.Application]Chrono.Application.HudLayoutEngine/Row Chrono.Application.HudLayoutEngine/Layout::<Countdown>k__BackingField -> a
 	System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/KpiTile> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/KpiTile> Chrono.Application.HudLayoutEngine/Layout::<Kpis>k__BackingField -> A
+	System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<Chrono.Application.HudLayoutEngine/Rect,Chrono.Application.HudLayoutEngine/Rect>> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<Chrono.Application.HudLayoutEngine/Rect,Chrono.Application.HudLayoutEngine/Rect>> Chrono.Application.HudLayoutEngine/Layout::<NeedBars>k__BackingField -> A
 	Chrono.Application.HudLayoutEngine/Row [Chrono.Application]Chrono.Application.HudLayoutEngine/Row Chrono.Application.HudLayoutEngine/Layout::<Identity>k__BackingField -> B
 	Chrono.Application.HudLayoutEngine/TextSpan [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan Chrono.Application.HudLayoutEngine/Layout::<FeedLabel>k__BackingField -> B
 	System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/Row> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/Row> Chrono.Application.HudLayoutEngine/Layout::<FeedRows>k__BackingField -> A
@@ -2848,11 +3685,14 @@ Skipped Types:
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::Divider2 skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::ProgressTrack skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::ProgressFill skipped:  KeepPublicApi option in configuration
+	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::EnergyTrack skipped:  KeepPublicApi option in configuration
+	Chrono.Application.HudLayoutEngine/Rect [Chrono.Application]Chrono.Application.HudLayoutEngine/Rect Chrono.Application.HudLayoutEngine/Layout::EnergyFill skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/TextSpan [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan Chrono.Application.HudLayoutEngine/Layout::HeaderTitle skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/TextSpan [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan Chrono.Application.HudLayoutEngine/Layout::HeaderStars skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/Row [Chrono.Application]Chrono.Application.HudLayoutEngine/Row Chrono.Application.HudLayoutEngine/Layout::Status skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/Row [Chrono.Application]Chrono.Application.HudLayoutEngine/Row Chrono.Application.HudLayoutEngine/Layout::Countdown skipped:  KeepPublicApi option in configuration
 	System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/KpiTile> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/KpiTile> Chrono.Application.HudLayoutEngine/Layout::Kpis skipped:  KeepPublicApi option in configuration
+	System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<Chrono.Application.HudLayoutEngine/Rect,Chrono.Application.HudLayoutEngine/Rect>> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<System.ValueTuple`2<Chrono.Application.HudLayoutEngine/Rect,Chrono.Application.HudLayoutEngine/Rect>> Chrono.Application.HudLayoutEngine/Layout::NeedBars skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/Row [Chrono.Application]Chrono.Application.HudLayoutEngine/Row Chrono.Application.HudLayoutEngine/Layout::Identity skipped:  KeepPublicApi option in configuration
 	Chrono.Application.HudLayoutEngine/TextSpan [Chrono.Application]Chrono.Application.HudLayoutEngine/TextSpan Chrono.Application.HudLayoutEngine/Layout::FeedLabel skipped:  KeepPublicApi option in configuration
 	System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/Row> [Chrono.Application]System.Collections.Generic.IReadOnlyList`1<Chrono.Application.HudLayoutEngine/Row> Chrono.Application.HudLayoutEngine/Layout::FeedRows skipped:  KeepPublicApi option in configuration
@@ -3080,6 +3920,20 @@ Skipped Types:
 	Chrono.Application.PowerReactionService/PowerKind [Chrono.Application]Chrono.Application.PowerReactionService/PowerKind Chrono.Application.PowerReactionService/PowerKind::MapTeleport skipped:  KeepPublicApi option in configuration
 }
 
+[Chrono.Boundary]Chrono.Boundary.CompanionBoundary skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Boundary]Chrono.Boundary.CompanionBoundary::SendCompanion[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.String ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.CompanionBoundary::IsCompanionNear[1]( [System.Numerics]System.Numerics.Vector3 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.CompanionBoundary::DismissCompanion[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.CompanionBoundary::.ctor[1]( [Chrono.Application]Chrono.Application.Ports.ILogSink ) skipped:  special name
+	[Chrono.Boundary]Chrono.Boundary.CompanionBoundary::.cctor[0]( ) skipped:  special name
+
+	System.String[] [Chrono.Boundary]System.String[] Chrono.Boundary.CompanionBoundary::FallbackModels -> A
+	GTA.Ped [Chrono.Boundary]GTA.Ped Chrono.Boundary.CompanionBoundary::_companion -> A
+	Chrono.Application.Ports.ILogSink [Chrono.Boundary]Chrono.Application.Ports.ILogSink Chrono.Boundary.CompanionBoundary::_log -> A
+}
+
 [Chrono.Boundary]Chrono.Boundary.CrimeProbe skipped:  KeepPublicApi option in configuration
 {
 	[Chrono.Boundary]Chrono.Boundary.CrimeProbe::IsCop[1]( [ScriptHookVDotNet3]GTA.Ped ) -> A
@@ -3156,6 +4010,7 @@ Skipped Types:
 	[Chrono.Boundary]Chrono.Boundary.EscortBoundary::get_IsRiding[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.EscortBoundary::get_WasSkipped[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.EscortBoundary::Begin[2]( [System.Numerics]System.Numerics.Vector3, [System.Numerics]System.Numerics.Vector3 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.EscortBoundary::Tick[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.EscortBoundary::HasArrived[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.EscortBoundary::Skip[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.EscortBoundary::End[0]( ) skipped:  KeepPublicApi option in configuration
@@ -3167,11 +4022,26 @@ Skipped Types:
 	GTA.Vehicle [Chrono.Boundary]GTA.Vehicle Chrono.Boundary.EscortBoundary::_cruiser -> A
 	GTA.Ped [Chrono.Boundary]GTA.Ped Chrono.Boundary.EscortBoundary::_driver -> A
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.EscortBoundary::_skipped -> A
+	System.Numerics.Vector3 [Chrono.Boundary]System.Numerics.Vector3 Chrono.Boundary.EscortBoundary::_destination -> A
 	Chrono.Application.Ports.ILogSink [Chrono.Boundary]Chrono.Application.Ports.ILogSink Chrono.Boundary.EscortBoundary::_log -> A
 
 
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.EscortBoundary::IsRiding skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.EscortBoundary::WasSkipped skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Boundary]Chrono.Boundary.FoodBoundary skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Boundary]Chrono.Boundary.FoodBoundary::SpawnFoodProp[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.String ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.FoodBoundary::PlayEatAnim[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.FoodBoundary::PlayDrinkAnim[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.FoodBoundary::FindVendingMachine[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.FoodBoundary::TryFindEatery[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [System.Numerics]System.Numerics.Vector3& ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.FoodBoundary::.ctor[0]( ) skipped:  special name
+	[Chrono.Boundary]Chrono.Boundary.FoodBoundary::.cctor[0]( ) skipped:  special name
+
+	System.ValueTuple`3<System.Single,System.Single,System.Single>[] [Chrono.Boundary]System.ValueTuple`3<System.Single,System.Single,System.Single>[] Chrono.Boundary.FoodBoundary::Eateries -> A
 }
 
 [Chrono.Boundary]Chrono.Boundary.GameClockAdapter skipped:  KeepPublicApi option in configuration
@@ -3211,6 +4081,10 @@ Skipped Types:
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsTimeStopHotkeyJustPressed[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsInvisibleHotkeyJustPressed[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsInteractKeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsPushHotkeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsBlastHotkeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsBulletTimeHotkeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsRegenHotkeyJustPressed[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsPhoneKeyJustPressed[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsFlyForward[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsFlyBack[0]( ) skipped:  skip by property
@@ -3219,7 +4093,7 @@ Skipped Types:
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsFlyAscend[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.GameInput::get_IsFlyDescend[0]( ) skipped:  skip by property
 	[Chrono.Boundary]Chrono.Boundary.GameInput::Update[0]( ) skipped:  KeepPublicApi option in configuration
-	[Chrono.Boundary]Chrono.Boundary.GameInput::.ctor[5]( [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String ) skipped:  special name
+	[Chrono.Boundary]Chrono.Boundary.GameInput::.ctor[9]( [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String, [mscorlib]System.String ) skipped:  special name
 
 	System.Windows.Forms.Keys [Chrono.Boundary]System.Windows.Forms.Keys Chrono.Boundary.GameInput::_menuKey -> A
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_menuKeyShift -> A
@@ -3227,6 +4101,10 @@ Skipped Types:
 	System.Nullable`1<System.Windows.Forms.Keys> [Chrono.Boundary]System.Nullable`1<System.Windows.Forms.Keys> Chrono.Boundary.GameInput::_timeStopKey -> a
 	System.Nullable`1<System.Windows.Forms.Keys> [Chrono.Boundary]System.Nullable`1<System.Windows.Forms.Keys> Chrono.Boundary.GameInput::_invisibleKey -> B
 	System.Nullable`1<System.Windows.Forms.Keys> [Chrono.Boundary]System.Nullable`1<System.Windows.Forms.Keys> Chrono.Boundary.GameInput::_interactKey -> b
+	System.Nullable`1<System.Windows.Forms.Keys> [Chrono.Boundary]System.Nullable`1<System.Windows.Forms.Keys> Chrono.Boundary.GameInput::_pushKey -> C
+	System.Nullable`1<System.Windows.Forms.Keys> [Chrono.Boundary]System.Nullable`1<System.Windows.Forms.Keys> Chrono.Boundary.GameInput::_blastKey -> c
+	System.Nullable`1<System.Windows.Forms.Keys> [Chrono.Boundary]System.Nullable`1<System.Windows.Forms.Keys> Chrono.Boundary.GameInput::_bulletTimeKey -> D
+	System.Nullable`1<System.Windows.Forms.Keys> [Chrono.Boundary]System.Nullable`1<System.Windows.Forms.Keys> Chrono.Boundary.GameInput::_regenKey -> d
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_menuKeyDown -> a
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_menuKeyWasDown -> B
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_timeStopDown -> b
@@ -3243,7 +4121,15 @@ Skipped Types:
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_aWasDown -> H
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_dDown -> h
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_dWasDown -> I
-	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_dashWasDown -> i
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_pushDown -> i
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_pushWasDown -> J
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_blastDown -> j
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_blastWasDown -> K
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_bulletTimeDown -> k
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_bulletTimeWasDown -> L
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_regenDown -> l
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_regenWasDown -> M
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::_dashWasDown -> m
 
 
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsMenuKeyPressed skipped:  KeepPublicApi option in configuration
@@ -3259,6 +4145,10 @@ Skipped Types:
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsTimeStopHotkeyJustPressed skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsInvisibleHotkeyJustPressed skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsInteractKeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsPushHotkeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsBlastHotkeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsBulletTimeHotkeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsRegenHotkeyJustPressed skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsPhoneKeyJustPressed skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsFlyForward skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.GameInput::IsFlyBack skipped:  KeepPublicApi option in configuration
@@ -3296,6 +4186,9 @@ Skipped Types:
 	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::Rect[8]( [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32 ) -> A
 	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::CenterY[3]( [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Int32 ) -> A
 	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::Text[10]( [mscorlib]System.String, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Boolean, [mscorlib]System.Int32 ) -> A
+	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::DrawTextWithStars[10]( [mscorlib]System.String, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Boolean, [mscorlib]System.Int32 ) -> a
+	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::DrawStar[7]( [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32 ) -> A
+	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::DrawTextCore[10]( [mscorlib]System.String, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Int32, [mscorlib]System.Boolean, [mscorlib]System.Int32 ) -> B
 
 	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::DrawJusticeHud[1]( [Chrono.Application]Chrono.Application.Ports.JusticeHudState ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.MaterialHudRenderer::.ctor[0]( ) skipped:  special name
@@ -3305,6 +4198,7 @@ Skipped Types:
 	System.ValueTuple`3<System.Int32,System.Int32,System.Int32> [Chrono.Boundary]System.ValueTuple`3<System.Int32,System.Int32,System.Int32> Chrono.Boundary.MaterialHudRenderer::Surface -> a
 	System.ValueTuple`3<System.Int32,System.Int32,System.Int32> [Chrono.Boundary]System.ValueTuple`3<System.Int32,System.Int32,System.Int32> Chrono.Boundary.MaterialHudRenderer::SurfaceVariant -> B
 	System.ValueTuple`3<System.Int32,System.Int32,System.Int32> [Chrono.Boundary]System.ValueTuple`3<System.Int32,System.Int32,System.Int32> Chrono.Boundary.MaterialHudRenderer::Divider -> b
+	System.ValueTuple`3<System.Int32,System.Int32,System.Int32>[] [Chrono.Boundary]System.ValueTuple`3<System.Int32,System.Int32,System.Int32>[] Chrono.Boundary.MaterialHudRenderer::StarCells -> A
 }
 
 [Chrono.Boundary]Chrono.Boundary.MaterialMenuRenderer skipped:  KeepPublicApi option in configuration
@@ -3347,6 +4241,20 @@ Skipped Types:
 	Chrono.Application.HudFeedBuffer [Chrono.Boundary]Chrono.Application.HudFeedBuffer Chrono.Boundary.Notifier::_feed -> A
 }
 
+[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary skipped:  KeepPublicApi option in configuration
+{
+	[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary::InCone[3]( [ScriptHookVDotNet3]GTA.Math.Vector3, [ScriptHookVDotNet3]GTA.Math.Vector3, [mscorlib]System.Single ) -> A
+
+	[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary::Push[5]( [System.Numerics]System.Numerics.Vector3, [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary::Blast[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary::SetWorldTimeScale[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary::HealOverTime[2]( [mscorlib]System.Int32, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary::CancelHeal[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PowerFxBoundary::.ctor[1]( [Chrono.Application]Chrono.Application.Ports.ILogSink ) skipped:  special name
+
+	Chrono.Application.Ports.ILogSink [Chrono.Boundary]Chrono.Application.Ports.ILogSink Chrono.Boundary.PowerFxBoundary::_log -> A
+}
+
 [Chrono.Boundary]Chrono.Boundary.PrisonOutfit skipped:  KeepPublicApi option in configuration
 {
 	[Chrono.Boundary]Chrono.Boundary.PrisonOutfit::SaveOutfit[1]( [ScriptHookVDotNet3]GTA.Ped ) -> A
@@ -3366,6 +4274,17 @@ Skipped Types:
 	System.Int32[] [Chrono.Boundary]System.Int32[] Chrono.Boundary.PrisonOutfit::_propTextures -> C
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.PrisonOutfit::_saved -> A
 	System.Boolean [Chrono.Boundary]System.Boolean Chrono.Boundary.PrisonOutfit::_prisonApplied -> a
+}
+
+[Chrono.Boundary]Chrono.Boundary.SleepBoundary skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Boundary]Chrono.Boundary.SleepBoundary::TryFindSleepSpot[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [System.Numerics]System.Numerics.Vector3& ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.SleepBoundary::TryFindTv[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [System.Numerics]System.Numerics.Vector3& ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.SleepBoundary::.ctor[0]( ) skipped:  special name
+	[Chrono.Boundary]Chrono.Boundary.SleepBoundary::.cctor[0]( ) skipped:  special name
+
+	System.ValueTuple`3<System.Single,System.Single,System.Single>[] [Chrono.Boundary]System.ValueTuple`3<System.Single,System.Single,System.Single>[] Chrono.Boundary.SleepBoundary::FixedSpots -> A
 }
 
 [Chrono.Boundary]Chrono.Boundary.SqliteRecordStore skipped:  KeepPublicApi option in configuration
@@ -3425,11 +4344,11 @@ Skipped Types:
 {
 	[Chrono]Chrono.EntryPoint.ChronoScript::OnTick[2]( [mscorlib]System.Object, [mscorlib]System.EventArgs ) -> A
 	[Chrono]Chrono.EntryPoint.ChronoScript::CreateClinicBlip[0]( ) -> A
-	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__15_0[1]( [mscorlib]System.String ) -> A
-	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__15_1[0]( ) -> a
-	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__15_2[0]( ) -> B
-	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__15_3[0]( ) -> b
-	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__15_5[0]( ) -> C
+	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__18_0[1]( [mscorlib]System.String ) -> A
+	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__18_1[0]( ) -> a
+	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__18_2[0]( ) -> B
+	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__18_3[0]( ) -> b
+	[Chrono]Chrono.EntryPoint.ChronoScript::<.ctor>b__18_5[0]( ) -> C
 
 	[Chrono]Chrono.EntryPoint.ChronoScript::.ctor[0]( ) skipped:  special name
 
@@ -3448,6 +4367,9 @@ Skipped Types:
 	System.Boolean [Chrono]System.Boolean Chrono.EntryPoint.ChronoScript::_wasMissionActive -> A
 	Chrono.Domain.ChronoConfig [Chrono]Chrono.Domain.ChronoConfig Chrono.EntryPoint.ChronoScript::_config -> A
 	System.Diagnostics.Stopwatch [Chrono]System.Diagnostics.Stopwatch Chrono.EntryPoint.ChronoScript::_clock -> A
+	Chrono.Application.PowerEnergyService [Chrono]Chrono.Application.PowerEnergyService Chrono.EntryPoint.ChronoScript::_energy -> A
+	Chrono.Application.NeedsService [Chrono]Chrono.Application.NeedsService Chrono.EntryPoint.ChronoScript::_needs -> A
+	System.Int64 [Chrono]System.Int64 Chrono.EntryPoint.ChronoScript::_lastTickMs -> A
 }
 
 [Chrono.Application]Chrono.Application.Ports.ICrimeProbe skipped:  KeepPublicApi option in configuration
@@ -3473,6 +4395,7 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.Ports.IEscortBoundary::get_IsRiding[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.IEscortBoundary::get_WasSkipped[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.IEscortBoundary::Begin[2]( [System.Numerics]System.Numerics.Vector3, [System.Numerics]System.Numerics.Vector3 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IEscortBoundary::Tick[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IEscortBoundary::HasArrived[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IEscortBoundary::Skip[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IEscortBoundary::End[0]( ) skipped:  KeepPublicApi option in configuration
@@ -3509,6 +4432,10 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsTimeStopHotkeyJustPressed[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsInvisibleHotkeyJustPressed[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsInteractKeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsPushHotkeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsBlastHotkeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsBulletTimeHotkeyJustPressed[0]( ) skipped:  skip by property
+	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsRegenHotkeyJustPressed[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsFlyForward[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsFlyBack[0]( ) skipped:  skip by property
 	[Chrono.Application]Chrono.Application.Ports.IGameInput::get_IsFlyLeft[0]( ) skipped:  skip by property
@@ -3529,6 +4456,10 @@ Skipped Types:
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsTimeStopHotkeyJustPressed skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsInvisibleHotkeyJustPressed skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsInteractKeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsPushHotkeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsBlastHotkeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsBulletTimeHotkeyJustPressed skipped:  KeepPublicApi option in configuration
+	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsRegenHotkeyJustPressed skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsFlyForward skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsFlyBack skipped:  KeepPublicApi option in configuration
 	System.Boolean [Chrono.Application]System.Boolean Chrono.Application.Ports.IGameInput::IsFlyLeft skipped:  KeepPublicApi option in configuration
@@ -3565,11 +4496,17 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::ClearCurrentAnimation[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::PlaceOnGround[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::SetNpcAwareness[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::SetLawEnforcementIgnore[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::GetDistrictName[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::GetCharacterName[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::AddMoney[1]( [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::SetControlEnabled[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::GetMoney[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::SetHealthRechargeMultiplier[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::SetRunSpeedMultiplier[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::SetDrunkVisual[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::ApplyHealthDamage[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPlayerContext::IsOutdoors[0]( ) skipped:  KeepPublicApi option in configuration
 
 
 	System.Int32 [Chrono.Application]System.Int32 Chrono.Application.Ports.IPlayerContext::PlayerHandle skipped:  KeepPublicApi option in configuration
@@ -3621,11 +4558,17 @@ Skipped Types:
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::ClearCurrentAnimation[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::PlaceOnGround[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::SetNpcAwareness[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PlayerContext::SetLawEnforcementIgnore[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::GetDistrictName[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::GetCharacterName[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::AddMoney[1]( [mscorlib]System.Int32 ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::SetControlEnabled[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::GetMoney[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PlayerContext::SetHealthRechargeMultiplier[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PlayerContext::SetRunSpeedMultiplier[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PlayerContext::SetDrunkVisual[1]( [mscorlib]System.Boolean ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PlayerContext::ApplyHealthDamage[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Boundary]Chrono.Boundary.PlayerContext::IsOutdoors[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Boundary]Chrono.Boundary.PlayerContext::.ctor[0]( ) skipped:  special name
 
 
@@ -3662,6 +4605,10 @@ Skipped Types:
 	[Chrono.Domain]Chrono.Domain.ConfigValidator::ValidateTeleport[2]( [Chrono.Domain]Chrono.Domain.TeleportConfig, [mscorlib]System.Collections.Generic.List`1<[mscorlib]System.String> ) -> A
 	[Chrono.Domain]Chrono.Domain.ConfigValidator::ValidateVisual[2]( [Chrono.Domain]Chrono.Domain.VisualConfig, [mscorlib]System.Collections.Generic.List`1<[mscorlib]System.String> ) -> A
 	[Chrono.Domain]Chrono.Domain.ConfigValidator::ValidateLogging[2]( [Chrono.Domain]Chrono.Domain.LoggingConfig, [mscorlib]System.Collections.Generic.List`1<[mscorlib]System.String> ) -> A
+	[Chrono.Domain]Chrono.Domain.ConfigValidator::ValidatePowers[2]( [Chrono.Domain]Chrono.Domain.PowersConfig, [mscorlib]System.Collections.Generic.List`1<[mscorlib]System.String> ) -> A
+	[Chrono.Domain]Chrono.Domain.ConfigValidator::ValidateHack[2]( [Chrono.Domain]Chrono.Domain.HackConfig, [mscorlib]System.Collections.Generic.List`1<[mscorlib]System.String> ) -> A
+	[Chrono.Domain]Chrono.Domain.ConfigValidator::ValidateNeeds[2]( [Chrono.Domain]Chrono.Domain.NeedsConfig, [mscorlib]System.Collections.Generic.List`1<[mscorlib]System.String> ) -> A
+	[Chrono.Domain]Chrono.Domain.ConfigValidator::ValidateCheat[2]( [Chrono.Domain]Chrono.Domain.CheatConfig, [mscorlib]System.Collections.Generic.List`1<[mscorlib]System.String> ) -> A
 	[Chrono.Domain]Chrono.Domain.ConfigValidator::Format[1]( [mscorlib]System.Single ) -> A
 
 	[Chrono.Domain]Chrono.Domain.ConfigValidator::Validate[1]( [Chrono.Domain]Chrono.Domain.ChronoConfig ) skipped:  KeepPublicApi option in configuration
@@ -3680,6 +4627,26 @@ Skipped Types:
 {
 
 	[Chrono.Domain]Chrono.Domain.FreezePolicy::CanFreeze[2]( [Chrono.Domain]Chrono.Domain.EntityKind, [Chrono.Domain]Chrono.Domain.ChronoConfig ) skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.HackPricingPolicy skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Domain]Chrono.Domain.HackPricingPolicy::Cost[2]( [Chrono.Domain]Chrono.Domain.HackConfig, [Chrono.Domain]Chrono.Domain.CriminalRecord ) skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Domain]Chrono.Domain.PowerHarmClassifier skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Domain]Chrono.Domain.PowerHarmClassifier::Classify[1]( [Chrono.Domain]Chrono.Domain.PowerHarmKind ) skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.Ports.ICompanionBoundary skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.Ports.ICompanionBoundary::SendCompanion[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.String ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.ICompanionBoundary::IsCompanionNear[1]( [System.Numerics]System.Numerics.Vector3 ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.ICompanionBoundary::DismissCompanion[0]( ) skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Application]Chrono.Application.Ports.IConfigStore skipped:  KeepPublicApi option in configuration
@@ -3729,6 +4696,16 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.Ports.IEntityRepository::GetAllProps[0]( ) skipped:  KeepPublicApi option in configuration
 }
 
+[Chrono.Application]Chrono.Application.Ports.IFoodBoundary skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.Ports.IFoodBoundary::SpawnFoodProp[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.String ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IFoodBoundary::PlayEatAnim[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IFoodBoundary::PlayDrinkAnim[0]( ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IFoodBoundary::FindVendingMachine[2]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IFoodBoundary::TryFindEatery[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [System.Numerics]System.Numerics.Vector3& ) skipped:  KeepPublicApi option in configuration
+}
+
 [Chrono.Application]Chrono.Application.Ports.IHudRenderer skipped:  KeepPublicApi option in configuration
 {
 
@@ -3764,6 +4741,16 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.Ports.INotifier::Show[1]( [mscorlib]System.String ) skipped:  KeepPublicApi option in configuration
 }
 
+[Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary::Push[5]( [System.Numerics]System.Numerics.Vector3, [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [mscorlib]System.Single, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary::Blast[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary::SetWorldTimeScale[1]( [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary::HealOverTime[2]( [mscorlib]System.Int32, [mscorlib]System.Single ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.IPowerFxBoundary::CancelHeal[0]( ) skipped:  KeepPublicApi option in configuration
+}
+
 [Chrono.Application]Chrono.Application.Ports.IPrisonOutfit skipped:  KeepPublicApi option in configuration
 {
 
@@ -3780,6 +4767,13 @@ Skipped Types:
 	[Chrono.Application]Chrono.Application.Ports.IRecordStore::SaveProfileAtomic[1]( [Chrono.Domain]Chrono.Domain.CharacterProfile ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IRecordStore::LoadStatus[0]( ) skipped:  KeepPublicApi option in configuration
 	[Chrono.Application]Chrono.Application.Ports.IRecordStore::SaveStatusAtomic[1]( [Chrono.Domain]Chrono.Domain.JusticeStatus ) skipped:  KeepPublicApi option in configuration
+}
+
+[Chrono.Application]Chrono.Application.Ports.ISleepBoundary skipped:  KeepPublicApi option in configuration
+{
+
+	[Chrono.Application]Chrono.Application.Ports.ISleepBoundary::TryFindSleepSpot[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [System.Numerics]System.Numerics.Vector3& ) skipped:  KeepPublicApi option in configuration
+	[Chrono.Application]Chrono.Application.Ports.ISleepBoundary::TryFindTv[3]( [System.Numerics]System.Numerics.Vector3, [mscorlib]System.Single, [System.Numerics]System.Numerics.Vector3& ) skipped:  KeepPublicApi option in configuration
 }
 
 [Chrono.Application]Chrono.Application.Ports.IVfxBoundary skipped:  KeepPublicApi option in configuration
