@@ -2,7 +2,7 @@
 
 **GTA V Superpower + Justice System** — dash, time stop, invisibility, fly, god mode, map teleport, plus a complete justice system: wanted levels, physical arrests, police escorts, court rulings, prison sentences, and city-wide manhunts.
 
-[![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/fdfrontdev/gtav-chrono/releases) · [![Platform](https://img.shields.io/badge/GTA%20V-Enhanced%20%7C%20Legacy-green)]() · [![License](https://img.shields.io/badge/license-free%20for%20personal%20use-orange)]()
+[![Release](https://img.shields.io/badge/release-v1.0.2-blue)](https://github.com/fdfrontdev/gtav-chrono/releases) · [![Platform](https://img.shields.io/badge/GTA%20V-Enhanced%20%7C%20Legacy-green)]() · [![License](https://img.shields.io/badge/license-free%20for%20personal%20use-orange)]()
 
 ---
 
@@ -21,8 +21,8 @@
 
 | File | What it is |
 |------|-----------|
-| [**Chrono-Setup-1.0.0.exe**](https://github.com/fdfrontdev/gtav-chrono/releases/download/v1.0.0/Chrono-Setup-1.0.0.exe) | **One-click installer** — auto-detects your GTA V folder, installs everything including ScriptHookV/ScriptHookVDotNet if missing |
-| [**Chrono-v1.0.0.zip**](https://github.com/fdfrontdev/gtav-chrono/releases/download/v1.0.0/Chrono-v1.0.0.zip) | Manual install — extract and copy the `Chrono` folder into `<GTA V folder>\scripts\` |
+| [**Chrono-Setup-1.0.2.exe**](https://github.com/fdfrontdev/gtav-chrono/releases/download/v1.0.2/Chrono-Setup-1.0.2.exe) | **One-click installer** — auto-detects your GTA V folder, installs everything including ScriptHookV/ScriptHookVDotNet if missing |
+| [**Chrono-v1.0.2.zip**](https://github.com/fdfrontdev/gtav-chrono/releases/download/v1.0.2/Chrono-v1.0.2.zip) | Manual install — extract and copy the `Chrono` folder into `<GTA V folder>\scripts\` |
 
 ## 🛠️ Requirements
 
@@ -63,7 +63,7 @@ Output: `src/Chrono.EntryPoint/bin/Debug/net48/Chrono.dll` → copy to `<GTA V>\
 
 ### Release pipeline
 ```bash
-bash scripts/release.sh v1.0.0   # obfuscated zip + one-click installer
+bash scripts/release.sh v1.0.2   # obfuscated zip + one-click installer
 ```
 
 ### Architecture
