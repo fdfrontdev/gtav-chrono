@@ -45,11 +45,8 @@ Rebind everything in `scripts\Chrono\config.json`.
 
 CHRONO is and always will be **free**. If it makes your game better:
 
-- ☕ [Buy me a coffee](https://buymeacoffee.com/) — a one-time thank you
 - 💳 [Join the Patreon](https://patreon.com/FirdausBuilds) — credits, feature votes, dev-logs ($3 / $7 / $15)
 - 📺 [Subscribe on YouTube](https://www.youtube.com/@firdausbuilds) — dev-logs and tutorials
-
-Every supporter funds a solo builder doing this full-time.
 
 ---
 
@@ -68,7 +65,7 @@ bash scripts/release.sh v1.0.2   # obfuscated zip + one-click installer
 
 ### Architecture
 4-layer DDD (Domain / Application / Boundary / EntryPoint) under Firdaus Engineering Standards.
-455 unit tests · 0 warnings. SQLite for the criminal record, hexagonal ports for GTA interop.
+526 automated tests · 0 warnings. SQLite for the criminal record, hexagonal ports for GTA interop.
 
 ## 📜 Disclaimer
 
